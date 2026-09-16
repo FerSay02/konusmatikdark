@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /giris
+Disallow: /profile
+Disallow: /admin
+Disallow: /checkout
+Disallow: /payment
+
+Sitemap: https://konusmatik.com/sitemap.xml

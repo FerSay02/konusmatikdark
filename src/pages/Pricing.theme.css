@@ -1,0 +1,95 @@
+.pricing-page .pricing-national-note {
+  position: relative;
+  overflow: hidden;
+  width: min(980px, 100%);
+  margin-top: 2rem;
+  padding: 1.35rem 1.5rem;
+  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+  border: 1px solid rgba(192,132,252,.3) !important;
+  border-top-color: rgba(192,132,252,.3) !important;
+  border-radius: 18px;
+  background: linear-gradient(105deg, rgba(40,7,129,.4), rgba(36,16,76,.7) 52%, rgba(127,29,64,.32)) !important;
+  box-shadow: 0 14px 34px rgba(5,2,13,.3), inset 0 1px 0 rgba(255,255,255,.05);
+  animation: pricing-note-in .55s ease both;
+}
+.pricing-page .pricing-national-note::after {
+  content: '';
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  right: -85px;
+  top: -105px;
+  border-radius: 50%;
+  background: rgba(210,23,132,.18);
+  pointer-events: none;
+}
+.pricing-page .pricing-national-note strong,
+.pricing-page .pricing-national-note span {
+  position: relative;
+  z-index: 1;
+}
+.pricing-page .pricing-national-note strong {
+  color: #f9a8d4 !important;
+  font-size: .95rem;
+}
+.pricing-page .pricing-national-note span {
+  color: #e8def4 !important;
+}
+.pricing-page .pricing-national-note:hover {
+  border-color: rgba(242,114,182,.56) !important;
+  box-shadow: 0 16px 38px rgba(5,2,13,.4), 0 0 24px rgba(210,23,132,.13);
+  transform: translateY(-2px);
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+@keyframes pricing-note-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 680px) {
+  .pricing-page .pricing-national-note { padding: 1.15rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pricing-page .pricing-national-note { animation: none; }
+  .pricing-page .pricing-national-note:hover { transform: none; }
+}
+
+.pricing-page .pricing-section-head {
+  position: relative;
+  overflow: hidden;
+  width: min(980px, 100%);
+  margin: 1.5rem auto 1.15rem;
+  padding: 1.45rem 1.5rem;
+  border: 1px solid rgba(192,132,252,.3);
+  border-radius: 18px;
+  background: linear-gradient(105deg, rgba(40,7,129,.42), rgba(36,16,76,.72) 54%, rgba(127,29,64,.3));
+  box-shadow: 0 14px 34px rgba(5,2,13,.3), inset 0 1px 0 rgba(255,255,255,.05);
+  animation: pricing-head-in .55s ease both;
+}
+.pricing-page .pricing-section-head::after {
+  content: '';
+  position: absolute;
+  width: 210px;
+  height: 210px;
+  right: -90px;
+  top: -125px;
+  border-radius: 50%;
+  background: rgba(210,23,132,.16);
+  pointer-events: none;
+}
+.pricing-page .pricing-section-head > * { position: relative; z-index: 1; }
+.pricing-page .pricing-section-head > span { color: #f9a8d4 !important; }
+.pricing-page .pricing-section-head h2 { color: #fff !important; }
+.pricing-page .pricing-section-head p { color: #d8cde7 !important; }
+.pricing-page .pricing-section-head:hover {
+  border-color: rgba(242,114,182,.55);
+  box-shadow: 0 16px 38px rgba(5,2,13,.4), 0 0 24px rgba(210,23,132,.13);
+  transform: translateY(-2px);
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+@keyframes pricing-head-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 680px) { .pricing-page .pricing-section-head { padding: 1.2rem; } }
+@media (prefers-reduced-motion: reduce) {
+  .pricing-page .pricing-section-head { animation: none; }
+  .pricing-page .pricing-section-head:hover { transform: none; }
+}
+.pricing-page .pricing-grid > *, .pricing-page .pricing-audience-tabs, .pricing-page .pricing-national-note {
+  animation-timeline: view();
+  animation-range: entry 0% cover 20%;
+}
