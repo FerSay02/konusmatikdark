@@ -424,7 +424,7 @@ export default function Pricing({ currentUser, onNavigate, onCheckout, appLangua
         </div>
 
         {queryStatus && <div className={`payment-status ${queryStatus.tone}`}>{t(queryStatus.textTr, queryStatus.textEn)}</div>}
-        {planLoadError && <div className="payment-status error">{planLoadError}</div>}
+        {planLoadError && <div className="payment-status error plan-load-error">{planLoadError}</div>}
         {paymentError && <div className="payment-status error">{paymentError}</div>}
 
         <div className="pricing-section-head">
