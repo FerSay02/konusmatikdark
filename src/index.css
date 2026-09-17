@@ -5668,10 +5668,6 @@ textarea:focus {
   color: #fbcfe8 !important;
 }
 
-.pricing-page .payment-status.plan-load-error {
-  color: #000 !important;
-}
-
 .pricing-page .payment-status.warning,
 .pricing-page .payment-status.info {
   border-color: rgba(192, 132, 252, 0.54) !important;

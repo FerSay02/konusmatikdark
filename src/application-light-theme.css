@@ -262,6 +262,9 @@ html[data-theme='light'] .footer-col ul li a:hover,
 html[data-theme='light'] .footer-col ul li a:focus-visible {
   color: #d21784 !important;
 }
+html[data-theme='light'] .pricing-page .payment-status.plan-load-error {
+  color: #000000 !important;
+}
 html[data-theme='light'] .social-icon {
   background: #f5efff !important;
   border-color: #d9caea !important;
