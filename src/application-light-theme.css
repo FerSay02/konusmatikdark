@@ -256,7 +256,7 @@ html[data-theme='light'] .footer-col h3 {
   color: #9b176c !important;
 }
 html[data-theme='light'] .footer-col ul li a {
-  color: #40345b !important;
+  color: #000000 !important;
 }
 html[data-theme='light'] .footer-col ul li a:hover,
 html[data-theme='light'] .footer-col ul li a:focus-visible {
