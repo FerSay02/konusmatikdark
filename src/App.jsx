@@ -19,7 +19,9 @@ import StarBorder from './components/StarBorder';
 import { Seo } from './components/Seo';
 import { apiJson, resetAuthState } from './lib/api';
 import { useLanguagePreference } from './lib/language';
+import { applyTheme, getInitialTheme, THEME_STORAGE_KEY } from './lib/theme';
 import { getPageForPath, getPathForPage } from './seo';
+import './application-light-theme.css';
 
 function readStoredCheckoutPlan() {
   try {
@@ -42,6 +44,7 @@ function App() {
   }, []);
 
   const [currentPage, setCurrentPage] = useState(initialPage);
+  const [theme, setTheme] = useState(() => getInitialTheme());
   const [currentUser, setCurrentUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [checkoutPlan, setCheckoutPlan] = useState(() => readStoredCheckoutPlan());
@@ -63,6 +66,34 @@ function App() {
   const authRequestIdRef = useRef(0);
   const { language, isEnglish, toggleLanguage } = useLanguagePreference();
   const t = (tr, en) => (language === 'en' ? en : tr);
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
+
+  useEffect(() => {
+    let hasManualTheme = false;
+    try {
+      hasManualTheme = Boolean(window.localStorage.getItem(THEME_STORAGE_KEY));
+    } catch {
+      // Fall back to the current theme when storage is unavailable.
+    }
+    if (hasManualTheme) return undefined;
+    const media = window.matchMedia('(prefers-color-scheme: light)');
+    const handleSystemTheme = (event) => setTheme(event.matches ? 'light' : 'dark');
+    media.addEventListener?.('change', handleSystemTheme);
+    return () => media.removeEventListener?.('change', handleSystemTheme);
+  }, []);
+
+  const toggleTheme = () => setTheme((currentTheme) => {
+    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    } catch {
+      // Keep the active theme in memory when storage is unavailable.
+    }
+    return nextTheme;
+  });
 
   const goToPage = useCallback((page, { replace = false } = {}) => {
     setMobileMenuOpen(false);
@@ -255,6 +286,19 @@ function App() {
           initialLoadAnimation
           rightContent={(
             <div className="navbar-account-actions">
+              <button
+                type="button"
+                className="theme-toggle"
+                onClick={toggleTheme}
+                aria-label={theme === 'dark' ? 'Açık temaya geç' : 'Koyu temaya geç'}
+                title={theme === 'dark' ? 'Açık temaya geç' : 'Koyu temaya geç'}
+              >
+                {theme === 'dark' ? (
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" /></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5 8.5 8.5 0 1 0 20.5 14.6Z" /></svg>
+                )}
+              </button>
               <div className="nav-language">
                 <button type="button" className="language-toggle" onClick={toggleLanguage} aria-label={isEnglish ? 'Switch to Turkish' : 'İngilizceye geç'}>
                   <span className={language === 'tr' ? 'active' : ''}>TR</span>

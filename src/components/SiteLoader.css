@@ -110,3 +110,26 @@
   .site-loader-glow,
   .site-loader-content { animation: none; }
 }
+
+/* Light theme loader: opaque white surface with only the wordmark dark. */
+html[data-theme='light'] .site-loader {
+  background: #ffffff;
+}
+
+html[data-theme='light'] .site-loader::before,
+html[data-theme='light'] .site-loader-glow {
+  opacity: 0;
+}
+
+html[data-theme='light'] .site-loader-logo {
+  color: #000000;
+  text-shadow: none;
+}
+
+html[data-theme='light'] .site-loader-logo::before {
+  filter: none;
+}
+
+html[data-theme='light'] .site-loader-progress-ring::after {
+  border-color: rgba(108, 60, 233, .18);
+}

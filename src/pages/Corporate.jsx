@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import StudioHero from '../components/StudioHero';
+import '../application-light-theme.css';
 import { corporateHeroContent, corporateSteps } from '../data/studioContent';
 
 const stats = [

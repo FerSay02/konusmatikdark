@@ -12,7 +12,9 @@ export function Footer({ onNavigate, appLanguage = 'tr' }) {
       <div className="footer-content">
         <div className="footer-col brand-col">
           <div className="footer-logo">
-            <img className="brand-mark brand-mark--footer" src="/images/logo-wordmark.png" alt="" aria-hidden="true" />
+            <a href="#" onClick={(event) => handleNav(event, 'home')} aria-label={t('Ana sayfaya git', 'Go to homepage')}>
+              <img className="brand-mark brand-mark--footer" src="/images/logo-wordmark.png" alt="Konuşmatik" />
+            </a>
           </div>
           <p className="footer-desc">{t(
             'Yapay zeka destekli seslendirme ve deşifre platformu. Bulutta kullanın; kurumlar için local/on-prem kurulumla kendi altyapınızda çalıştırın.',

@@ -5,6 +5,8 @@ import SpotlightCard from '../components/SpotlightCard';
 import BorderGlow from '../components/BorderGlow';
 import StarBorder from '../components/StarBorder';
 import ShinyText from '../components/ShinyText';
+import '../home-hero-theme.css';
+import '../home-light-theme.css';
 
 const GUEST_TTS_MAX_CHARS = 200;
 
@@ -265,7 +267,7 @@ export default function Home({ onGoTts, onGoAsr, onNavigate, appLanguage }) {
 
         <div className="banner-content split-top">
           <div className="banner-col split-headline">
-            <h1><ShinyText text={t('Konuşmatik', 'Konusmatik')} speed={7} delay={2} color="#ffffff" shineColor="#d21784" spread={120} direction="left" yoyo={false} pauseOnHover={false} /></h1>
+            <h1><ShinyText text={t('Konuşmatik', 'Konusmatik')} speed={7} delay={2} color="var(--hero-title-start)" shineColor="#d21784" spread={120} direction="left" yoyo={false} pauseOnHover={false} /></h1>
             <p>{t('Seslendirme ve deşifre işlerinizi bulutta kullanın; kurumlar için aynı altyapıyı local sistem olarak da konumlandırın.', 'Use text-to-speech and transcription in the cloud, or deploy the same infrastructure locally for your organization.')}</p>
           </div>
           <button type="button" className={`home-hero-scroll-cue ${isHeroCueVisible ? 'is-visible' : 'is-hidden'}`} onClick={scrollToStudioActions} aria-label={t('Çalışma alanını keşfet', 'Explore the workspace')}>

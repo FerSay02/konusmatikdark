@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './Pricing.theme.css';
+import '../application-light-theme.css';
 
 import { apiJson } from '../lib/api';
 import { readStoredLanguage, restoreTurkishUiText } from '../lib/language';

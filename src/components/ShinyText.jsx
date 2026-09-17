@@ -50,7 +50,7 @@ export default function ShinyText({
   return (
     <motion.span
       className={`shiny-text ${className}`}
-      style={{ backgroundImage: `linear-gradient(${spread}deg, ${color} 0%, ${color} 28%, #6c3ce9 42%, ${shineColor} 50%, #d21784 58%, #38bdf8 64%, ${color} 76%, ${color} 100%)`, backgroundSize: '220% auto', backgroundPosition, WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+      style={{ backgroundImage: `linear-gradient(${spread}deg, ${color} 0%, ${color} 28%, #6c3ce9 42%, ${shineColor} 50%, #d21784 58%, var(--shiny-cool-color, #38bdf8) 64%, ${color} 76%, ${color} 100%)`, backgroundSize: '220% auto', backgroundPosition, WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >{text}</motion.span>

@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import './ApiDocs.theme.css';
+import '../application-light-theme.css';
 import { createPortal } from 'react-dom';
 import { readStoredLanguage } from '../lib/language';
 import StudioHero from '../components/StudioHero';
@@ -131,7 +132,7 @@ function SectionIntro({ title, description, headingLevel = 'h2' }) {
 
 function EndpointHeader({ id, method, path, description }) {
   return (
-    <div id={id} className="api-v2-endpoint-head">
+    <div id={id} className={`api-v2-endpoint-head${path === '/audio/speech' ? ' api-v2-endpoint-head--wav' : ''}`}>
       <div className="api-route-badge-left">
         <span className={`api-http-method ${method.toLowerCase()}`}>{method}</span>
         <code className="api-route-path">{path}</code>
@@ -194,8 +195,10 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
   const sidebarRef = useRef(null);
   const navRef = useRef(null);
   const ctaRef = useRef(null);
+  const mobileNavRef = useRef(null);
   const [navPlacement, setNavPlacement] = useState({ mode: 'static', left: 0, top: 96 });
   const [activeSection, setActiveSection] = useState('quick-start');
+  const [mobileSectionOpen, setMobileSectionOpen] = useState(false);
 
   useEffect(() => {
     const updatePageNavigation = () => {
@@ -272,6 +275,22 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
     return () => window.cancelAnimationFrame(frame);
   }, [navPlacement]);
 
+  useEffect(() => {
+    if (!mobileSectionOpen) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setMobileSectionOpen(false);
+    };
+    const closeOnOutsideClick = (event) => {
+      if (!mobileNavRef.current?.contains(event.target)) setMobileSectionOpen(false);
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    document.addEventListener('pointerdown', closeOnOutsideClick);
+    return () => {
+      document.removeEventListener('keydown', closeOnEscape);
+      document.removeEventListener('pointerdown', closeOnOutsideClick);
+    };
+  }, [mobileSectionOpen]);
+
   const openEnterprisePricing = () => {
     try {
       sessionStorage.setItem('konusmatik_pricing_audience', 'enterprise');
@@ -313,8 +332,56 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
     },
   ];
 
+  const navigationOptions = navGroups.flatMap((group, groupIndex) => [
+    ...(group.label && group.id ? [{ id: group.id, label: group.label, groupIndex, isGroup: true }] : []),
+    ...group.items.map(([id, label]) => ({ id, label, groupIndex, isGroup: false })),
+  ]);
+  const activeNavigationOption = navigationOptions.find((option) => option.id === activeSection) || navigationOptions[0];
+  const handleSectionNavigate = (event, sectionId) => {
+    event.preventDefault();
+    setMobileSectionOpen(false);
+    navRef.current && Array.from(navRef.current.querySelectorAll('a'))
+      .find((link) => link.getAttribute('href') === `#${sectionId}`)
+      ?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'center' });
+  };
+
   const pageNavigation = (
-    <nav
+    <>
+      <div ref={mobileNavRef} className={`api-v2-mobile-nav${mobileSectionOpen ? ' is-open' : ''}`}>
+        <button
+          type="button"
+          className="api-v2-mobile-nav-trigger"
+          aria-expanded={mobileSectionOpen}
+          aria-controls="api-v2-mobile-section-list"
+          onClick={() => setMobileSectionOpen((open) => !open)}
+        >
+          <span>{t('Bölüm', 'Section')}: {activeNavigationOption?.label}</span>
+          <span className="api-v2-mobile-nav-chevron" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </span>
+        </button>
+        <div id="api-v2-mobile-section-list" className="api-v2-mobile-section-list" role="listbox" aria-label={t('API bölümü seç', 'Choose API section')}>
+          {navigationOptions.map((option) => {
+            const isActive = activeSection === option.id || (option.id === 'corporate-asr' && activeSection === 'corporate-api');
+            return (
+              <a
+                key={`${option.id}-${option.groupIndex}`}
+                href={`#${option.id}`}
+                role="option"
+                aria-selected={isActive}
+                className={`${isActive ? 'active ' : ''}${option.isGroup ? 'is-group' : ''}`}
+                onClick={(event) => handleSectionNavigate(event, option.id)}
+              >
+                {option.label}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+      <nav
       ref={navRef}
       className={`api-v2-nav ${navPlacement.mode === 'fixed' ? 'is-fixed' : ''}`}
       style={{ '--api-nav-left': `${navPlacement.left}px`, '--api-nav-top': `${navPlacement.top}px` }}
@@ -323,21 +390,22 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
       {navGroups.map((group, groupIndex) => (
         <div key={group.id || groupIndex} className="api-v2-nav-group">
           {group.label && (
-            <a href={`#${group.id}`} className={`api-v2-nav-group-title${activeSection === group.id && group.id !== 'corporate-api' ? ' active' : ''}`}>
+            <a href={`#${group.id}`} className={`api-v2-nav-group-title${activeSection === group.id && group.id !== 'corporate-api' ? ' active' : ''}`} onClick={(event) => handleSectionNavigate(event, group.id)}>
               {group.label}
             </a>
           )}
           {group.items.map(([id, label]) => {
             const isActive = activeSection === id || (id === 'corporate-asr' && activeSection === 'corporate-api');
             return (
-              <a key={id} href={`#${id}`} className={`${isActive ? 'active ' : ''}${group.label ? 'api-v2-nav-subitem' : ''}`} aria-current={isActive ? 'location' : undefined}>
+              <a key={id} href={`#${id}`} className={`${isActive ? 'active ' : ''}${group.label ? 'api-v2-nav-subitem' : ''}`} aria-current={isActive ? 'location' : undefined} onClick={(event) => handleSectionNavigate(event, id)}>
                 {label}
               </a>
             );
           })}
         </div>
       ))}
-    </nav>
+      </nav>
+    </>
   );
 
   return (

@@ -1,0 +1,841 @@
+/* Light-theme completion pass for the product pages. All rules are scoped to
+   the explicit light theme so the existing dark brand system is unchanged. */
+html[data-theme='light'] :where(.studio-page, .pricing-page, .corporate-page-shell, .api-v2-page, .contact-page) {
+  background: #f7f5fb !important;
+  color: #201635 !important;
+}
+html[data-theme='light'] :where(.studio-content, .corp-content-wrap, .studio-workspace, .studio-main-v2, .studio-side-v2, .studio-features, .contact-grid, .contact-locations) { color: #201635 !important; }
+html[data-theme='light'] :where(.studio-section, .studio-side-card-v2, .studio-feature-card, .contact-card, .map-card, .corp-block, .corp-4-grid > *, .pricing-card-v2) {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #201635 !important;
+  border-color: #e2d8ef !important;
+  box-shadow: 0 14px 36px rgba(54, 29, 91, .08) !important;
+}
+html[data-theme='light'] :where(.studio-section-header h2, .studio-section-header h3, .studio-section-header p, .studio-side-card-header h3, .studio-side-card-header p, .studio-feature-card h3, .studio-feature-card p, .contact-card h2, .contact-card p, .map-card h3, .map-card p, .contact-section-heading h2, .contact-section-heading p, .corp-block h2, .corp-block h3) { color: #201635 !important; }
+html[data-theme='light'] :where(.studio-section-header p, .studio-side-card-header p, .studio-feature-card p, .contact-card p, .map-card p, .contact-section-heading p, .studio-features-lead) { color: #625875 !important; }
+
+html[data-theme='light'] :where(.tts-engine-card, .tts-voice-card, .tts-clone-voice-row, .tts-format-option, .tts-advanced-lock, .tts-clone-panel, .tts-clone-summary, .tts-audio-player, .asr-transcript-wrapper, .tts-custom-player) {
+  background: #fbfaff !important;
+  background-image: none !important;
+  color: #201635 !important;
+  border-color: #dcd0ed !important;
+  box-shadow: 0 8px 24px rgba(54, 29, 91, .06) !important;
+}
+html[data-theme='light'] :where(.tts-engine-card:hover, .tts-voice-card:hover, .tts-clone-voice-row:hover, .tts-format-option:hover) { background: #f6f0ff !important; border-color: #c4b5fd !important; }
+html[data-theme='light'] :where(.tts-engine-card.active, .tts-voice-card.active, .tts-clone-voice-row.active, .tts-format-option.active) { background: linear-gradient(135deg, #f0e9ff, #fce9f4) !important; border-color: #d21784 !important; color: #201635 !important; box-shadow: 0 0 0 3px rgba(210, 23, 132, .1) !important; }
+html[data-theme='light'] :where(.tts-engine-card-info strong, .tts-voice-card-info strong, .tts-clone-voice-main strong, .tts-format-option strong, .tts-advanced-lock strong, .tts-side-card h3) { color: #201635 !important; }
+html[data-theme='light'] :where(.tts-engine-card-info span, .tts-voice-card-info span, .tts-clone-note, .tts-format-desc, .tts-advanced-lock p, .tts-usage-label, .tts-usage-value, .tts-clone-status, .tts-voice-modal-footnote) { color: #625875 !important; }
+
+html[data-theme='light'] :where(.tts-textarea, .asr-job-input, .asr-drop-zone, .asr-transcript, .tts-advanced-select select, .tts-voice-field input, .tts-voice-field select, .tts-voice-field textarea) {
+  background: #ffffff !important;
+  color: #201635 !important;
+  border-color: #dcd0ed !important;
+}
+html[data-theme='light'] :where(.tts-textarea::placeholder, .asr-job-input::placeholder) { color: #7e738e !important; }
+html[data-theme='light'] .asr-drop-zone { border-color: #c4b5fd !important; background: #fbfaff !important; }
+html[data-theme='light'] :where(.tts-player-time, .tts-player-range, .tts-audio-player, .tts-custom-player) { color: #40345b !important; }
+html[data-theme='light'] .tts-player-range { accent-color: #d21784; }
+html[data-theme='light'] :where(.tts-btn-preview, .tts-btn-download, .asr-btn-start, .tts-clone-create-btn, .tts-package-confirm, .corp-btn-primary, .btn-pricing) { color: #ffffff !important; background: linear-gradient(135deg, #6c3ce9, #d21784) !important; border-color: transparent !important; }
+html[data-theme='light'] :where(.tts-btn-preview.secondary, .tts-clone-create-btn.secondary, .corp-btn-secondary) { color: #4c1d95 !important; background: #ffffff !important; border-color: #cbbde6 !important; }
+html[data-theme='light'] :where(.studio-feature-icon, .tts-format-badge, .tts-selected-voice-icon) { background: #f0e9ff !important; color: #6c3ce9 !important; border-color: #d7c9ef !important; }
+
+/* TTS controls: white glyphs on branded icon surfaces, dark readable copy. */
+html[data-theme='light'] .studio-page :where(.tts-engine-card, .tts-voice-card, .tts-format-option) {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #201635 !important;
+  border-color: #dcd0ed !important;
+}
+html[data-theme='light'] .studio-page :where(.tts-engine-card.active, .tts-voice-card.active, .tts-format-option.active) {
+  background: linear-gradient(135deg, #f0e9ff, #fce9f4) !important;
+  border-color: #d21784 !important;
+}
+html[data-theme='light'] .studio-page :where(.tts-engine-card-info strong, .tts-engine-card-info span, .tts-voice-card-info strong, .tts-voice-card-info span, .tts-format-badge, .tts-format-desc) {
+  color: #201635 !important;
+}
+html[data-theme='light'] .studio-page :where(.tts-engine-card-info span, .tts-voice-card-info span, .tts-format-desc) { color: #625875 !important; }
+html[data-theme='light'] .studio-page :where(.tts-voice-card-icon, .tts-selected-voice-icon, .tts-format-badge) {
+  background: linear-gradient(135deg, #6c3ce9, #d21784) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+html[data-theme='light'] .studio-page .tts-format-badge {
+  background: #f0e9ff !important;
+  color: #201635 !important;
+  border-radius: 8px;
+  padding: .25rem .45rem;
+}
+html[data-theme='light'] .studio-page :where(.tts-voice-card-icon svg, .tts-selected-voice-icon svg, .tts-format-badge svg) {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+}
+html[data-theme='light'] .studio-page .tts-format-badge svg {
+  padding: 2px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #6c3ce9, #d21784);
+}
+html[data-theme='light'] .studio-page :where(.tts-engine-card-check, .tts-voice-card-check) { color: #d21784 !important; }
+html[data-theme='light'] .studio-page .tts-textarea {
+  background: #ffffff !important;
+  color: #201635 !important;
+  border-color: #dcd0ed !important;
+}
+html[data-theme='light'] .studio-page .tts-textarea::placeholder { color: #625875 !important; opacity: 1 !important; }
+
+/* Service feature band: pink branded surface outside the purple feature
+   cards; only the content outside those cards uses dark text. */
+html[data-theme='light'] .studio-page .service-features {
+  background: linear-gradient(135deg, #fce9f4 0%, #fff5fa 54%, #f3effb 100%) !important;
+  border-color: #f0b4d4 !important;
+  box-shadow: 0 18px 42px rgba(210, 23, 132, .12) !important;
+}
+html[data-theme='light'] .studio-page .service-features-intro h3 { color: #201635 !important; }
+html[data-theme='light'] .studio-page .service-features-intro .studio-features-lead { color: #201635 !important; }
+html[data-theme='light'] .studio-page .service-features .studio-feature-card {
+  background: linear-gradient(135deg, #fce9f4 0%, #f3eaff 100%) !important;
+  border: 1px solid #f0a7cf !important;
+  border-top-color: #d8b4fe !important;
+  border-radius: 16px !important;
+  padding: 1rem !important;
+  box-shadow: 0 12px 26px rgba(108, 60, 233, .12) !important;
+}
+html[data-theme='light'] .studio-page .service-features .studio-feature-card strong { color: #201635 !important; }
+html[data-theme='light'] .studio-page .service-features .studio-feature-card p { color: #625875 !important; }
+html[data-theme='light'] .studio-page .service-features .studio-feature-icon {
+  background: linear-gradient(135deg, #6c3ce9, #8c2ca2) !important;
+  border-color: #c4b5fd !important;
+  color: #ffffff !important;
+}
+html[data-theme='light'] .studio-page .service-features .studio-feature-card:hover {
+  background: linear-gradient(135deg, #fce9f4 0%, #eee5ff 100%) !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 14px 30px rgba(108, 60, 233, .16) !important;
+}
+html[data-theme='light'] .studio-page .service-features .service-feature-star .border-gradient-top,
+html[data-theme='light'] .studio-page .service-features .service-feature-star .border-gradient-bottom {
+  background: radial-gradient(circle, #6c3ce9, transparent 10%) !important;
+  opacity: .52 !important;
+}
+
+/* Corporate CTA: polished light card with purple headings and branded actions. */
+html[data-theme='light'] .corporate-page-shell .corp-cta-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fce9f4 58%, #f0e9ff 100%) !important;
+  border: 1px solid #efacd2 !important;
+  box-shadow: 0 18px 42px rgba(108, 60, 233, .12) !important;
+}
+html[data-theme='light'] .corporate-page-shell .corp-cta-copy h2 {
+  color: #6c3ce9 !important;
+  text-shadow: none !important;
+}
+html[data-theme='light'] .corporate-page-shell .corp-cta-copy p { color: #40345b !important; }
+html[data-theme='light'] .corporate-page-shell .corp-cta-actions :where(.corp-btn-primary, .corp-btn-secondary) {
+  border-radius: 12px !important;
+  box-shadow: 0 10px 22px rgba(108, 60, 233, .14) !important;
+}
+html[data-theme='light'] .corporate-page-shell .corp-cta-actions .corp-btn-primary {
+  background: linear-gradient(100deg, #6c3ce9, #d21784) !important;
+  border: 1px solid transparent !important;
+  color: #ffffff !important;
+}
+html[data-theme='light'] .corporate-page-shell .corp-cta-actions .corp-btn-secondary {
+  background: #f0e9ff !important;
+  border: 1px solid #cbbde6 !important;
+  color: #4c1d95 !important;
+}
+html[data-theme='light'] .corporate-page-shell .corp-cta-actions :where(.corp-btn-primary, .corp-btn-secondary):hover {
+  box-shadow: 0 14px 28px rgba(108, 60, 233, .22) !important;
+}
+html[data-theme='light'] .corporate-page-shell .corp-cta-card::after {
+  width: 220px !important;
+  height: 220px !important;
+  right: -76px !important;
+  top: -112px !important;
+  border: 0 !important;
+  background: rgba(108, 60, 233, .14) !important;
+  box-shadow: none !important;
+  animation: corporateOrb 8s ease-in-out infinite !important;
+}
+
+/* ASR fields shown in the light-theme review: readable copy on light
+   surfaces, with the job-name field using the same soft pink brand surface. */
+html[data-theme='light'] .studio-page .asr-drop-zone {
+  background: #ffffff !important;
+  color: #201635 !important;
+  border-color: #c4b5fd !important;
+}
+html[data-theme='light'] .studio-page .asr-drop-zone :where(p, span, strong) { color: #201635 !important; }
+html[data-theme='light'] .studio-page .asr-job-input {
+  background: #fce9f4 !important;
+  color: #201635 !important;
+  border-color: #f0a7cf !important;
+}
+html[data-theme='light'] .studio-page .asr-job-input::placeholder { color: #201635 !important; opacity: .78 !important; }
+html[data-theme='light'] .studio-page .asr-transcript-wrapper { background: #ffffff !important; border-color: #dcd0ed !important; }
+html[data-theme='light'] .studio-page .asr-transcript { background: #ffffff !important; color: #201635 !important; }
+html[data-theme='light'] .studio-page .asr-transcript::placeholder { color: #625875 !important; opacity: 1 !important; }
+
+/* The round ASR drop/upload glyph stays pink, but its glyph is black in dark
+   mode as requested. */
+html[data-theme='dark'] .studio-page .asr-drop-icon,
+html[data-theme='dark'] .studio-page .asr-drop-icon svg { color: #000000 !important; }
+
+/* Pricing */
+html[data-theme='light'] .pricing-page .pricing-audience-tabs,
+html[data-theme='light'] .pricing-page .pricing-option,
+html[data-theme='light'] .pricing-page .pricing-option-grid,
+html[data-theme='light'] .pricing-page .invoice-type-switch { background: #fbfaff !important; border-color: #dcd0ed !important; color: #40345b !important; }
+html[data-theme='light'] .pricing-page .pricing-audience-tabs button { color: #625875 !important; }
+html[data-theme='light'] .pricing-page .pricing-audience-tabs button.active,
+html[data-theme='light'] .pricing-page .pricing-option.active { color: #4c1d95 !important; background: #f0e9ff !important; border-color: #d21784 !important; }
+html[data-theme='light'] .pricing-page .pricing-section-head h2,
+html[data-theme='light'] .pricing-page .pricing-section-head p { color: #201635 !important; }
+html[data-theme='light'] .pricing-page .pricing-section-head p { color: #625875 !important; }
+html[data-theme='light'] .pricing-page .pc-body,
+html[data-theme='light'] .pricing-page .pricing-national-note { background: #ffffff !important; color: #201635 !important; border-color: #e2d8ef !important; }
+html[data-theme='light'] .pricing-page .pricing-card-v2 { background: #ffffff !important; background-image: none !important; border-color: #e2d8ef !important; box-shadow: 0 14px 36px rgba(54, 29, 91, .08) !important; }
+html[data-theme='light'] .pricing-page .pc-body :where(h3, p, li, span) { color: #201635 !important; }
+html[data-theme='light'] .pricing-page .pc-body .pc-tax,
+html[data-theme='light'] .pricing-page .pc-body .pc-per-unit { color: #625875 !important; }
+html[data-theme='light'] .pricing-page .pricing-national-note,
+html[data-theme='light'] .pricing-page .pricing-national-note span { color: #000000 !important; }
+html[data-theme='light'] .pricing-page .pricing-national-note strong { color: #6c3ce9 !important; }
+html[data-theme='light'] .api-v2-page .api-v2-endpoint-head--wav > p { color: #6c3ce9 !important; }
+
+/* API documentation copy: replace washed-out pastel text with readable brand
+   purple and charcoal tones in light mode. */
+html[data-theme='light'] .api-v2-page .api-v2-table :where(th, td, code, strong) {
+  color: #201635 !important;
+}
+html[data-theme='light'] .api-v2-page .api-v2-table th {
+  color: #4c1d95 !important;
+}
+html[data-theme='light'] .api-v2-page .api-v2-table td code,
+html[data-theme='light'] .api-v2-page .api-v2-table td strong {
+  color: #000000 !important;
+}
+html[data-theme='light'] .api-v2-page :where(.api-v2-model-card h3, .api-v2-model-card > strong, .api-v2-model-card dt) {
+  color: #4c1d95 !important;
+}
+html[data-theme='light'] .api-v2-page :where(.api-v2-model-card p, .api-v2-model-card span, .api-v2-model-card dd, .api-v2-corporate-flow, .api-v2-corporate-service, .api-v2-corporate-routes .api-v2-endpoint-head > p) {
+  color: #201635 !important;
+}
+html[data-theme='light'] .api-v2-page .api-v2-voice-card h4 { color: #6c3ce9 !important; }
+html[data-theme='light'] .api-v2-page .api-v2-voice-card :where(span, p) { color: #000000 !important; }
+
+/* Keep API section content visually centered inside the page/card frame. */
+html[data-theme='light'] .api-v2-page .api-v2-content > :where(.api-section, .api-v2-corporate-service) {
+  padding-inline: clamp(.75rem, 1.4vw, 1.25rem) !important;
+}
+
+/* Footer: calm light surface while keeping the existing dark theme untouched. */
+html[data-theme='light'] .footer {
+  background: linear-gradient(160deg, #ffffff 0%, #faf7ff 54%, #fff6fb 100%) !important;
+  color: #201635 !important;
+  border-top-color: #eadff5 !important;
+  box-shadow: 0 -8px 24px rgba(108, 60, 233, .06) !important;
+}
+html[data-theme='light'] .footer::before {
+  background: linear-gradient(90deg, transparent, #cbbde6 35%, #efacd2 65%, transparent) !important;
+  box-shadow: none !important;
+}
+html[data-theme='light'] .footer::after {
+  background: rgba(210, 23, 132, .07) !important;
+  filter: blur(34px) !important;
+}
+html[data-theme='light'] .footer-content {
+  border-bottom-color: #e7dcef !important;
+}
+html[data-theme='light'] .footer-logo .brand-mark {
+  filter: none !important;
+}
+html[data-theme='light'] .footer-desc {
+  color: #514665 !important;
+}
+html[data-theme='light'] .footer-col h3 {
+  color: #9b176c !important;
+}
+html[data-theme='light'] .footer-col ul li a {
+  color: #40345b !important;
+}
+html[data-theme='light'] .footer-col ul li a:hover,
+html[data-theme='light'] .footer-col ul li a:focus-visible {
+  color: #d21784 !important;
+}
+html[data-theme='light'] .social-icon {
+  background: #f5efff !important;
+  border-color: #d9caea !important;
+  color: #6c3ce9 !important;
+}
+html[data-theme='light'] .social-icon:hover,
+html[data-theme='light'] .social-icon:focus-visible {
+  background: #fce9f4 !important;
+  border-color: #efacd2 !important;
+  color: #9b176c !important;
+  box-shadow: 0 8px 20px rgba(210, 23, 132, .14) !important;
+}
+html[data-theme='light'] .footer-copyright {
+  color: #625875 !important;
+}
+
+/* Pricing audience selector: all options share the Individual light surface;
+   the headings carry the requested purple / pink / purple rhythm. */
+html[data-theme='light'] .pricing-page .pricing-audience-tabs {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+html[data-theme='light'] .pricing-page .pricing-audience-tabs button {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #201635 !important;
+  border-color: #e2d8ef !important;
+  box-shadow: 0 10px 24px rgba(54, 29, 91, .08) !important;
+}
+html[data-theme='light'] .pricing-page .pricing-audience-tabs button:nth-child(1) strong,
+html[data-theme='light'] .pricing-page .pricing-audience-tabs button:nth-child(3) strong { color: #6c3ce9 !important; }
+html[data-theme='light'] .pricing-page .pricing-audience-tabs button:nth-child(2) strong { color: #d21784 !important; }
+html[data-theme='light'] .pricing-page .pricing-audience-tabs button span { color: #201635 !important; }
+html[data-theme='light'] .pricing-page .pricing-audience-tabs button:nth-child(1).active { background: #f0e9ff !important; border-color: #6c3ce9 !important; }
+html[data-theme='light'] .pricing-page .pricing-audience-tabs button:nth-child(2).active { background: #fce9f4 !important; border-color: #d21784 !important; }
+html[data-theme='light'] .pricing-page .pricing-audience-tabs button:nth-child(3).active { background: #f0e9ff !important; border-color: #6c3ce9 !important; }
+html[data-theme='light'] .pricing-page .pricing-section-head > span,
+html[data-theme='light'] .pricing-page .pricing-section-head h2,
+html[data-theme='light'] .pricing-page .pricing-section-head p { color: #201635 !important; }
+html[data-theme='light'] .pricing-page .pricing-section-head > span { color: #d21784 !important; }
+html[data-theme='light'] .pricing-page .pricing-section-head {
+  background: #fce9f4 !important;
+  background-image: none !important;
+  border-color: #f0a7cf !important;
+  box-shadow: 0 14px 32px rgba(210, 23, 132, .12) !important;
+}
+html[data-theme='light'] .pricing-page .pricing-section-head::after { opacity: .18 !important; }
+
+/* Corporate and contact */
+html[data-theme='light'] .corporate-page-shell .corp-block,
+html[data-theme='light'] .corporate-page-shell .corp-security-section { background: #f7f5fb !important; border-color: #e5dff0 !important; }
+html[data-theme='light'] .corporate-page-shell {
+  background: #ffffff !important;
+  background-image: none !important;
+}
+html[data-theme='light'] .corporate-page-shell .corp-content-wrap {
+  background: #ffffff !important;
+  background-image: none !important;
+}
+html[data-theme='light'] .corporate-page-shell .corp-content-wrap::before { opacity: .12 !important; }
+html[data-theme='light'] .corporate-page-shell .contact-card,
+html[data-theme='light'] .corporate-page-shell .corp-cta-card,
+html[data-theme='light'] .contact-page .contact-card,
+html[data-theme='light'] .contact-page .map-card { background: #ffffff !important; color: #201635 !important; border-color: #e2d8ef !important; }
+html[data-theme='light'] .corporate-page-shell :where(.contact-section-heading h2, .contact-section-heading p, .contact-card h3, .contact-card p, .corp-contact-list li) { color: #201635 !important; }
+html[data-theme='light'] .corporate-page-shell :where(.contact-section-heading p, .contact-card p, .corp-contact-list li) { color: #625875 !important; }
+html[data-theme='light'] .contact-page .map-frame-wrap { background: #f3effb !important; border-color: #e2d8ef !important; }
+
+/* Developer API */
+html[data-theme='light'] .api-v2-page { background: #f7f5fb !important; color: #201635 !important; }
+html[data-theme='light'] .api-v2-page .api-v2-shell,
+html[data-theme='light'] .api-v2-page .api-v2-sidebar { background: transparent !important; }
+html[data-theme='light'] .api-v2-page .api-v2-nav { background: #ffffff !important; border-color: #e2d8ef !important; box-shadow: 0 12px 30px rgba(54, 29, 91, .08) !important; }
+html[data-theme='light'] .api-v2-page .api-v2-nav a,
+html[data-theme='light'] .api-v2-page .api-v2-nav-group-title { color: #625875 !important; }
+html[data-theme='light'] .api-v2-page .api-v2-nav a:hover { color: #6c3ce9 !important; background: #f0e9ff !important; }
+html[data-theme='light'] .api-v2-page .api-v2-nav a.active { color: #4c1d95 !important; background: linear-gradient(100deg, #f0e9ff, #fce9f4) !important; box-shadow: inset 0 0 0 1px #d21784 !important; }
+/* When scrolled, ApiDocs portals the fixed nav to document.body. Keep the
+   light-theme surface rules on that detached sticky state as well. */
+html[data-theme='light'] .api-v2-nav.is-fixed {
+  background: #ffffff !important;
+  border-color: #e2d8ef !important;
+  box-shadow: 0 12px 30px rgba(54, 29, 91, .08) !important;
+  color: #201635 !important;
+}
+html[data-theme='light'] .api-v2-nav.is-fixed .api-v2-nav-group + .api-v2-nav-group {
+  border-top-color: #e7dcef !important;
+}
+html[data-theme='light'] .api-v2-nav.is-fixed a,
+html[data-theme='light'] .api-v2-nav.is-fixed a.api-v2-nav-group-title {
+  color: #625875 !important;
+}
+html[data-theme='light'] .api-v2-nav.is-fixed a:hover,
+html[data-theme='light'] .api-v2-nav.is-fixed a:focus-visible {
+  color: #6c3ce9 !important;
+  background: #f0e9ff !important;
+}
+html[data-theme='light'] .api-v2-nav.is-fixed a.active {
+  color: #4c1d95 !important;
+  background: linear-gradient(100deg, #f0e9ff, #fce9f4) !important;
+  box-shadow: inset 0 0 0 1px #d21784 !important;
+}
+html[data-theme='light'] .api-v2-page :where(.api-v2-quick-card, .api-v2-base-card, .api-endpoint-card, .api-v2-table-wrap, .api-v2-model-card, .api-v2-voice-card) { background: #ffffff !important; background-image: none !important; color: #201635 !important; border-color: #e2d8ef !important; box-shadow: 0 14px 34px rgba(54, 29, 91, .08) !important; }
+html[data-theme='light'] .api-v2-page :where(.api-v2-section-head h2, .api-v2-section-head h3, .api-v2-endpoint-head h2, .api-v2-quick-card h3, .api-v2-base-card h3, .api-v2-model-card h3, .api-v2-model-card strong, .api-v2-voice-card h4, .api-route-path, .api-endpoint-details h3) { color: #201635 !important; }
+html[data-theme='light'] .api-v2-page :where(.api-v2-section-head p, .api-v2-quick-card p, .api-v2-base-card p, .api-v2-model-card span, .api-v2-voice-card span, .api-endpoint-details p) { color: #625875 !important; }
+html[data-theme='light'] .api-v2-page :where(.api-console, .api-endpoint-console-wrap, .api-v2-code-block) { background: #f3effb !important; border-color: #dcd0ed !important; color: #2b2050 !important; }
+html[data-theme='light'] .api-v2-page .api-console-head { background: #eee8ff !important; border-bottom-color: #dcd0ed !important; }
+html[data-theme='light'] .api-v2-page :where(.api-code-line, .api-console pre, .api-v2-base-card code) { color: #2b2050 !important; }
+html[data-theme='light'] .api-v2-page :where(.api-v2-table th, .api-v2-table td) { color: #40345b !important; border-color: #e5dff0 !important; }
+html[data-theme='light'] .api-v2-page .api-v2-table th { background: #eee8ff !important; color: #4c1d95 !important; }
+html[data-theme='light'] .api-v2-page .api-v2-table tbody tr { background: #ffffff !important; }
+html[data-theme='light'] .api-v2-page .api-v2-table tr:hover td { background: #faf7ff !important; }
+html[data-theme='light'] .api-v2-page :where(.api-v2-spec-grid, .api-v2-format-row, .api-v2-subsection) { background: #fbfaff !important; border-color: #dcd0ed !important; }
+html[data-theme='light'] .api-v2-page :where(.api-v2-spec-grid strong, .api-v2-format-row strong) { color: #201635 !important; }
+html[data-theme='light'] .api-v2-page .api-cta-banner { color: #ffffff !important; }
+
+/* API code surfaces: readable black copy in light mode, with the branded
+   lavender/pink container and accents preserved. */
+html[data-theme='light'] .api-v2-page :where(.api-console, .api-console-head, .api-console-label, .api-console pre, .api-console code, .api-code-line, .api-v2-code-block, .api-v2-code-block code) {
+  color: #000000 !important;
+}
+html[data-theme='light'] .api-v2-page .api-console-head { background: #f0e9ff !important; border-bottom-color: #e2d8ef !important; }
+html[data-theme='light'] .api-v2-page :where(.api-lang-tab, .api-lang-tab.active) { color: #000000 !important; }
+html[data-theme='light'] .api-v2-page .api-code-line:hover { color: #000000 !important; background: #fce9f4 !important; }
+
+/* Documentation subsection headings and parameter tables. */
+html[data-theme='light'] .api-v2-page :where(.api-v2-subsection > h3, .api-v2-subsection > h4, .api-v2-endpoint-console-wrap h4, .api-v2-subsection h4) { color: #000000 !important; }
+html[data-theme='light'] .api-v2-page .api-v2-subsection { background: #fbfaff !important; border-color: #dcd0ed !important; }
+html[data-theme='light'] .api-v2-page .api-v2-spec-grid { background: #f0e9ff !important; border-color: #cbbde6 !important; }
+html[data-theme='light'] .api-v2-page .api-v2-spec-grid dt { background: #e5d8ff !important; color: #6c3ce9 !important; border-right-color: #cbbde6 !important; }
+html[data-theme='light'] .api-v2-page .api-v2-spec-grid dd { background: #f7f3ff !important; color: #000000 !important; border-bottom-color: #dcd0ed !important; }
+html[data-theme='light'] .api-v2-page .api-v2-spec-grid dd :where(strong, p, code) { color: #000000 !important; }
+html[data-theme='light'] .api-v2-page .api-v2-format-row { background: #f0e9ff !important; border-color: #cbbde6 !important; }
+html[data-theme='light'] .api-v2-page .api-v2-format-row strong { color: #000000 !important; }
+
+/* Code-example labels use the same black text treatment across light-mode API cards. */
+html[data-theme='light'] .api-v2-page .api-endpoint-console-wrap h4,
+html[data-theme='light'] .api-v2-page .api-endpoint-console-wrap h4 :where(span, strong, em, code) {
+  color: #000000 !important;
+}
+
+/* Enterprise/API CTA surfaces: solid pink brand panel with black copy. */
+html[data-theme='light'] :where(.corporate-page-shell .corp-cta-card, .api-v2-page .api-cta-banner) {
+  background: #fce9f4 !important;
+  background-image: none !important;
+  color: #000000 !important;
+  border-color: #f0a7cf !important;
+  box-shadow: 0 18px 42px rgba(210, 23, 132, .14) !important;
+}
+html[data-theme='light'] :where(.corporate-page-shell .corp-cta-copy h2, .corporate-page-shell .corp-cta-copy p, .api-v2-page .api-cta-banner h2, .api-v2-page .api-cta-banner p, .api-v2-page .api-cta-banner .corp-cta-copy) { color: #000000 !important; }
+html[data-theme='light'] :where(.corporate-page-shell .corp-cta-card .corp-btn-primary, .api-v2-page .api-cta-banner .corp-btn-primary) {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #d21784 !important;
+}
+html[data-theme='light'] :where(.corporate-page-shell .corp-cta-card .corp-btn-secondary, .api-v2-page .api-cta-banner .corp-btn-secondary) {
+  background: rgba(255, 255, 255, .48) !important;
+  color: #000000 !important;
+  border-color: #d21784 !important;
+}
+
+/* Contact page: purple hierarchy with high-contrast black supporting copy. */
+html[data-theme='light'] .contact-page :where(.contact-card > span, .contact-card h2, .contact-card h2 a, .contact-section-heading > span, .contact-section-heading h2, .map-card-info > span, .map-card-info h3) {
+  color: #6c3ce9 !important;
+}
+html[data-theme='light'] .contact-page :where(.contact-card p, .contact-section-heading p, .map-card-info p) {
+  color: #000000 !important;
+}
+
+/* Login page: white light-mode canvas with the brand-colour motion layer. */
+html[data-theme='light'] .login-page {
+  background:
+    radial-gradient(circle at 8% 42%, rgba(108, 60, 233, .16), transparent 31%),
+    radial-gradient(circle at 91% 50%, rgba(210, 23, 132, .16), transparent 34%),
+    linear-gradient(110deg, #ffffff 0%, #fbf9ff 48%, #fff7fc 100%) !important;
+}
+html[data-theme='light'] .login-page::before {
+  background:
+    radial-gradient(circle at 25% 22%, rgba(108, 60, 233, .09), transparent 30%),
+    radial-gradient(circle at 76% 78%, rgba(210, 23, 132, .09), transparent 32%) !important;
+}
+html[data-theme='light'] .login-page > .login-lightfall {
+  background: transparent !important;
+  opacity: .42 !important;
+}
+html[data-theme='light'] .login-visual,
+html[data-theme='light'] .login-panel {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme='light'] .login-visual::after { display: none !important; }
+html[data-theme='light'] .login-card {
+  background: #ffffff !important;
+  border: 1px solid #eadff4 !important;
+  box-shadow: 0 20px 52px rgba(108, 60, 233, .12) !important;
+  backdrop-filter: none !important;
+}
+html[data-theme='light'] :where(.login-copy h1, .login-copy p, .login-metrics strong, .login-metrics span, .login-card h2, .login-card p, .login-form label, .login-help-text, .login-password-status, .login-password-notes, .login-card-header p) {
+  color: #000000 !important;
+}
+html[data-theme='light'] .login-card-header { border-bottom-color: #eadff4 !important; }
+html[data-theme='light'] .login-metrics div {
+  background: linear-gradient(135deg, rgba(108, 60, 233, .13), rgba(210, 23, 132, .12)) !important;
+  border-color: #e9b8dc !important;
+  box-shadow: 0 12px 28px rgba(108, 60, 233, .1) !important;
+}
+html[data-theme='light'] .login-mode-tabs {
+  background: #f1eaff !important;
+  border-color: #dfccef !important;
+}
+html[data-theme='light'] .login-mode-tabs button:not(.active) { color: #000000 !important; }
+html[data-theme='light'] .login-form input,
+html[data-theme='light'] .login-password-field input {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #d9caea !important;
+}
+html[data-theme='light'] .login-form input::placeholder,
+html[data-theme='light'] .login-password-field input::placeholder { color: #625875 !important; }
+html[data-theme='light'] .login-help-text,
+html[data-theme='light'] .login-password-status {
+  background: #fff0f8 !important;
+  border-color: #efacd2 !important;
+  color: #000000 !important;
+}
+html[data-theme='light'] .login-help-text[style*='b91c1c'],
+html[data-theme='light'] .login-help-text[style*='047857'] {
+  background: #fff0f8 !important;
+  border-color: #efacd2 !important;
+  color: #000000 !important;
+}
+
+/* Locked advanced-settings notice: use the brand purple/pink surface in light mode. */
+html[data-theme='light'] .studio-page .tts-advanced-lock {
+  background: linear-gradient(135deg, #6c3ce9 0%, #8c2ca2 52%, #d21784 100%) !important;
+  border-color: #d21784 !important;
+  box-shadow: 0 10px 24px rgba(108, 60, 233, .18) !important;
+}
+html[data-theme='light'] .studio-page .tts-advanced-lock strong { color: #ffffff !important; }
+html[data-theme='light'] .studio-page .tts-advanced-lock button {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #6c3ce9 !important;
+}
+
+@media (max-width: 900px) {
+  html[data-theme='light'] :where(.studio-section, .studio-side-card-v2, .contact-card, .map-card, .pricing-card-v2, .api-v2-quick-card, .api-endpoint-card) { box-shadow: 0 10px 24px rgba(54, 29, 91, .07) !important; }
+}
+
+/* Final light homepage hero polish: calm surface, pastel brand waves, no cyan. */
+html[data-theme='light'] .home-banner-split {
+  --hero-title-start: #5b21b6 !important;
+  background:
+    radial-gradient(circle at 14% 34%, rgba(108, 60, 233, .08), transparent 34%),
+    radial-gradient(circle at 86% 62%, rgba(210, 23, 132, .07), transparent 36%),
+    linear-gradient(115deg, #fbfaff 0%, #ffffff 48%, #fffafd 100%) !important;
+}
+html[data-theme='light'] .home-banner-split .home-web-threads {
+  background: #fbfaff !important;
+  opacity: .64 !important;
+  filter: saturate(.72) contrast(.94) !important;
+}
+html[data-theme='light'] .home-banner-split .split-headline .shiny-text {
+  --shiny-cool-color: #8c2ca2;
+  filter: saturate(.88) !important;
+}
+html[data-theme='light'] .home-banner-split .split-headline h1,
+html[data-theme='light'] .home-banner-split .split-headline h2 {
+  color: #5b21b6 !important;
+  text-shadow: none !important;
+}
+html[data-theme='light'] .home-banner-split .split-headline p {
+  color: #514862 !important;
+  text-shadow: none !important;
+}
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue {
+  box-shadow: 0 8px 20px rgba(108, 60, 233, .16), inset 0 1px 0 rgba(255, 255, 255, .28) !important;
+}
+
+/* Make the solutions introduction match the cards beneath it. */
+html[data-theme='light'] .home-solutions .home-solutions-head {
+  width: min(1140px, 100%);
+  max-width: none;
+  margin: 0 auto 2rem;
+  padding: 1.55rem 2rem;
+  border: 1px solid #e2d8ef;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ffffff 0%, #fbf8ff 58%, #fff8fc 100%) !important;
+  box-shadow: 0 14px 32px rgba(54, 29, 91, .08) !important;
+}
+html[data-theme='light'] .home-solutions .home-solutions-head::after {
+  content: '';
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  right: -52px;
+  top: -76px;
+  border-radius: 50%;
+  background: rgba(210, 23, 132, .08);
+  pointer-events: none;
+}
+html[data-theme='light'] .home-solutions .home-solutions-head h2 { color: #201635 !important; }
+html[data-theme='light'] .home-solutions .home-solutions-head p { color: #625875 !important; }
+
+@media (max-width: 640px) {
+  html[data-theme='light'] .home-solutions .home-solutions-head {
+    padding: 1.25rem 1rem;
+    border-radius: 16px;
+  }
+}
+
+/* Match the workflow copy panel to the story cards on its left. */
+html[data-theme='light'] .home-story .home-story-copy {
+  width: 100%;
+  padding: 1.35rem 1.55rem;
+  border: 1.5px solid #e2d8ef;
+  border-radius: 16px;
+  background: #ffffff !important;
+  box-shadow: 0 16px 36px rgba(54, 29, 91, .08) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-theme='light'] .home-story .home-story-copy h2 { color: #201635 !important; }
+html[data-theme='light'] .home-story .home-story-copy > p { color: #625875 !important; }
+
+@media (max-width: 640px) {
+  html[data-theme='light'] .home-story .home-story-copy {
+    padding: 1.2rem 1rem;
+    border-radius: 16px;
+  }
+}
+
+/* Match the voice-model introduction to the cards in the showcase below. */
+html[data-theme='light'] .home-efficiency .home-efficiency-copy {
+  width: min(820px, 100%);
+  padding: 1.35rem 1.55rem;
+  border: 1px solid #e2d8ef;
+  border-radius: 16px;
+  background: #ffffff !important;
+  box-shadow: 0 14px 32px rgba(54, 29, 91, .08) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-theme='light'] .home-efficiency .home-efficiency-copy h2 { color: #201635 !important; text-shadow: none !important; }
+html[data-theme='light'] .home-efficiency .home-efficiency-copy > p { color: #625875 !important; }
+
+@media (max-width: 640px) {
+  html[data-theme='light'] .home-efficiency .home-efficiency-copy {
+    padding: 1.2rem 1rem;
+    border-radius: 16px;
+  }
+}
+
+/* Profile / usage page: replace the remaining dark surfaces with a coherent
+   light card system while keeping the existing information hierarchy. */
+html[data-theme='light'] .profile-page-v4 {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  background: #f7f5fb !important;
+  color: #201635 !important;
+}
+html[data-theme='light'] .profile-page-v4 .profile-preview-studio-hero {
+  width: 100vw !important;
+  max-width: none !important;
+  margin-left: calc(50% - 50vw) !important;
+  border-radius: 0 !important;
+  background: linear-gradient(135deg, #d21784 0%, #8c2ca2 50%, #280781 100%) !important;
+  border-bottom: 0 !important;
+  color: #ffffff !important;
+  box-shadow: 0 18px 42px rgba(108, 60, 233, .18) !important;
+}
+html[data-theme='light'] .profile-page-v4 .profile-preview-studio-hero :where(h1, p) { color: #ffffff !important; text-shadow: 0 2px 16px rgba(40, 7, 129, .22) !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-studio-hero .studio-step {
+  background: rgba(255, 255, 255, .13) !important;
+  border-color: rgba(255, 255, 255, .3) !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  box-shadow: 0 8px 20px rgba(40, 7, 129, .16) !important;
+}
+html[data-theme='light'] .profile-page-v4 .profile-preview-studio-hero .studio-step-num {
+  background: #ffffff !important;
+  color: #6c3ce9 !important;
+  border: 1px solid rgba(255, 255, 255, .75) !important;
+}
+html[data-theme='light'] .profile-page-v4 .profile-preview-studio-hero .studio-step-info :where(strong, span) { color: #ffffff !important; opacity: 1 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-content-v3 {
+  background: transparent !important;
+  color: #201635 !important;
+}
+html[data-theme='light'] .profile-page-v4 :where(.profile-preview-stat-v3, .corp-block, .profile-preview-key-manager-v3.contact-card) {
+  background: #ffffff !important;
+  border: 1px solid #e2d8ef !important;
+  border-radius: 16px !important;
+  color: #201635 !important;
+  box-shadow: 0 14px 32px rgba(54, 29, 91, .08) !important;
+}
+html[data-theme='light'] .profile-page-v4 .corp-block { padding: clamp(1rem, 2vw, 1.35rem) !important; }
+html[data-theme='light'] .profile-page-v4 :where(.profile-preview-stat-v3 > span, .profile-preview-plan-service-v3, .profile-preview-section-row-v3 .contact-section-heading span) { color: #6c3ce9 !important; }
+html[data-theme='light'] .profile-page-v4 :where(h2, h3, .profile-preview-card-heading-v3 h2, .profile-preview-key-manager-head-v3 h3) { color: #201635 !important; text-shadow: none !important; }
+html[data-theme='light'] .profile-page-v4 :where(p, .profile-preview-card-heading-v3 p, .profile-preview-key-manager-head-v3 p, .profile-preview-plan-type-v3, .profile-preview-plan-type-v3 span, .profile-preview-plan-details-v3 dt, .profile-preview-plan-details-v3 dd, .profile-preview-stat-v3 p) { color: #625875 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-stat-v3 > strong,
+html[data-theme='light'] .profile-page-v4 .profile-preview-plan-v3 > strong { color: #6c3ce9 !important; }
+html[data-theme='light'] .profile-page-v4 :where(.profile-preview-usage-v3 dl div, .profile-preview-key-manager-v3 form, .profile-preview-key-list-v3 article, .profile-no-package) {
+  background: #fbfaff !important;
+  border-color: #e2d8ef !important;
+  color: #201635 !important;
+}
+html[data-theme='light'] .profile-page-v4 :where(input, .profile-preview-key-value-v3) {
+  background: #ffffff !important;
+  border-color: #d9caea !important;
+  color: #000000 !important;
+}
+html[data-theme='light'] .profile-page-v4 :where(label, .profile-preview-key-manager-v3 form label > span) { color: #40345b !important; }
+html[data-theme='light'] .profile-page-v4 :where(.profile-primary-btn, .profile-secondary-btn) {
+  background: linear-gradient(135deg, #6c3ce9, #d21784) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(108, 60, 233, .16) !important;
+}
+html[data-theme='light'] .profile-page-v4 .profile-secondary-btn { background: #f0e9ff !important; color: #4c1d95 !important; border: 1px solid #cbbde6 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-list-v3 article > div:last-child span.active { background: #e8f8ef !important; color: #166534 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-list-v3 article > div:last-child button { background: #fff0f8 !important; color: #9b176c !important; border-color: #efacd2 !important; }
+html[data-theme='light'] .profile-page-v4 :where(.profile-alert, .profile-no-package strong) { color: #000000 !important; }
+
+/* Admin dashboard: consistent light surfaces and readable brand accents. */
+html[data-theme='light'] .admin-page {
+  width: min(1440px, calc(100% - 2rem)) !important;
+  max-width: none !important;
+  margin: 1.25rem auto 3rem !important;
+  color: #201635 !important;
+  background: #f7f5fb !important;
+}
+html[data-theme='light'] .admin-page::before {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(108, 60, 233, .08), transparent 28%),
+    radial-gradient(circle at 88% 12%, rgba(210, 23, 132, .08), transparent 28%),
+    linear-gradient(180deg, rgba(247, 244, 255, .95), rgba(247, 245, 251, 0)) !important;
+}
+html[data-theme='light'] .admin-page .admin-header {
+  border-color: #e2d8ef !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f7f1ff 56%, #fff5fb 100%) !important;
+  box-shadow: 0 16px 38px rgba(54, 29, 91, .09) !important;
+}
+html[data-theme='light'] .admin-page .admin-header::after {
+  background: linear-gradient(135deg, rgba(108, 60, 233, .1), rgba(210, 23, 132, .1)) !important;
+}
+html[data-theme='light'] .admin-page :where(.admin-header h1, .admin-panel h2, .admin-empty-state h1) { color: #201635 !important; }
+html[data-theme='light'] .admin-page :where(.admin-header p, .admin-panel p, .admin-empty-state p) { color: #625875 !important; }
+html[data-theme='light'] .admin-page .admin-kicker { background: #fce9f4 !important; border-color: #f0a7cf !important; color: #9b176c !important; }
+html[data-theme='light'] .admin-page .admin-tabs {
+  border-color: #e2d8ef !important;
+  background: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(54, 29, 91, .07) !important;
+}
+html[data-theme='light'] .admin-page .admin-tabs button { color: #40345b !important; }
+html[data-theme='light'] .admin-page .admin-tabs button:hover { color: #6c3ce9 !important; background: #f0e9ff !important; }
+html[data-theme='light'] .admin-page .admin-tabs button.active { color: #ffffff !important; background: linear-gradient(100deg, #6c3ce9, #d21784) !important; }
+html[data-theme='light'] .admin-page :where(.admin-panel, .admin-empty-state, .admin-plan-card, .admin-stat-grid article) {
+  border-color: #e2d8ef !important;
+  background: #ffffff !important;
+  color: #201635 !important;
+  box-shadow: 0 14px 32px rgba(54, 29, 91, .08) !important;
+}
+html[data-theme='light'] .admin-page .admin-stat-grid article::before {
+  background: linear-gradient(135deg, rgba(108, 60, 233, .12), rgba(210, 23, 132, .1)) !important;
+}
+html[data-theme='light'] .admin-page .admin-stat-grid strong {
+  background: linear-gradient(135deg, #6c3ce9, #d21784) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+html[data-theme='light'] .admin-page .admin-stat-grid span { color: #625875 !important; }
+html[data-theme='light'] .admin-page .admin-service-row {
+  background: linear-gradient(100deg, #f0e9ff, #fce9f4) !important;
+  border: 1px solid #e2d8ef !important;
+  color: #40345b !important;
+}
+html[data-theme='light'] .admin-page .admin-service-row .ok { color: #047857 !important; }
+html[data-theme='light'] .admin-page .admin-service-row .bad { color: #be123c !important; }
+html[data-theme='light'] .admin-page :where(.admin-table th, .admin-table td) { color: #40345b !important; border-color: #e2d8ef !important; }
+html[data-theme='light'] .admin-page .admin-table th { color: #4c1d95 !important; background: #f0e9ff !important; }
+html[data-theme='light'] .admin-page .admin-table tr:hover td { background: #fff7fc !important; }
+html[data-theme='light'] .admin-page :where(.admin-form input, .admin-form select, .admin-plan-fields input) {
+  background: #ffffff !important;
+  border-color: #d9caea !important;
+  color: #000000 !important;
+}
+html[data-theme='light'] .admin-page :where(.admin-form label, .admin-plan-fields label, .admin-check-row) { color: #40345b !important; }
+html[data-theme='light'] .admin-page .admin-plan-selection-note { background: #fce9f4 !important; border-color: #f0a7cf !important; color: #000000 !important; }
+html[data-theme='light'] .admin-page :where(.admin-alert, .admin-loading) { color: #000000 !important; border-color: #e2d8ef !important; background: #ffffff !important; }
+html[data-theme='light'] .admin-page .admin-alert.error { background: #fff0f8 !important; border-color: #efacd2 !important; color: #9f1239 !important; }
+html[data-theme='light'] .admin-page .admin-alert.success { background: #effcf5 !important; border-color: #a7f3d0 !important; color: #047857 !important; }
+html[data-theme='light'] .admin-page .admin-secondary-btn { background: #f0e9ff !important; border-color: #cbbde6 !important; color: #4c1d95 !important; }
+
+/* Profile inner cards: replace the remaining dark purple surfaces with the
+   established soft pink brand card treatment. */
+html[data-theme='light'] .profile-page-v4 :where(.profile-preview-form-v3, .profile-preview-usage-v3, .profile-preview-plan-v3) {
+  background: linear-gradient(135deg, #fce9f4 0%, #f3eaff 100%) !important;
+  border-color: #efacd2 !important;
+  color: #201635 !important;
+  box-shadow: 0 12px 28px rgba(210, 23, 132, .1) !important;
+}
+html[data-theme='light'] .profile-page-v4 .profile-preview-usage-v3 dl div {
+  background: rgba(255, 255, 255, .58) !important;
+  border-color: #e7b9d7 !important;
+}
+html[data-theme='light'] .profile-page-v4 :where(.profile-preview-form-v3 h2, .profile-preview-usage-v3 h2, .profile-preview-plan-v3 h3, .profile-preview-plan-v3 strong, .profile-preview-usage-v3 dd) { color: #201635 !important; }
+html[data-theme='light'] .profile-page-v4 :where(.profile-preview-form-v3 p, .profile-preview-usage-v3 p, .profile-preview-plan-v3 p, .profile-preview-plan-type-v3, .profile-preview-plan-details-v3 dt) { color: #625875 !important; }
+html[data-theme='light'] .profile-page-v4 :where(.profile-preview-key-manager-v3 form, .profile-preview-key-list-v3 article, .profile-preview-created-v3) {
+  background: linear-gradient(135deg, #fce9f4 0%, #f3eaff 100%) !important;
+  border-color: #efacd2 !important;
+  color: #201635 !important;
+}
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-manager-v3 form label > span,
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-manager-v3 form label { color: #40345b !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-manager-v3 form input { background: #ffffff !important; color: #000000 !important; }
+
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-manager-v3.contact-card > form,
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-manager-v3.contact-card > .profile-preview-key-list-v3 article {
+  background: linear-gradient(135deg, #fce9f4 0%, #f3eaff 100%) !important;
+  border-color: #efacd2 !important;
+  color: #201635 !important;
+}
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-manager-v3.contact-card > form :where(label, label > span) { color: #40345b !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-info-v3 strong { color: #000000 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-info-v3 small { color: #625875 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-value-v3 {
+  background: #d21784 !important;
+  border-color: #a51b76 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  box-shadow: 0 6px 16px rgba(210, 23, 132, .16) !important;
+}
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-actions-v3 > span { background: #f0e9ff !important; color: #6c3ce9 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-actions-v3 > span.active { background: #eadcff !important; color: #4c1d95 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-list-v3 .profile-preview-key-actions-v3 > button { background: #fff0f8 !important; border-color: #efacd2 !important; color: #9b176c !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-manager-v3.contact-card > form input::placeholder { color: #625875 !important; opacity: 1 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-list-v3 {
+  background: transparent !important;
+  border: 0 !important;
+}
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-list-v3 article {
+  border-left: 1px solid #efacd2 !important;
+  border-radius: 12px !important;
+}
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-list-v3 article :where(strong, small, code) { color: #000000 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-list-v3 article .profile-preview-key-actions-v3 > span { color: #4c1d95 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-list-v3 article .profile-preview-key-actions-v3 > span.active { color: #4c1d95 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-value-v3::selection,
+html[data-theme='light'] .profile-page-v4 .profile-preview-key-list-v3 code::selection {
+  background: #f0a7cf !important;
+  color: #000000 !important;
+}
+html[data-theme='light'] .profile-page-v4 .profile-preview-usage-v3 dl dt { color: #000000 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-usage-v3 dl dd { color: #6c3ce9 !important; }
+
+/* Plan cards: the same soft pink surface used by the other light-mode cards. */
+html[data-theme='light'] .profile-page-v4 .profile-preview-plan-grid-v3 .profile-preview-plan-v3 {
+  background: linear-gradient(135deg, #fce9f4 0%, #f3eaff 100%) !important;
+  border: 1px solid #efacd2 !important;
+  color: #201635 !important;
+  box-shadow: 0 12px 28px rgba(210, 23, 132, .1) !important;
+}
+html[data-theme='light'] .profile-page-v4 .profile-preview-plan-grid-v3 .profile-preview-plan-service-v3 { color: #6c3ce9 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-plan-grid-v3 .profile-preview-plan-v3 h3 { color: #201635 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-plan-grid-v3 .profile-preview-plan-type-v3,
+html[data-theme='light'] .profile-page-v4 .profile-preview-plan-grid-v3 .profile-preview-plan-type-v3 span,
+html[data-theme='light'] .profile-page-v4 .profile-preview-plan-grid-v3 .profile-preview-plan-details-v3 dt { color: #625875 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-plan-grid-v3 .profile-preview-plan-v3 > strong { color: #6c3ce9 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-plan-grid-v3 .profile-preview-plan-v3 > strong small,
+html[data-theme='light'] .profile-page-v4 .profile-preview-plan-grid-v3 .profile-preview-plan-details-v3 dd { color: #201635 !important; }
+html[data-theme='light'] .profile-page-v4 .profile-preview-plan-grid-v3 .profile-preview-plan-type-v3 span + span,
+html[data-theme='light'] .profile-page-v4 .profile-preview-plan-details-v3,
+html[data-theme='light'] .profile-page-v4 .profile-preview-plan-details-v3 > div { border-color: #e7b9d7 !important; }

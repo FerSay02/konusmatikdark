@@ -1,5 +1,6 @@
 import StudioHero from '../components/StudioHero';
 import './Contact.theme.css';
+import '../application-light-theme.css';
 import { contactHeroContent, contactSteps } from '../data/studioContent';
 
 const officeMapUrls = {

@@ -1,0 +1,39 @@
+/* Homepage hero theme overrides. Loaded after the legacy global cascade. */
+html[data-theme='dark'] .home-banner-split { --hero-title-start: #ffffff; }
+
+html[data-theme='light'] .home-banner-split {
+  --hero-title-start: #5b21b6;
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 14% 34%, rgba(108, 60, 233, .08), transparent 34%),
+    radial-gradient(circle at 86% 62%, rgba(210, 23, 132, .07), transparent 36%),
+    linear-gradient(115deg, #fbfaff 0%, #ffffff 48%, #fffafd 100%) !important;
+  color: #201635 !important;
+}
+
+html[data-theme='light'] .home-banner-split .home-web-threads {
+  background: #fbfaff !important;
+  opacity: .64 !important;
+  mix-blend-mode: normal !important;
+  filter: saturate(.72) contrast(.94) !important;
+}
+
+html[data-theme='light'] .home-banner-split .split-headline h1,
+html[data-theme='light'] .home-banner-split .split-headline h2 { color: #5b21b6 !important; text-shadow: none !important; }
+html[data-theme='light'] .home-banner-split .split-headline .shiny-text {
+  --shiny-cool-color: #8c2ca2;
+  filter: saturate(.88) !important;
+}
+html[data-theme='light'] .home-banner-split .split-headline p { color: #514862 !important; text-shadow: none !important; }
+
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue {
+  border-color: #6c3ce9 !important;
+  background: linear-gradient(145deg, #6c3ce9, #d21784) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 20px rgba(108, 60, 233, .16), inset 0 1px 0 rgba(255,255,255,.28) !important;
+}
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-icon { border-color: rgba(255,255,255,.82) !important; }
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-icon i,
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-icon b { border-color: #ffffff !important; }
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-label { background: transparent !important; color: #ffffff !important; }

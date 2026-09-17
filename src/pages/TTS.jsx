@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import './StudioReveal.css';
+import '../application-light-theme.css';
 import { apiFetch, apiJson } from '../lib/api';
 import { readStoredLanguage, restoreTurkishUiText } from '../lib/language';
 import StudioHero from '../components/StudioHero';

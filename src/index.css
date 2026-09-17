@@ -4443,6 +4443,489 @@ body {
   }
 }
 
+/* Final light-theme cascade: placed after legacy page overrides so the
+   explicit user choice always wins without altering the dark baseline. */
+html[data-theme='light'] html,
+html[data-theme='light'] body,
+html[data-theme='light'] #root,
+html[data-theme='light'] .home-container,
+html[data-theme='light'] .home-banner-split,
+html[data-theme='light'] .api-v2-page,
+html[data-theme='light'] .login-page,
+html[data-theme='light'] .pricing-page,
+html[data-theme='light'] .contact-page,
+html[data-theme='light'] .corporate-page,
+html[data-theme='light'] .checkout-page,
+html[data-theme='light'] .admin-page,
+html[data-theme='light'] .profile-page,
+html[data-theme='light'] .not-found-page {
+  background: var(--bg-page) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme='light'] .home-banner-split::before,
+html[data-theme='light'] .home-banner-split::after { opacity: .18 !important; }
+html[data-theme='light'] .home-banner-split .home-web-threads { opacity: .22 !important; }
+html[data-theme='light'] .login-lightfall { opacity: .32 !important; }
+
+html[data-theme='light'] .navbar-star-border .inner-content,
+html[data-theme='light'] .pill-logo,
+html[data-theme='light'] .pill-nav-items {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border-primary) !important;
+  box-shadow: 0 12px 30px rgba(54, 29, 91, .1) !important;
+}
+
+html[data-theme='light'] :where(.studio-content, .corp-content-wrap, .checkout-shell, .admin-panel, .page-card, .studio-page-card, .login-card, .pricing-card-v2, .contact-card, .map-card, .payment-result-panel, .not-found-card, .studio-section, .studio-side-card-v2, .checkout-summary, .checkout-form-grid, .admin-section, .admin-plan-card, .api-endpoint-card, .api-v2-quick-card, .api-v2-base-card, .api-v2-model-card, .api-v2-voice-card) {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-primary) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+html[data-theme='light'] :where(.studio-section-header h2, .studio-section-header h3, .pricing-section-head h2, .contact-section-heading h2, .admin-header h1, .checkout-page-head h1, .api-v2-section-head h2, .api-v2-endpoint-head h2, .contact-card h2, .map-card h3, .pricing-card-v2 h3, .admin-panel h2, .admin-panel h3) { color: var(--text-primary) !important; }
+html[data-theme='light'] :where(.studio-section-header p, .pricing-section-head p, .contact-card p, .map-card p, .checkout-form-note, .api-v2-section-head p, .api-v2-model-card > p, .api-v2-voice-card p, .admin-panel p) { color: var(--text-secondary) !important; }
+
+html[data-theme='light'] :where(input:not([type='checkbox']):not([type='radio']), select, textarea) { background: var(--input-bg) !important; color: var(--text-primary) !important; border-color: var(--border-primary) !important; }
+html[data-theme='light'] :where(.api-console, .api-code-block, .api-endpoint-console-wrap, .admin-table-wrap) { background: var(--code-bg) !important; border-color: var(--border-primary) !important; }
+html[data-theme='light'] :where(.api-v2-table th, .admin-table th) { background: #eee8ff !important; color: var(--text-primary) !important; }
+html[data-theme='light'] :where(.api-v2-table, .admin-table) { color: var(--text-primary) !important; }
+
+html[data-theme='light'] .pill,
+html[data-theme='light'] .navbar-account-actions .nav-action-link,
+html[data-theme='light'] .navbar-account-actions .nav-user-button,
+html[data-theme='light'] .navbar-account-actions .btn-nav-login { color: var(--text-primary); }
+html[data-theme='light'] .pill-mobile-popover { background: linear-gradient(165deg, #fff 0%, #f6f0ff 58%, #fff0f8 100%); color: var(--text-primary); }
+html[data-theme='light'] .pill-mobile-popover-head { color: var(--text-primary); }
+html[data-theme='light'] .pill-mobile-popover-links button { color: var(--text-primary); background: rgba(255,255,255,.76); border-color: var(--border-primary); }
+html[data-theme='light'] .pill-mobile-popover-account { border-top-color: var(--border-primary); }
+
+/* Final light homepage hero cascade. */
+html[data-theme='dark'] .home-banner-split { --hero-title-start: #ffffff; }
+html[data-theme='light'] .home-banner-split {
+  --hero-title-start: #201635;
+  position: relative;
+  isolation: isolate;
+  background: #ffffff !important;
+  color: #201635 !important;
+}
+html[data-theme='light'] .home-banner-split .home-web-threads {
+  background: #ffffff !important;
+  opacity: 1 !important;
+  mix-blend-mode: normal !important;
+}
+html[data-theme='light'] .home-banner-split .split-headline h1,
+html[data-theme='light'] .home-banner-split .split-headline h2 { color: #201635 !important; text-shadow: none !important; }
+html[data-theme='light'] .home-banner-split .split-headline p { color: #4e4660 !important; text-shadow: none !important; }
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue {
+  border-color: #6c3ce9 !important;
+  background: linear-gradient(145deg, #6c3ce9, #d21784) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(108, 60, 233, .28), inset 0 1px 0 rgba(255,255,255,.28) !important;
+}
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-icon { border-color: rgba(255,255,255,.82) !important; }
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-icon i,
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-icon b { border-color: #ffffff !important; }
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-label { background: transparent !important; color: #ffffff !important; }
+
+/* Homepage hero: keep the canvas waves visible over a truly opaque light
+   surface. The dark baseline remains untouched. */
+html[data-theme='dark'] .home-banner-split { --hero-title-start: #ffffff; }
+html[data-theme='light'] .home-banner-split {
+  --hero-title-start: #201635;
+  position: relative;
+  isolation: isolate;
+  background: #ffffff !important;
+  color: #201635 !important;
+}
+html[data-theme='light'] .home-banner-split .home-web-threads {
+  background: #ffffff !important;
+  opacity: 1 !important;
+  mix-blend-mode: normal !important;
+}
+html[data-theme='light'] .home-banner-split .split-headline h1,
+html[data-theme='light'] .home-banner-split .split-headline h2 {
+  color: #201635 !important;
+  text-shadow: none !important;
+}
+html[data-theme='light'] .home-banner-split .split-headline p {
+  color: #4e4660 !important;
+  text-shadow: none !important;
+}
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue {
+  border-color: #6c3ce9 !important;
+  background: linear-gradient(145deg, #6c3ce9, #d21784) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(108, 60, 233, .28), inset 0 1px 0 rgba(255,255,255,.28) !important;
+}
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-icon {
+  border-color: rgba(255,255,255,.82) !important;
+}
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-icon i,
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-icon b {
+  border-color: #ffffff !important;
+}
+html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-label {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+html[data-theme='light'] .pill-mobile-popover-account .nav-action-link,
+html[data-theme='light'] .pill-mobile-popover-account .nav-user-button,
+html[data-theme='light'] .pill-mobile-popover-account .btn-nav-login { color: var(--text-primary); background: rgba(108,60,233,.06); border-color: var(--border-primary); }
+
+/* Production theme tokens. Dark remains the visual baseline; light is opt-in
+   through the same semantic tokens so components do not need page-specific
+   theme state. */
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --bg-page: #0d0714;
+  --bg-surface: #120f17;
+  --bg-card: #171021;
+  --bg-card-hover: #241436;
+  --bg-elevated: #1c102b;
+  --text-primary: #f8f5ff;
+  --text-secondary: #b8afd0;
+  --text-muted: #8d82a4;
+  --text-inverse: #ffffff;
+  --border-primary: rgba(196, 181, 253, 0.2);
+  --border-soft: rgba(196, 181, 253, 0.12);
+  --navbar-bg: rgba(18, 15, 23, 0.94);
+  --input-bg: #120b1e;
+  --code-bg: #0a0710;
+  --shadow-card: 0 18px 48px rgba(0, 0, 0, 0.28);
+}
+
+html[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f7f5fb;
+  --surface: #ffffff;
+  --text: #201635;
+  --text-secondary: #625875;
+  --border: #e5dff0;
+  --border-hover: #cbbde6;
+  --primary-light: #eee8ff;
+  --secondary-light: #fce9f4;
+  --bg-page: #f7f5fb;
+  --bg-surface: #fbfaff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #faf7ff;
+  --bg-elevated: #ffffff;
+  --text-primary: #201635;
+  --text-secondary: #625875;
+  --text-muted: #7e738e;
+  --text-inverse: #ffffff;
+  --border-primary: #e5dff0;
+  --border-soft: #eee9f6;
+  --navbar-bg: rgba(255, 255, 255, 0.94);
+  --input-bg: #ffffff;
+  --code-bg: #f3eff9;
+  --shadow-card: 0 18px 48px rgba(54, 29, 91, 0.12);
+}
+
+html[data-theme='light'] body,
+html[data-theme='light'] #root {
+  background: var(--bg-page) !important;
+  color: var(--text-primary);
+}
+
+html[data-theme='light'] .navbar-star-border .inner-content {
+  background: var(--navbar-bg) !important;
+  border-color: var(--border-primary) !important;
+  box-shadow: 0 12px 30px rgba(54, 29, 91, 0.1) !important;
+}
+
+html[data-theme='light'] .pill-logo,
+html[data-theme='light'] .pill-nav-items {
+  background: var(--bg-elevated) !important;
+  box-shadow: 0 10px 26px rgba(54, 29, 91, 0.1) !important;
+}
+
+html[data-theme='light'] .pill,
+html[data-theme='light'] .navbar-account-actions .nav-action-link,
+html[data-theme='light'] .navbar-account-actions .nav-user-button,
+html[data-theme='light'] .navbar-account-actions .btn-nav-login {
+  color: var(--text-primary);
+}
+
+html[data-theme='light'] .navbar-account-actions {
+  border-left-color: var(--border-primary);
+}
+
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  padding: 0;
+  border: 1px solid rgba(108, 60, 233, 0.22);
+  border-radius: 999px;
+  background: rgba(108, 60, 233, 0.08);
+  color: #6c3ce9;
+  cursor: pointer;
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.theme-toggle svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.theme-toggle:hover, .theme-toggle:focus-visible { color: #d21784; background: rgba(210, 23, 132, 0.12); border-color: rgba(210, 23, 132, 0.38); transform: translateY(-1px); }
+.theme-toggle:focus-visible { outline: 2px solid rgba(210, 23, 132, .42); outline-offset: 2px; }
+
+html[data-theme='dark'] .theme-toggle { color: #000000; background: rgba(210, 23, 132, 0.14); border-color: rgba(244, 114, 182, 0.32); }
+
+html[data-theme='light'] .pill-mobile-menu {
+  color: #2b2050;
+  background: rgba(108, 60, 233, .06);
+  border-color: rgba(108, 60, 233, .22);
+}
+
+html[data-theme='light'] .pill-mobile-popover {
+  background: linear-gradient(165deg, #ffffff 0%, #f6f0ff 58%, #fff0f8 100%);
+  border-color: rgba(108, 60, 233, .25);
+  box-shadow: 0 18px 46px rgba(54, 29, 91, .18), 0 0 30px rgba(108, 60, 233, .12);
+}
+
+html[data-theme='light'] .pill-mobile-popover-head { color: var(--text-primary); }
+html[data-theme='light'] .pill-mobile-popover-head button,
+html[data-theme='light'] .pill-mobile-popover-account .nav-action-link,
+html[data-theme='light'] .pill-mobile-popover-account .nav-user-button,
+html[data-theme='light'] .pill-mobile-popover-account .btn-nav-login {
+  color: var(--text-primary);
+  border-color: var(--border-primary);
+  background: rgba(108, 60, 233, .06);
+}
+html[data-theme='light'] .pill-mobile-popover-links button { color: var(--text-primary); border-color: var(--border-primary); background: rgba(255, 255, 255, .72); }
+html[data-theme='light'] .pill-mobile-popover-account { border-top-color: var(--border-primary); }
+
+/* Shared page surfaces */
+html[data-theme='light'] :where(.studio-page, .pricing-page, .contact-page, .corporate-page, .checkout-page, .admin-page, .payment-result-page, .not-found-page, .profile-page, .login-page, .api-v2-page) {
+  background: var(--bg-page) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme='light'] :where(.studio-content, .corp-content-wrap, .checkout-shell, .admin-panel, .page-card, .studio-page-card, .login-card, .pricing-card-v2, .contact-card, .map-card, .payment-result-panel, .not-found-card, .studio-section, .studio-side-card-v2, .checkout-summary, .checkout-form-grid, .admin-section, .admin-plan-card, .api-endpoint-card, .api-v2-quick-card, .api-v2-base-card, .api-v2-model-card, .api-v2-voice-card) {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-primary) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+html[data-theme='light'] :where(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-primary) !important;
+}
+html[data-theme='light'] :where(input:not([type='checkbox']):not([type='radio'])::placeholder, textarea::placeholder) { color: var(--text-muted) !important; }
+html[data-theme='light'] :where(.api-console, .api-code-block, .api-endpoint-console-wrap, .admin-table-wrap) { background: var(--code-bg) !important; border-color: var(--border-primary) !important; }
+html[data-theme='light'] :where(.api-v2-table, .admin-table) { color: var(--text-primary) !important; }
+html[data-theme='light'] :where(.api-v2-table th, .admin-table th) { color: var(--text-primary) !important; background: #eee8ff !important; }
+html[data-theme='light'] :where(.api-v2-table th, .api-v2-table td, .admin-table th, .admin-table td) { border-color: var(--border-soft) !important; }
+
+/* The home hero and login visual are intentionally dark in the baseline; in
+   light mode their content remains legible without changing the artwork. */
+html[data-theme='light'] :where(html:has(.home-container), body:has(.home-container), #root:has(.home-container), .home-banner-split) { background: var(--bg-page) !important; color: var(--text-primary) !important; }
+html[data-theme='light'] .home-banner-split .home-web-threads { opacity: .22 !important; }
+html[data-theme='light'] .login-lightfall { opacity: .34; }
+
+@media (max-width: 1099px) {
+  html[data-theme='light'] .navbar-account-actions { border-left: 0; }
+  html[data-theme='light'] .pill-mobile-popover-account .theme-toggle { justify-self: start; }
+}
+
+/* Final cascade guard: the legacy tablet nav rule must not re-enable tabs on phones. */
+@media (max-width: 680px) {
+  .api-v2-nav { display: none !important; }
+}
+
+/* API documentation navigation: scrollable tabs on tablet, compact picker on mobile. */
+.api-v2-mobile-nav { display: none; }
+
+@media (min-width: 681px) and (max-width: 900px) {
+  .api-v2-nav {
+    flex-wrap: nowrap;
+    min-width: 0;
+    position: sticky;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .api-v2-nav::after {
+    content: '';
+    position: sticky;
+    right: 0;
+    flex: 0 0 2rem;
+    align-self: stretch;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(18, 15, 23, 0), rgba(18, 15, 23, .96));
+  }
+
+  .api-v2-nav a { flex: 0 0 auto; white-space: nowrap; }
+}
+
+@media (max-width: 680px) {
+  .api-v2-nav { display: none; }
+
+  .api-v2-mobile-nav {
+    position: sticky;
+    top: 64px;
+    z-index: 30;
+    display: block;
+    width: 100%;
+    padding: .7rem 1rem;
+    border-bottom: 1px solid rgba(192, 132, 252, .22);
+    background: rgba(13, 7, 20, .94);
+    box-shadow: 0 12px 24px rgba(5, 2, 13, .2);
+    backdrop-filter: blur(16px);
+  }
+
+  .api-v2-mobile-nav-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    width: 100%;
+    min-height: 46px;
+    padding: .72rem .9rem;
+    border: 1px solid rgba(192, 132, 252, .34);
+    border-radius: 12px;
+    background: linear-gradient(100deg, rgba(40, 7, 129, .92), rgba(52, 16, 95, .94));
+    color: #fff;
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 800;
+    text-align: left;
+    box-shadow: 0 8px 22px rgba(108, 60, 233, .18);
+    cursor: pointer;
+  }
+
+  .api-v2-mobile-nav-trigger:focus-visible {
+    outline: 3px solid rgba(249, 168, 212, .38);
+    outline-offset: 2px;
+  }
+
+  .api-v2-mobile-nav-trigger > span:first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .api-v2-mobile-nav-chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    color: #f9a8d4;
+    transition: transform .2s ease;
+  }
+
+  .api-v2-mobile-nav-chevron svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .api-v2-mobile-nav.is-open .api-v2-mobile-nav-chevron { transform: rotate(180deg); }
+
+  .api-v2-mobile-section-list {
+    position: absolute;
+    top: calc(100% - .15rem);
+    right: 1rem;
+    left: 1rem;
+    display: grid;
+    gap: .35rem;
+    max-height: min(60dvh, 28rem);
+    padding: .55rem;
+    overflow-y: auto;
+    border: 1px solid rgba(192, 132, 252, .3);
+    border-radius: 14px;
+    background: linear-gradient(165deg, #280781 0%, #34105f 55%, #5a123f 100%);
+    box-shadow: 0 18px 38px rgba(5, 2, 13, .42), 0 0 26px rgba(108, 60, 233, .18);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-7px);
+    transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
+  }
+
+  .api-v2-mobile-nav.is-open .api-v2-mobile-section-list {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .api-v2-mobile-section-list a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: .65rem .75rem;
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 10px;
+    color: #f8f5ff;
+    font-size: .78rem;
+    font-weight: 750;
+    line-height: 1.3;
+    text-decoration: none;
+  }
+
+  .api-v2-mobile-section-list a.is-group { color: #f9a8d4; }
+  .api-v2-mobile-section-list a.active,
+  .api-v2-mobile-section-list a:hover,
+  .api-v2-mobile-section-list a:focus-visible {
+    border-color: rgba(249, 168, 212, .48);
+    background: linear-gradient(100deg, rgba(108, 60, 233, .88), rgba(210, 23, 132, .76));
+    color: #fff;
+  }
+
+  .api-v2-mobile-section-list a:focus-visible {
+    outline: 2px solid rgba(249, 168, 212, .5);
+    outline-offset: 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .api-v2-mobile-nav-chevron,
+  .api-v2-mobile-section-list { transition: none; }
+}
+
+/* Mobile landing composition: keep the hero inside the real viewport. */
+@media (max-width: 1099px) {
+  body { padding-top: 0; }
+  .navbar { top: 12px !important; left: 12px !important; right: 12px !important; width: auto !important; height: 56px !important; padding: 0 8px !important; }
+  .navbar-star-border { width: calc(100vw - 24px) !important; }
+  .navbar-star-border .inner-content { min-height: 56px; display: flex; align-items: center; justify-content: center; }
+  .navbar-star-border .pill-nav { width: 100% !important; max-width: none !important; min-width: 0; gap: 8px; justify-content: space-between !important; padding: 0 8px; }
+  .navbar-star-border .pill-logo { width: min(212px, calc(100% - 52px)); max-width: calc(100% - 52px); min-width: 0; flex: 0 1 min(212px, calc(100% - 52px)); height: 44px; padding-inline: 10px; }
+  .navbar-star-border .pill-logo img { min-width: 0; }
+  .navbar-star-border .pill-mobile-popover { position: absolute; top: calc(100% + 8px); right: 0; left: 0; width: auto; max-height: calc(100dvh - 92px); }
+  .home-banner-split { min-height: 100svh !important; min-height: 100dvh !important; padding: 5.5rem 1rem 4.5rem !important; overflow: hidden; }
+  .home-banner-split .split-top { width: 100%; margin-block: auto; }
+  .home-banner-split .split-headline { width: min(100%, 680px); margin-inline: auto; padding: 0; border: 0; background: transparent; box-shadow: none; backdrop-filter: none; }
+  .home-banner-split .split-headline h1 { margin-inline: auto; max-width: 100%; font-size: clamp(2.45rem, 11vw, 4.8rem) !important; line-height: .98; overflow-wrap: anywhere; }
+  .home-banner-split .split-headline p { width: min(100%, 520px); margin: 1.4rem auto 0; padding-inline: .35rem; font-size: clamp(.92rem, 3.7vw, 1.1rem); line-height: 1.45; }
+  .home-banner-split .home-hero-scroll-cue { bottom: max(1rem, env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 380px) {
+  .navbar-star-border .pill-logo { width: min(212px, calc(100% - 52px)); }
+  .home-banner-split .split-headline h1 { font-size: clamp(2.2rem, 11vw, 3rem) !important; }
+}
+
+@media (orientation: landscape) and (max-height: 520px) and (max-width: 1099px) {
+  .navbar { top: 8px !important; }
+  .home-banner-split { min-height: 100dvh !important; padding-top: 4.5rem !important; padding-bottom: 3.5rem !important; }
+  .home-banner-split .split-headline p { margin-top: .8rem; }
+  .home-banner-split .home-hero-scroll-cue { display: none; }
+}
+
 /* Responsive foundation: shared safe bounds for every route. */
 html { overflow-x: hidden; scroll-padding-top: 92px; }
 body { overflow-x: clip; }
@@ -6912,6 +7395,52 @@ textarea:focus {
   }
 }
 
+/* Keep explicit light-theme values last in the cascade. */
+html[data-theme='light'] body,
+html[data-theme='light'] #root,
+html[data-theme='light'] .home-container,
+html[data-theme='light'] .home-banner-split,
+html[data-theme='light'] .api-v2-page,
+html[data-theme='light'] .login-page,
+html[data-theme='light'] .pricing-page,
+html[data-theme='light'] .contact-page,
+html[data-theme='light'] .corporate-page,
+html[data-theme='light'] .checkout-page,
+html[data-theme='light'] .admin-page,
+html[data-theme='light'] .profile-page,
+html[data-theme='light'] .not-found-page {
+  background: var(--bg-page) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme='light'] .home-banner-split .home-web-threads,
+html[data-theme='light'] .login-lightfall { opacity: .28 !important; }
+html[data-theme='light'] .navbar-star-border .inner-content,
+html[data-theme='light'] .pill-logo,
+html[data-theme='light'] .pill-nav-items {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border-primary) !important;
+  box-shadow: 0 12px 30px rgba(54, 29, 91, .1) !important;
+}
+html[data-theme='light'] :where(.studio-content, .corp-content-wrap, .checkout-shell, .admin-panel, .page-card, .studio-page-card, .login-card, .pricing-card-v2, .contact-card, .map-card, .payment-result-panel, .not-found-card, .studio-section, .studio-side-card-v2, .checkout-summary, .checkout-form-grid, .admin-section, .admin-plan-card, .api-endpoint-card, .api-v2-quick-card, .api-v2-base-card, .api-v2-model-card, .api-v2-voice-card) {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-primary) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+html[data-theme='light'] :where(.studio-section-header h2, .studio-section-header h3, .pricing-section-head h2, .contact-section-heading h2, .admin-header h1, .checkout-page-head h1, .api-v2-section-head h2, .api-v2-endpoint-head h2, .contact-card h2, .map-card h3, .pricing-card-v2 h3, .admin-panel h2, .admin-panel h3) { color: var(--text-primary) !important; }
+html[data-theme='light'] :where(.studio-section-header p, .pricing-section-head p, .contact-card p, .map-card p, .checkout-form-note, .api-v2-section-head p, .api-v2-model-card > p, .api-v2-voice-card p, .admin-panel p) { color: var(--text-secondary) !important; }
+html[data-theme='light'] :where(input:not([type='checkbox']):not([type='radio']), select, textarea) { background: var(--input-bg) !important; color: var(--text-primary) !important; border-color: var(--border-primary) !important; }
+html[data-theme='light'] :where(.api-console, .api-code-block, .api-endpoint-console-wrap, .admin-table-wrap) { background: var(--code-bg) !important; border-color: var(--border-primary) !important; }
+html[data-theme='light'] :where(.api-v2-table th, .admin-table th) { background: #eee8ff !important; color: var(--text-primary) !important; }
+html[data-theme='light'] .pill,
+html[data-theme='light'] .navbar-account-actions .nav-action-link,
+html[data-theme='light'] .navbar-account-actions .nav-user-button,
+html[data-theme='light'] .navbar-account-actions .btn-nav-login { color: var(--text-primary); }
+html[data-theme='light'] .pill-mobile-popover { background: linear-gradient(165deg, #fff 0%, #f6f0ff 58%, #fff0f8 100%); color: var(--text-primary); }
+html[data-theme='light'] .pill-mobile-popover-links button { color: var(--text-primary); background: rgba(255,255,255,.76); border-color: var(--border-primary); }
+html[data-theme='light'] .pill-mobile-popover-account { border-top-color: var(--border-primary); }
+
 /* Login form controls: keep feedback and actions inside the dark brand surface. */
 .login-help-text,
 .login-password-status {
@@ -7712,11 +8241,18 @@ img, svg, video, canvas, audio { max-width: 100%; }
   top: 50% !important;
   left: 50% !important;
   z-index: 5;
+  overflow: visible !important;
   width: max-content !important;
   max-width: calc(100vw - 2rem);
   margin: 0 !important;
   border-radius: 999px;
   transform: translate(-50%, -50%) !important;
+}
+
+/* Keep the navbar pill clean; the StarBorder motion is for content cards, not the header. */
+.navbar-star-border > .border-gradient-top,
+.navbar-star-border > .border-gradient-bottom {
+  display: none !important;
 }
 
 .navbar-star-border .inner-content {
@@ -15544,3 +16080,39 @@ img, svg, video, canvas, audio { max-width: 100%; }
     width: 100%;
   }
 }
+
+/* Keep explicit light-theme values last in the cascade. */
+html[data-theme='light'] body,
+html[data-theme='light'] #root,
+html[data-theme='light'] .home-container,
+html[data-theme='light'] .home-banner-split,
+html[data-theme='light'] .api-v2-page,
+html[data-theme='light'] .login-page,
+html[data-theme='light'] .pricing-page,
+html[data-theme='light'] .contact-page,
+html[data-theme='light'] .corporate-page,
+html[data-theme='light'] .checkout-page,
+html[data-theme='light'] .admin-page,
+html[data-theme='light'] .profile-page,
+html[data-theme='light'] .not-found-page {
+  background: var(--bg-page) !important;
+  color: var(--text-primary) !important;
+}
+html[data-theme='light'] .home-banner-split .home-web-threads,
+html[data-theme='light'] .login-lightfall { opacity: .28 !important; }
+html[data-theme='light'] .navbar-star-border .inner-content,
+html[data-theme='light'] .pill-logo,
+html[data-theme='light'] .pill-nav-items { background: var(--bg-elevated) !important; border-color: var(--border-primary) !important; box-shadow: 0 12px 30px rgba(54, 29, 91, .1) !important; }
+html[data-theme='light'] :where(.studio-content, .corp-content-wrap, .checkout-shell, .admin-panel, .page-card, .studio-page-card, .login-card, .pricing-card-v2, .contact-card, .map-card, .payment-result-panel, .not-found-card, .studio-section, .studio-side-card-v2, .checkout-summary, .checkout-form-grid, .admin-section, .admin-plan-card, .api-endpoint-card, .api-v2-quick-card, .api-v2-base-card, .api-v2-model-card, .api-v2-voice-card) { background: var(--bg-card) !important; color: var(--text-primary) !important; border-color: var(--border-primary) !important; box-shadow: var(--shadow-card) !important; }
+html[data-theme='light'] :where(.studio-section-header h2, .studio-section-header h3, .pricing-section-head h2, .contact-section-heading h2, .admin-header h1, .checkout-page-head h1, .api-v2-section-head h2, .api-v2-endpoint-head h2, .contact-card h2, .map-card h3, .pricing-card-v2 h3, .admin-panel h2, .admin-panel h3) { color: var(--text-primary) !important; }
+html[data-theme='light'] :where(.studio-section-header p, .pricing-section-head p, .contact-card p, .map-card p, .checkout-form-note, .api-v2-section-head p, .api-v2-model-card > p, .api-v2-voice-card p, .admin-panel p) { color: var(--text-secondary) !important; }
+html[data-theme='light'] :where(input:not([type='checkbox']):not([type='radio']), select, textarea) { background: var(--input-bg) !important; color: var(--text-primary) !important; border-color: var(--border-primary) !important; }
+html[data-theme='light'] :where(.api-console, .api-code-block, .api-endpoint-console-wrap, .admin-table-wrap) { background: var(--code-bg) !important; border-color: var(--border-primary) !important; }
+html[data-theme='light'] :where(.api-v2-table th, .admin-table th) { background: #eee8ff !important; color: var(--text-primary) !important; }
+html[data-theme='light'] .pill,
+html[data-theme='light'] .navbar-account-actions .nav-action-link,
+html[data-theme='light'] .navbar-account-actions .nav-user-button,
+html[data-theme='light'] .navbar-account-actions .btn-nav-login { color: var(--text-primary); }
+html[data-theme='light'] .pill-mobile-popover { background: linear-gradient(165deg, #fff 0%, #f6f0ff 58%, #fff0f8 100%); color: var(--text-primary); }
+html[data-theme='light'] .pill-mobile-popover-links button { color: var(--text-primary); background: rgba(255,255,255,.76); border-color: var(--border-primary); }
+html[data-theme='light'] .pill-mobile-popover-account { border-top-color: var(--border-primary); }

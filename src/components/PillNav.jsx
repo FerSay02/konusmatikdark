@@ -43,6 +43,10 @@ export default function PillNav({
   }, []);
 
   useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [activeHref]);
+
+  useEffect(() => {
     document.body.classList.toggle('mobile-nav-open', isMobileMenuOpen);
     return () => document.body.classList.remove('mobile-nav-open');
   }, [isMobileMenuOpen]);
@@ -127,18 +131,19 @@ export default function PillNav({
         {rightContent && <div className="pill-nav-right-content">{rightContent}</div>}
 
         <button ref={mobileMenuButtonRef} type="button" className="pill-mobile-menu" onClick={() => setIsMobileMenuOpen((open) => !open)} aria-label={isMobileMenuOpen ? 'Menüyü kapat' : 'Menüyü aç'} aria-controls="pill-mobile-popover" aria-expanded={isMobileMenuOpen}>
-          <span /><span />
+          <span /><span /><span />
         </button>
       </nav>
 
       <div className={`pill-mobile-backdrop ${isMobileMenuOpen ? 'is-open' : ''}`} aria-hidden="true" onClick={() => setIsMobileMenuOpen(false)} />
-      <div id="pill-mobile-popover" className={`pill-mobile-popover ${isMobileMenuOpen ? 'is-open' : ''}`} style={cssVars} aria-hidden={!isMobileMenuOpen}>
+      <div id="pill-mobile-popover" className={`pill-mobile-popover ${isMobileMenuOpen ? 'is-open' : ''}`} style={cssVars} aria-hidden={!isMobileMenuOpen} inert={!isMobileMenuOpen}>
         <div className="pill-mobile-popover-head"><span>Menu</span><button type="button" onClick={() => { setIsMobileMenuOpen(false); mobileMenuButtonRef.current?.focus(); }} aria-label="Close menu">×</button></div>
         <div className="pill-mobile-popover-links">
           {items.map((item) => (
             <button type="button" key={item.href} className={item.href === activeHref ? 'is-active' : ''} onClick={() => handleNavigate(item.page)}>{item.label}</button>
           ))}
         </div>
+        {rightContent && <div className="pill-mobile-popover-account">{rightContent}</div>}
       </div>
     </div>
   );
