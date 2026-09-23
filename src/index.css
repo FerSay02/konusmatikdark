@@ -8003,6 +8003,8 @@ img, svg, video, canvas, audio { max-width: 100%; }
 .login-password-field input:focus {
   border-color: #d21784 !important;
   box-shadow: 0 0 0 3px rgba(210, 23, 132, 0.16) !important;
+  background: #120b1e !important;
+  color: #ffffff !important;
 }
 
 .login-options a,
