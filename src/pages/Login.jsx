@@ -4,6 +4,7 @@ import { readStoredLanguage, restoreTurkishUiText } from '../lib/language';
 import Lightfall from '../components/Lightfall';
 
 const rememberedEmailKey = 'konusmatik_remembered_email';
+const loginLightfallColors = ['#6c3ce9', '#d21784', '#f9a8d4'];
 
 function PasswordVisibilityIcon({ visible }) {
   return (
@@ -205,7 +206,7 @@ export default function Login({ onAuthenticated, appLanguage }) {
     <main className="login-page">
       <Lightfall
         className="login-lightfall"
-        colors={['#6c3ce9', '#d21784', '#f9a8d4']}
+        colors={loginLightfallColors}
         backgroundColor="transparent"
         speed={1}
         streakCount={8}
