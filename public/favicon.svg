@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Konusmatik">
-  <rect width="64" height="64" rx="14" fill="#111827"/>
-  <path fill="#6C3CE9" d="M8 0h48a8 8 0 0 1 8 8v48a8 8 0 0 1-8 8H8z" opacity=".92"/>
-  <path fill="#2DD4BF" d="M50 10c-9 2-15 7-20 16-4 7-10 12-20 14v14h44V10z" opacity=".75"/>
-  <path fill="#fff" d="M19 14h9v17l14-17h11L37 33l17 17H42L28 36v14h-9V14z"/>
-</svg>
