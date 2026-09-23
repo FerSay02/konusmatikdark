@@ -13,7 +13,8 @@ export function Footer({ onNavigate, appLanguage = 'tr' }) {
         <div className="footer-col brand-col">
           <div className="footer-logo">
             <a href="#" onClick={(event) => handleNav(event, 'home')} aria-label={t('Ana sayfaya git', 'Go to homepage')}>
-              <img className="brand-mark brand-mark--footer" src="/images/logo-wordmark.png" alt="Konuşmatik" />
+              <img className="brand-mark brand-mark--footer" src="/images/logo-new.png" alt="Konuşmatik" />
+              <span className="footer-brand-name">Konuşmatik</span>
             </a>
           </div>
           <p className="footer-desc">{t(

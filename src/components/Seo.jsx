@@ -58,7 +58,7 @@ export function Seo({ page, appLanguage = 'tr' }) {
       '@type': 'Organization',
       name: 'DeepZeka',
       url: siteUrl,
-      logo: `${siteUrl}/images/logo.png`,
+      logo: `${siteUrl}/images/logo-new.png`,
       email: 'info@deepzeka.com',
       sameAs: ['https://www.deepzeka.com/'],
     });

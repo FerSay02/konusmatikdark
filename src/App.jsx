@@ -263,7 +263,7 @@ function App() {
       <nav className={`navbar${mobileMenuOpen ? ' menu-open' : ''}`}>
         <StarBorder as="div" className="navbar-star-border" color="#d21784" speed="5s" thickness={2} backgroundColor="#ffffff" borderColor="rgba(108, 60, 233, 0.18)">
         <PillNav
-          logo="/images/logo-wordmark.png"
+          logo="/images/logo-new.png"
           logoAlt="Konuşmatik"
           items={[
             { page: 'home', href: getPathForPage('home'), label: t('Keşfet', 'Explore') },
@@ -330,7 +330,7 @@ function App() {
             }}
             aria-label={t('Konuşmatik ana sayfa', 'Konusmatik home page')}
           >
-            <img className="brand-mark brand-mark--header" src="/images/logo-wordmark.png" alt="" aria-hidden="true" />
+            <img className="brand-mark brand-mark--header" src="/images/logo-new.png" alt="" aria-hidden="true" />
           </a>
           <button
             type="button"

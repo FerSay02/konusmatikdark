@@ -66,10 +66,10 @@
   width: clamp(46px, 7vw, 72px);
   height: clamp(46px, 7vw, 72px);
   flex: 0 0 auto;
-  background-image: url('/images/logo.png');
+  background-image: url('/images/logo-new.png');
   background-repeat: no-repeat;
-  background-size: 384px 256px;
-  background-position: -42px -98px;
+  background-size: contain;
+  background-position: center;
   filter: drop-shadow(0 0 16px rgba(255, 255, 255, .72));
 }
 

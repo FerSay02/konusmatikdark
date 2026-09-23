@@ -15,18 +15,31 @@
 
 .pill-logo {
   width: 224px;
-  height: var(--nav-height);
+  height: 64px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 0.25rem 0.75rem;
+  justify-content: flex-start;
+  gap: 0.25rem;
+  padding: 0.2rem 0.65rem 0.2rem 0.35rem;
   border-radius: 999px;
   background: var(--pill-base);
   box-shadow: 0 10px 26px rgba(40, 7, 129, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.35);
   overflow: hidden;
+  text-decoration: none;
 }
 
-.pill-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.pill-logo img { width: 62px; height: 62px; flex: 0 0 62px; object-fit: contain; display: block; }
+.pill-logo-name {
+  background: linear-gradient(100deg, #169cff 0%, #4b50ff 38%, #a52cff 66%, #ff2ca8 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+  text-decoration: none !important;
+}
 .pill-nav-items { height: var(--nav-height); border-radius: 999px; background: var(--pill-base); box-shadow: 0 10px 26px rgba(40, 7, 129, 0.18); overflow: hidden; }
 .pill-list { display: flex; align-items: stretch; gap: 4px; height: 100%; margin: 0; padding: 4px; list-style: none; }
 .pill-list > li { display: flex; height: 100%; }
@@ -130,7 +143,9 @@
 @media (max-width: 1099px) {
   .pill-nav-container { width: 100%; }
   .pill-nav { width: 100%; max-width: none; justify-content: space-between; padding: 0 1rem; }
-  .pill-logo { width: min(212px, 62vw); }
+  .pill-logo { width: min(232px, 62vw); height: 58px; }
+  .pill-logo img { width: 56px; height: 56px; flex-basis: 56px; }
+  .pill-logo-name { font-size: 1.28rem; }
   .pill-nav-items { display: none; }
   .pill-mobile-menu { width: 40px; height: 40px; min-width: 40px; min-height: 40px; display: inline-flex; flex: 0 0 40px; align-self: center; margin-right: 4px; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 0; border: 1px solid rgba(108, 60, 233, .22); border-radius: 11px; background: rgba(108, 60, 233, .06); color: #1e1b4b; cursor: pointer; box-shadow: none; position: relative; top: 0; z-index: 2; transition: color .2s ease, background-color .2s ease, border-color .2s ease; }
   .pill-mobile-menu span { display: block; width: 18px; height: 2px; border-radius: 99px; background: currentColor; transform-origin: center; transition: transform .2s ease, opacity .2s ease; }

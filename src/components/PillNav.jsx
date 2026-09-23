@@ -105,7 +105,8 @@ export default function PillNav({
     <div className={`pill-nav-container ${className}`}>
       <nav className="pill-nav" style={cssVars} aria-label="Primary">
         <a className="pill-logo" href="/" aria-label={logoAlt} ref={logoRef} onClick={(event) => { event.preventDefault(); handleNavigate('home'); }}>
-          <img src={logo} alt={logoAlt} />
+          <img src={logo} alt="" aria-hidden="true" />
+          <span className="pill-logo-name">Konuşmatik</span>
         </a>
 
         <div className="pill-nav-items" ref={navItemsRef}>

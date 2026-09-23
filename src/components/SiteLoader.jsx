@@ -47,7 +47,7 @@ export default function SiteLoader() {
       <div className="site-loader-glow" aria-hidden="true" />
       <div className="site-loader-content">
         <div className="site-loader-logo" aria-label="Konuşmatik">
-          <img src="/images/logo.png" alt="" aria-hidden="true" />
+          <img src="/images/logo-new.png" alt="" aria-hidden="true" />
           <span>Konuşmatik</span>
         </div>
         <div className="site-loader-progress" aria-hidden="true">

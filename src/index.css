@@ -3485,9 +3485,32 @@ body {
   color: white;
 }
 
+.footer-logo > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  text-decoration: none !important;
+}
+
+.footer-logo > a * {
+  text-decoration: none !important;
+}
+
+.footer-brand-name {
+  background: linear-gradient(100deg, #169cff 0%, #4b50ff 38%, #a52cff 66%, #ff2ca8 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-size: 1.9rem;
+  font-weight: 900;
+  letter-spacing: -0.055em;
+  white-space: nowrap;
+  text-decoration: none !important;
+}
+
 .footer-logo .brand-mark {
-  width: 250px;
-  height: 52px;
+  width: 72px;
+  height: 72px;
   border-radius: 0;
   box-shadow: none;
   background: transparent;
@@ -3495,7 +3518,7 @@ body {
 }
 
 .brand-mark--footer {
-  filter: brightness(0) invert(1);
+  filter: drop-shadow(0 0 12px rgba(90, 91, 255, 0.28));
 }
 
 .footer-desc {
@@ -4903,8 +4926,8 @@ html[data-theme='light'] .login-lightfall { opacity: .34; }
   .navbar-star-border { width: calc(100vw - 24px) !important; }
   .navbar-star-border .inner-content { min-height: 56px; display: flex; align-items: center; justify-content: center; }
   .navbar-star-border .pill-nav { width: 100% !important; max-width: none !important; min-width: 0; gap: 8px; justify-content: space-between !important; padding: 0 8px; }
-  .navbar-star-border .pill-logo { width: min(212px, calc(100% - 52px)); max-width: calc(100% - 52px); min-width: 0; flex: 0 1 min(212px, calc(100% - 52px)); height: 44px; padding-inline: 10px; }
-  .navbar-star-border .pill-logo img { min-width: 0; }
+  .navbar-star-border .pill-logo { width: min(232px, calc(100% - 52px)); max-width: calc(100% - 52px); min-width: 0; flex: 0 1 min(232px, calc(100% - 52px)); height: 58px; padding-inline: 8px; }
+  .navbar-star-border .pill-logo img { min-width: 0; width: 56px; height: 56px; flex-basis: 56px; }
   .navbar-star-border .pill-mobile-popover { position: absolute; top: calc(100% + 8px); right: 0; left: 0; width: auto; max-height: calc(100dvh - 92px); }
   .home-banner-split { min-height: 100svh !important; min-height: 100dvh !important; padding: 5.5rem 1rem 4.5rem !important; overflow: hidden; }
   .home-banner-split .split-top { width: 100%; margin-block: auto; }
@@ -4915,7 +4938,7 @@ html[data-theme='light'] .login-lightfall { opacity: .34; }
 }
 
 @media (max-width: 380px) {
-  .navbar-star-border .pill-logo { width: min(212px, calc(100% - 52px)); }
+  .navbar-star-border .pill-logo { width: min(232px, calc(100% - 52px)); }
   .home-banner-split .split-headline h1 { font-size: clamp(2.2rem, 11vw, 3rem) !important; }
 }
 
@@ -4984,7 +5007,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .pricing-page .pricing-option-grid { grid-template-columns: 1fr; }
   .footer { padding: 3rem 1rem 1.5rem; }
   .footer-content { grid-template-columns: 1fr; }
-  .footer-logo .brand-mark { width: min(250px, 80vw); }
+  .footer-logo .brand-mark { width: 64px; height: 64px; }
   .modal, .tts-package-modal, .tts-voice-modal, .legal-modal, .paytr-modal { width: calc(100% - 2rem); max-width: calc(100% - 2rem); max-height: calc(100dvh - 2rem); overflow-y: auto; }
   .admin-tabs { overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; }
   .admin-tabs button { flex: 0 0 auto; min-height: 44px; white-space: nowrap; }
@@ -12580,8 +12603,8 @@ svg {
   }
 
   .footer-logo .brand-mark {
-    width: 180px;
-    height: 38px;
+    width: 60px;
+    height: 60px;
   }
 
   .nav-actions {

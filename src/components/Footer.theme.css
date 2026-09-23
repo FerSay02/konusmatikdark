@@ -28,7 +28,7 @@
   pointer-events: none;
 }
 .footer-content { position: relative; z-index: 1; border-bottom-color: rgba(192,132,252,.2); }
-.footer-logo .brand-mark { filter: brightness(0) invert(1) drop-shadow(0 0 12px rgba(255,255,255,.24)); }
+.footer-logo .brand-mark { filter: drop-shadow(0 0 12px rgba(90,91,255,.28)); }
 .footer-desc { color: #b9adca; }
 .footer-col h3 { color: #f9a8d4; }
 .footer-col ul li a { color: #d8cde7; transition: color .22s ease, transform .22s ease; }

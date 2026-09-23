@@ -24,7 +24,7 @@ export const defaultSeo = {
   description:
     'Konuşmatik; Türkçe odaklı metinden sese, sesten metne, deşifre ve kurumsal local kurulum seçenekleri sunan yerli yapay zeka ses teknolojisi platformudur.',
   descriptionEn: 'Konusmatik is an AI voice platform for text-to-speech, transcription, and enterprise local deployment.',
-  image: '/images/logo.png',
+  image: '/images/logo-new.png',
 };
 
 export const seoPages = {
