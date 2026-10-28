@@ -1,0 +1,45 @@
+.login-legal-dialog {
+  width: min(760px, calc(100vw - 28px));
+  max-width: 760px;
+  max-height: min(84dvh, 860px);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(190, 159, 235, .52);
+  border-radius: 22px;
+  background: #171126;
+  color: #f6f1ff;
+  box-shadow: 0 28px 90px rgba(8, 4, 21, .42), 0 0 44px rgba(125, 77, 204, .14);
+}
+.login-legal-dialog::backdrop { background: rgba(13, 8, 25, .68); backdrop-filter: blur(4px); }
+.login-legal-dialog__scroll { max-height: min(84dvh, 860px); overflow-y: auto; overscroll-behavior: contain; padding: clamp(18px, 4vw, 34px); }
+.login-legal-dialog__header { position: sticky; top: calc(clamp(18px, 4vw, 34px) * -1); z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin: calc(clamp(18px, 4vw, 34px) * -1) calc(clamp(18px, 4vw, 34px) * -1) 22px; padding: clamp(18px, 4vw, 34px); border-bottom: 1px solid rgba(190, 159, 235, .2); background: rgba(23, 17, 38, .96); backdrop-filter: blur(12px); }
+.login-legal-dialog__header span { color: #c1a1ef; font-size: .76rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+.login-legal-dialog__header h2 { margin: 7px 0 0; font-size: clamp(1.35rem, 4vw, 2rem); line-height: 1.2; }
+.login-legal-dialog__close { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border: 1px solid rgba(195, 169, 234, .42); border-radius: 12px; background: rgba(145, 102, 202, .16); color: inherit; font-size: 1.7rem; line-height: 1; cursor: pointer; transition: background .18s ease, border-color .18s ease, transform .18s ease; }
+.login-legal-dialog__close:hover { border-color: #c7a3fa; background: rgba(145, 102, 202, .3); transform: rotate(4deg); }
+.login-legal-dialog__close:focus-visible,.login-legal-trigger:focus-visible { outline: 3px solid #b783ff; outline-offset: 3px; }
+.login-legal-dialog__intro { margin: 0 0 22px; color: #d6cce6; font-size: .98rem; line-height: 1.65; }
+.login-legal-dialog__sections section { padding: 18px 0; border-top: 1px solid rgba(190, 159, 235, .17); }
+.login-legal-dialog__sections h3 { margin: 0 0 8px; color: #fff; font-size: 1.08rem; line-height: 1.35; }
+.login-legal-dialog__sections p { margin: 0; color: #d0c5df; font-size: .94rem; line-height: 1.7; }
+.login-legal-trigger { display: inline; padding: 0; border: 0; background: transparent; color: #c19afa; font: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: pointer; }
+.login-legal-trigger:hover { color: #eadbff; text-decoration-thickness: 2px; }
+html[data-theme='light'] .login-legal-dialog { border-color: #d8c6eb; background: #fff; color: #241831; box-shadow: 0 28px 90px rgba(51, 31, 77, .22), 0 0 40px rgba(125, 77, 204, .12); }
+html[data-theme='light'] .login-legal-dialog__header { border-bottom-color: #e9def3; background: rgba(255, 255, 255, .96); }
+html[data-theme='light'] .login-legal-dialog__header span { color: #6e43a5; }
+html[data-theme='light'] .login-legal-dialog__close { border-color: #d8c6eb; background: #f7f1fd; color: #38234d; }
+html[data-theme='light'] .login-legal-dialog__close:hover { border-color: #9b6bc9; background: #efe2fb; }
+html[data-theme='light'] .login-legal-dialog__intro,html[data-theme='light'] .login-legal-dialog__sections p { color: #51445f; }
+html[data-theme='light'] .login-legal-dialog__sections section { border-top-color: #e9def3; }
+html[data-theme='light'] .login-legal-dialog__sections h3 { color: #2a1c39; }
+html[data-theme='light'] .login-legal-trigger { color: #562696; }
+html[data-theme='light'] .login-legal-trigger:hover { color: #35166b; }
+@media (max-width: 520px) {
+  .login-legal-dialog { width: calc(100vw - 20px); max-height: 88dvh; border-radius: 18px; }
+  .login-legal-dialog__scroll { max-height: 88dvh; padding: 17px; }
+  .login-legal-dialog__header { top: -17px; margin: -17px -17px 17px; padding: 17px; }
+  .login-legal-dialog__close { width: 44px; height: 44px; }
+  .login-legal-dialog__sections section { padding: 15px 0; }
+}
+@media (prefers-reduced-motion: reduce) { .login-legal-dialog__close { transition: none; } .login-legal-dialog__close:hover { transform: none; } }

@@ -48,6 +48,7 @@ export async function apiFetch(path, options = {}) {
     ? { ...(options.headers || {}) }
     : { 'Content-Type': 'application/json', ...(options.headers || {}) };
 
+  // TODO(BACKEND): Validate Origin/CSRF for credentialed mutations and configure allowed CORS origins plus Secure/SameSite/HttpOnly cookie attributes on the API.
   const response = await fetch(`${API_BASE_URL}${path}`, {
     credentials: 'include',
     ...fetchOptions,
@@ -101,6 +102,7 @@ export async function apiJson(path, options = {}) {
     const error = new Error(data?.detail || `API isteği başarısız (${response.status})`);
     error.status = response.status;
     error.detail = data?.detail;
+    error.code = data?.code;
     throw error;
   }
   return data;

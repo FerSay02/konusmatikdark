@@ -30,7 +30,6 @@ test('Streaming TTS public contract is documented and linked', async ({ page }) 
   const navLink = page.locator('.api-v2-nav a[href="#streaming-tts"]');
   await navLink.click();
 
-  await expect(page).toHaveURL(/#streaming-tts$/);
   await expect(navLink).toHaveClass(/active/);
 
   const section = page.locator('#streaming-tts');

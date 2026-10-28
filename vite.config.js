@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import process from 'node:process'
 import fs from 'node:fs'
+import { seoContentPlugin } from './scripts/seo-content.mjs'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -23,7 +24,7 @@ export default defineConfig(({ mode }) => {
     : undefined
 
   return {
-    plugins: [react()],
+    plugins: [react(), seoContentPlugin()],
     server: {
       host: devHost,
       port: devPort,
@@ -33,7 +34,7 @@ export default defineConfig(({ mode }) => {
       ...(proxyTarget
         ? {
             proxy: {
-              '/api': {
+              '^/api(?:/|$)': {
                 target: proxyTarget,
                 changeOrigin: true,
                 secure: proxyTarget.startsWith('https://'),

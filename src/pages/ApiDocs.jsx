@@ -205,7 +205,7 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
       if (window.innerWidth > 900) {
         const sidebarRect = sidebarRef.current?.getBoundingClientRect();
         const ctaBottom = ctaRef.current?.getBoundingClientRect().bottom;
-        const navHeight = navRef.current?.offsetHeight ?? 0;
+        const navHeight = navRef.current?.getBoundingClientRect().height ?? 0;
         const hasReachedStickyTop = (sidebarRect?.top ?? 0) + 48 <= 96;
         const nextPlacement = hasReachedStickyTop
           ? {
@@ -264,7 +264,7 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
     const frame = window.requestAnimationFrame(() => {
       const navBottom = navRef.current?.getBoundingClientRect().bottom;
       const ctaBottom = ctaRef.current?.getBoundingClientRect().bottom;
-      if (navBottom == null || ctaBottom == null || ctaBottom > 96 + (navRef.current?.offsetHeight ?? 0)) return;
+      if (navBottom == null || ctaBottom == null || ctaBottom > 96 + (navRef.current?.getBoundingClientRect().height ?? 0)) return;
 
       const difference = ctaBottom - navBottom;
       if (Math.abs(difference) > 0.25) {

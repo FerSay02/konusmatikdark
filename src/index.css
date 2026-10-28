@@ -4523,6 +4523,24 @@ html[data-theme='light'] .pill-mobile-popover-head { color: var(--text-primary);
 html[data-theme='light'] .pill-mobile-popover-links button { color: var(--text-primary); background: rgba(255,255,255,.76); border-color: var(--border-primary); }
 html[data-theme='light'] .pill-mobile-popover-account { border-top-color: var(--border-primary); }
 
+.checkout-release-status {
+  border: 1px solid #c28ce6;
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  background: #2b1a3d;
+  color: #f8eeff;
+  line-height: 1.55;
+}
+.checkout-release-status p { margin: .4rem 0 0; color: #e7d8f2; }
+.checkout-agreements a { color: #e9b9ff; font-weight: 800; text-underline-offset: .2em; }
+.checkout-agreements p { margin: .25rem 0; line-height: 1.6; color: #e7d8f2; }
+.checkout-agreements a:focus-visible { outline: 3px solid #d6a8f5; outline-offset: 3px; }
+.checkout-legal-note { font-size: .9rem; }
+html[data-theme='light'] .checkout-release-status { background: #f5eafb; color: #342047; border-color: #bc83d6; }
+html[data-theme='light'] .checkout-release-status p,
+html[data-theme='light'] .checkout-agreements p { color: #50415f; }
+html[data-theme='light'] .checkout-agreements a { color: #6032a4; }
+
 /* Final light homepage hero cascade. */
 html[data-theme='dark'] .home-banner-split { --hero-title-start: #ffffff; }
 html[data-theme='light'] .home-banner-split {
@@ -8337,14 +8355,63 @@ body:has(.home-container),
 }
 
 .pill-nav-container.konusmatik-pill-nav .pill-logo {
+  width: 224px;
+  height: 58px;
+  gap: 6px;
+  padding: 2px 11px 2px 7px;
+  border: 2px solid transparent;
+  align-items: center;
+  justify-content: center;
   background: #ffffff !important;
   box-shadow: 0 8px 22px rgba(255, 255, 255, 0.14) !important;
   transition: box-shadow 0.25s ease, transform 0.25s ease !important;
 }
 
+.pill-nav-container.konusmatik-pill-nav .pill-logo img {
+  width: 50px;
+  height: 50px;
+  flex: 0 0 50px;
+}
+
+.pill-nav-container.konusmatik-pill-nav .pill-logo-name {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
 .pill-nav-container.konusmatik-pill-nav .pill-logo:hover {
   transform: translateY(-1px) !important;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.12), 0 10px 30px rgba(255, 255, 255, 0.42) !important;
+}
+
+.pill-nav-container.konusmatik-pill-nav .pill-logo.is-active,
+.pill-nav-container.konusmatik-pill-nav .pill-logo.is-active:hover {
+  border-color: #e326a1 !important;
+  box-shadow: 0 0 0 1px rgba(255, 133, 215, 0.8), 0 0 18px rgba(227, 38, 161, 0.7), 0 0 32px rgba(108, 60, 233, 0.4) !important;
+}
+
+html[data-theme='light'] .pill-nav-container.konusmatik-pill-nav .pill-logo.is-active,
+html[data-theme='light'] .pill-nav-container.konusmatik-pill-nav .pill-logo.is-active:hover {
+  border-color: #d21784 !important;
+  box-shadow: 0 0 0 1px rgba(210, 23, 132, 0.26), 0 8px 24px rgba(210, 23, 132, 0.22) !important;
+}
+
+@media (max-width: 1099px) {
+  .navbar-star-border .pill-nav-container.konusmatik-pill-nav .pill-logo {
+    width: min(224px, calc(100% - 52px));
+    flex: 0 1 224px;
+    height: 52px;
+    padding: 2px 9px 2px 6px;
+  }
+
+  .pill-nav-container.konusmatik-pill-nav .pill-logo img {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
+
+  .pill-nav-container.konusmatik-pill-nav .pill-logo-name {
+    font-size: 1.2rem;
+  }
 }
 
 .home-banner-split {

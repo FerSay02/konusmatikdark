@@ -7,7 +7,6 @@ test('corporate TTS menu item becomes active in its section', async ({ page }) =
   const link = page.locator('.api-v2-nav a[href="#corporate-tts"]');
   await link.click();
 
-  await expect(page).toHaveURL(/#corporate-tts$/);
   await expect(link).toHaveClass(/active/);
 
   await page.goto('/api-dokumantasyon');

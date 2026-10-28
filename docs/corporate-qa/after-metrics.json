@@ -1,0 +1,732 @@
+[
+  {
+    "theme": "dark",
+    "width": 320,
+    "viewport": 320,
+    "pageWidth": 320,
+    "hero": {
+      "x": 0,
+      "y": 68,
+      "width": 320,
+      "height": 745,
+      "font": "16px",
+      "line": "normal"
+    },
+    "headline": {
+      "x": 18,
+      "y": 151,
+      "width": 284,
+      "height": 112,
+      "font": "36px",
+      "line": "37.26px"
+    },
+    "heroScene": {
+      "x": 18,
+      "y": 509,
+      "width": 284,
+      "height": 255,
+      "font": "16px",
+      "line": "normal"
+    },
+    "description": {
+      "x": 43,
+      "y": 1711,
+      "width": 234,
+      "height": 195,
+      "font": "16.56px",
+      "line": "27.8208px"
+    },
+    "feature": {
+      "x": 43,
+      "y": 1930,
+      "width": 48,
+      "height": 33,
+      "font": "12px",
+      "line": "15px"
+    },
+    "productLink": {
+      "x": 43,
+      "y": 2071,
+      "width": 170,
+      "height": 48,
+      "font": "16px",
+      "line": "21.6px"
+    },
+    "firstVisual": {
+      "x": 19,
+      "y": 1163,
+      "width": 282,
+      "height": 315,
+      "font": "16px",
+      "line": "normal"
+    },
+    "network": {
+      "x": 18,
+      "y": 4676,
+      "width": 284,
+      "height": 284,
+      "font": "16px",
+      "line": "normal"
+    },
+    "activeAnimations": 0,
+    "fontsStatus": "loaded",
+    "cls": 0.0029
+  },
+  {
+    "theme": "dark",
+    "width": 375,
+    "viewport": 375,
+    "pageWidth": 375,
+    "hero": {
+      "x": 0,
+      "y": 68,
+      "width": 375,
+      "height": 730,
+      "font": "16px",
+      "line": "normal"
+    },
+    "headline": {
+      "x": 18,
+      "y": 150,
+      "width": 339,
+      "height": 119,
+      "font": "38.25px",
+      "line": "39.5887px"
+    },
+    "heroScene": {
+      "x": 18,
+      "y": 489,
+      "width": 339,
+      "height": 260,
+      "font": "16px",
+      "line": "normal"
+    },
+    "description": {
+      "x": 43,
+      "y": 1672,
+      "width": 289,
+      "height": 167,
+      "font": "16.56px",
+      "line": "27.8208px"
+    },
+    "feature": {
+      "x": 43,
+      "y": 1862,
+      "width": 49,
+      "height": 33,
+      "font": "12px",
+      "line": "15px"
+    },
+    "productLink": {
+      "x": 43,
+      "y": 1963,
+      "width": 174,
+      "height": 48,
+      "font": "16px",
+      "line": "21.6px"
+    },
+    "firstVisual": {
+      "x": 19,
+      "y": 1117,
+      "width": 337,
+      "height": 315,
+      "font": "16px",
+      "line": "normal"
+    },
+    "network": {
+      "x": 18,
+      "y": 4422,
+      "width": 339,
+      "height": 339,
+      "font": "16px",
+      "line": "normal"
+    },
+    "activeAnimations": 0,
+    "fontsStatus": "loaded",
+    "cls": 0
+  },
+  {
+    "theme": "dark",
+    "width": 768,
+    "viewport": 768,
+    "pageWidth": 768,
+    "hero": {
+      "x": 0,
+      "y": 68,
+      "width": 768,
+      "height": 913,
+      "font": "16px",
+      "line": "normal"
+    },
+    "headline": {
+      "x": 36,
+      "y": 171,
+      "width": 696,
+      "height": 103,
+      "font": "49.6px",
+      "line": "51.336px"
+    },
+    "heroScene": {
+      "x": 104,
+      "y": 491,
+      "width": 560,
+      "height": 429,
+      "font": "16px",
+      "line": "normal"
+    },
+    "description": {
+      "x": 77,
+      "y": 2004,
+      "width": 520,
+      "height": 83,
+      "font": "16.56px",
+      "line": "27.8208px"
+    },
+    "feature": {
+      "x": 77,
+      "y": 2111,
+      "width": 57,
+      "height": 36,
+      "font": "13px",
+      "line": "16.25px"
+    },
+    "productLink": {
+      "x": 77,
+      "y": 2175,
+      "width": 174,
+      "height": 48,
+      "font": "16px",
+      "line": "21.6px"
+    },
+    "firstVisual": {
+      "x": 37,
+      "y": 1285,
+      "width": 694,
+      "height": 500,
+      "font": "16px",
+      "line": "normal"
+    },
+    "network": {
+      "x": 36,
+      "y": 4737,
+      "width": 677,
+      "height": 440,
+      "font": "16px",
+      "line": "normal"
+    },
+    "activeAnimations": 0,
+    "fontsStatus": "loaded",
+    "cls": 0
+  },
+  {
+    "theme": "dark",
+    "width": 1024,
+    "viewport": 1024,
+    "pageWidth": 1024,
+    "hero": {
+      "x": 0,
+      "y": 68,
+      "width": 1024,
+      "height": 549,
+      "font": "16px",
+      "line": "normal"
+    },
+    "headline": {
+      "x": 36,
+      "y": 175,
+      "width": 424,
+      "height": 149,
+      "font": "48px",
+      "line": "49.68px"
+    },
+    "heroScene": {
+      "x": 491,
+      "y": 148,
+      "width": 498,
+      "height": 381,
+      "font": "16px",
+      "line": "normal"
+    },
+    "description": {
+      "x": 563,
+      "y": 1162,
+      "width": 373,
+      "height": 139,
+      "font": "16.56px",
+      "line": "27.8208px"
+    },
+    "feature": {
+      "x": 563,
+      "y": 1325,
+      "width": 57,
+      "height": 36,
+      "font": "13px",
+      "line": "16.25px"
+    },
+    "productLink": {
+      "x": 563,
+      "y": 1434,
+      "width": 174,
+      "height": 48,
+      "font": "16px",
+      "line": "21.6px"
+    },
+    "firstVisual": {
+      "x": 37,
+      "y": 927,
+      "width": 475,
+      "height": 605,
+      "font": "16px",
+      "line": "normal"
+    },
+    "network": {
+      "x": 36,
+      "y": 3248,
+      "width": 667,
+      "height": 434,
+      "font": "16px",
+      "line": "normal"
+    },
+    "activeAnimations": 0,
+    "fontsStatus": "loaded",
+    "cls": 0
+  },
+  {
+    "theme": "dark",
+    "width": 1440,
+    "viewport": 1440,
+    "pageWidth": 1440,
+    "hero": {
+      "x": 0,
+      "y": 76,
+      "width": 1440,
+      "height": 672,
+      "font": "16px",
+      "line": "normal"
+    },
+    "headline": {
+      "x": 100,
+      "y": 197,
+      "width": 598,
+      "height": 224,
+      "font": "72px",
+      "line": "74.52px"
+    },
+    "heroScene": {
+      "x": 742,
+      "y": 177,
+      "width": 598,
+      "height": 459,
+      "font": "16px",
+      "line": "normal"
+    },
+    "description": {
+      "x": 792,
+      "y": 1425,
+      "width": 475,
+      "height": 111,
+      "font": "16.56px",
+      "line": "27.8208px"
+    },
+    "feature": {
+      "x": 792,
+      "y": 1560,
+      "width": 57,
+      "height": 36,
+      "font": "13px",
+      "line": "16.25px"
+    },
+    "productLink": {
+      "x": 792,
+      "y": 1669,
+      "width": 174,
+      "height": 48,
+      "font": "16px",
+      "line": "21.6px"
+    },
+    "firstVisual": {
+      "x": 101,
+      "y": 1143,
+      "width": 619,
+      "height": 645,
+      "font": "16px",
+      "line": "normal"
+    },
+    "network": {
+      "x": 100,
+      "y": 3619,
+      "width": 677,
+      "height": 440,
+      "font": "16px",
+      "line": "normal"
+    },
+    "activeAnimations": 0,
+    "fontsStatus": "loaded",
+    "cls": 0
+  },
+  {
+    "theme": "light",
+    "width": 320,
+    "viewport": 320,
+    "pageWidth": 320,
+    "hero": {
+      "x": 0,
+      "y": 68,
+      "width": 320,
+      "height": 745,
+      "font": "16px",
+      "line": "normal"
+    },
+    "headline": {
+      "x": 18,
+      "y": 151,
+      "width": 284,
+      "height": 112,
+      "font": "36px",
+      "line": "37.26px"
+    },
+    "heroScene": {
+      "x": 18,
+      "y": 509,
+      "width": 284,
+      "height": 255,
+      "font": "16px",
+      "line": "normal"
+    },
+    "description": {
+      "x": 43,
+      "y": 1711,
+      "width": 234,
+      "height": 195,
+      "font": "16.56px",
+      "line": "27.8208px"
+    },
+    "feature": {
+      "x": 43,
+      "y": 1930,
+      "width": 48,
+      "height": 33,
+      "font": "12px",
+      "line": "15px"
+    },
+    "productLink": {
+      "x": 43,
+      "y": 2071,
+      "width": 170,
+      "height": 48,
+      "font": "16px",
+      "line": "21.6px"
+    },
+    "firstVisual": {
+      "x": 19,
+      "y": 1163,
+      "width": 282,
+      "height": 315,
+      "font": "16px",
+      "line": "normal"
+    },
+    "network": {
+      "x": 18,
+      "y": 4676,
+      "width": 284,
+      "height": 284,
+      "font": "16px",
+      "line": "normal"
+    },
+    "activeAnimations": 0,
+    "fontsStatus": "loaded",
+    "cls": 0.0018
+  },
+  {
+    "theme": "light",
+    "width": 375,
+    "viewport": 375,
+    "pageWidth": 375,
+    "hero": {
+      "x": 0,
+      "y": 68,
+      "width": 375,
+      "height": 730,
+      "font": "16px",
+      "line": "normal"
+    },
+    "headline": {
+      "x": 18,
+      "y": 150,
+      "width": 339,
+      "height": 119,
+      "font": "38.25px",
+      "line": "39.5887px"
+    },
+    "heroScene": {
+      "x": 18,
+      "y": 489,
+      "width": 339,
+      "height": 260,
+      "font": "16px",
+      "line": "normal"
+    },
+    "description": {
+      "x": 43,
+      "y": 1672,
+      "width": 289,
+      "height": 167,
+      "font": "16.56px",
+      "line": "27.8208px"
+    },
+    "feature": {
+      "x": 43,
+      "y": 1862,
+      "width": 49,
+      "height": 33,
+      "font": "12px",
+      "line": "15px"
+    },
+    "productLink": {
+      "x": 43,
+      "y": 1963,
+      "width": 174,
+      "height": 48,
+      "font": "16px",
+      "line": "21.6px"
+    },
+    "firstVisual": {
+      "x": 19,
+      "y": 1117,
+      "width": 337,
+      "height": 315,
+      "font": "16px",
+      "line": "normal"
+    },
+    "network": {
+      "x": 18,
+      "y": 4422,
+      "width": 339,
+      "height": 339,
+      "font": "16px",
+      "line": "normal"
+    },
+    "activeAnimations": 0,
+    "fontsStatus": "loaded",
+    "cls": 0
+  },
+  {
+    "theme": "light",
+    "width": 768,
+    "viewport": 768,
+    "pageWidth": 768,
+    "hero": {
+      "x": 0,
+      "y": 68,
+      "width": 768,
+      "height": 913,
+      "font": "16px",
+      "line": "normal"
+    },
+    "headline": {
+      "x": 36,
+      "y": 171,
+      "width": 696,
+      "height": 103,
+      "font": "49.6px",
+      "line": "51.336px"
+    },
+    "heroScene": {
+      "x": 104,
+      "y": 491,
+      "width": 560,
+      "height": 429,
+      "font": "16px",
+      "line": "normal"
+    },
+    "description": {
+      "x": 77,
+      "y": 2004,
+      "width": 520,
+      "height": 83,
+      "font": "16.56px",
+      "line": "27.8208px"
+    },
+    "feature": {
+      "x": 77,
+      "y": 2111,
+      "width": 57,
+      "height": 36,
+      "font": "13px",
+      "line": "16.25px"
+    },
+    "productLink": {
+      "x": 77,
+      "y": 2175,
+      "width": 174,
+      "height": 48,
+      "font": "16px",
+      "line": "21.6px"
+    },
+    "firstVisual": {
+      "x": 37,
+      "y": 1285,
+      "width": 694,
+      "height": 500,
+      "font": "16px",
+      "line": "normal"
+    },
+    "network": {
+      "x": 36,
+      "y": 4737,
+      "width": 677,
+      "height": 440,
+      "font": "16px",
+      "line": "normal"
+    },
+    "activeAnimations": 0,
+    "fontsStatus": "loaded",
+    "cls": 0
+  },
+  {
+    "theme": "light",
+    "width": 1024,
+    "viewport": 1024,
+    "pageWidth": 1024,
+    "hero": {
+      "x": 0,
+      "y": 68,
+      "width": 1024,
+      "height": 549,
+      "font": "16px",
+      "line": "normal"
+    },
+    "headline": {
+      "x": 36,
+      "y": 175,
+      "width": 424,
+      "height": 149,
+      "font": "48px",
+      "line": "49.68px"
+    },
+    "heroScene": {
+      "x": 491,
+      "y": 148,
+      "width": 498,
+      "height": 381,
+      "font": "16px",
+      "line": "normal"
+    },
+    "description": {
+      "x": 563,
+      "y": 1162,
+      "width": 373,
+      "height": 139,
+      "font": "16.56px",
+      "line": "27.8208px"
+    },
+    "feature": {
+      "x": 563,
+      "y": 1325,
+      "width": 57,
+      "height": 36,
+      "font": "13px",
+      "line": "16.25px"
+    },
+    "productLink": {
+      "x": 563,
+      "y": 1434,
+      "width": 174,
+      "height": 48,
+      "font": "16px",
+      "line": "21.6px"
+    },
+    "firstVisual": {
+      "x": 37,
+      "y": 927,
+      "width": 475,
+      "height": 605,
+      "font": "16px",
+      "line": "normal"
+    },
+    "network": {
+      "x": 36,
+      "y": 3248,
+      "width": 667,
+      "height": 434,
+      "font": "16px",
+      "line": "normal"
+    },
+    "activeAnimations": 0,
+    "fontsStatus": "loaded",
+    "cls": 0
+  },
+  {
+    "theme": "light",
+    "width": 1440,
+    "viewport": 1440,
+    "pageWidth": 1440,
+    "hero": {
+      "x": 0,
+      "y": 76,
+      "width": 1440,
+      "height": 672,
+      "font": "16px",
+      "line": "normal"
+    },
+    "headline": {
+      "x": 100,
+      "y": 197,
+      "width": 598,
+      "height": 224,
+      "font": "72px",
+      "line": "74.52px"
+    },
+    "heroScene": {
+      "x": 742,
+      "y": 177,
+      "width": 598,
+      "height": 459,
+      "font": "16px",
+      "line": "normal"
+    },
+    "description": {
+      "x": 792,
+      "y": 1425,
+      "width": 475,
+      "height": 111,
+      "font": "16.56px",
+      "line": "27.8208px"
+    },
+    "feature": {
+      "x": 792,
+      "y": 1560,
+      "width": 57,
+      "height": 36,
+      "font": "13px",
+      "line": "16.25px"
+    },
+    "productLink": {
+      "x": 792,
+      "y": 1669,
+      "width": 174,
+      "height": 48,
+      "font": "16px",
+      "line": "21.6px"
+    },
+    "firstVisual": {
+      "x": 101,
+      "y": 1143,
+      "width": 619,
+      "height": 645,
+      "font": "16px",
+      "line": "normal"
+    },
+    "network": {
+      "x": 100,
+      "y": 3619,
+      "width": 677,
+      "height": 440,
+      "font": "16px",
+      "line": "normal"
+    },
+    "activeAnimations": 0,
+    "fontsStatus": "loaded",
+    "cls": 0
+  }
+]

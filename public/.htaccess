@@ -1,12 +1,29 @@
 Options -MultiViews
-
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
 
-  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  # Serve real files, including prerendered index.html, assets and sitemap.
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+
+  # App pages use canonical URLs without a trailing slash.
+  RewriteRule ^(seslendirme|desifre|fiyatlar|kurumsal|api-dokumantasyon|iletisim|giris|profile|admin|checkout|payment/(success|fail))/$ /$1 [R=301,L,NE]
+  RewriteRule ^(seslendirme|desifre|fiyatlar|kurumsal|api-dokumantasyon|iletisim|giris|profile|admin|checkout|payment/(success|fail))$ $1/index.html [L]
+
+  # Public legal pages use trailing-slash canonicals.
+  RewriteRule ^(gizlilik-politikasi|kullanim-kosullari|kvkk-aydinlatma-metni|cerez-politikasi)$ /$1/ [R=301,L,NE]
+
+  # SEO hubs and articles use canonical URLs with a trailing slash.
+  RewriteRule ^(rehber|cozumler)(/[a-z0-9-]+)?$ /$1$2/ [R=301,L,NE]
+
+  # Existing content directories contain their own index.html.
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
+  # A missing SEO article must not return the generic SPA HTML with status 200.
+  RewriteRule ^(rehber|cozumler)/ - [R=404,L]
+
+  # Preserve the existing SPA fallback for non-SEO routes.
   RewriteRule ^ index.html [L]
 </IfModule>

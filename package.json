@@ -5,9 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender-app.mjs",
+    "deploy:manifest": "node scripts/generate-deployment-manifest.mjs",
     "lint": "eslint .",
+    "test": "npm run test:i18n && npm run test:seo",
     "test:i18n": "node scripts/check-i18n.mjs",
+    "test:seo": "node scripts/verify-seo.mjs",
+    "test:seo:production": "playwright test --config playwright.production.config.js",
+    "seo:keywords": "node scripts/generate-keyword-registry.mjs",
     "test:i18n:e2e": "playwright test tests/i18n-toggle.spec.js",
     "preview": "vite preview"
   },

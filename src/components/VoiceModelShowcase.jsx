@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useEffectEvent } from 'react';
 import ElasticSlider from './ElasticSlider';
 
 const VOICE_MODELS = [
@@ -131,6 +131,10 @@ export default function VoiceModelShowcase({ appLanguage = 'tr' }) {
     }
   }, [activeSentenceIndex, isPlaying]);
 
+  const resumePlaybackWhenReady = useEffectEvent((audio) => {
+    if (isPlaying) audio.play().catch(() => setIsPlaying(false));
+  });
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -143,9 +147,7 @@ export default function VoiceModelShowcase({ appLanguage = 'tr' }) {
 
     const onCanPlay = () => {
       setIsLoading(false);
-      if (isPlaying) {
-        audio.play().catch(() => setIsPlaying(false));
-      }
+      resumePlaybackWhenReady(audio);
     };
 
     audio.addEventListener('canplay', onCanPlay);

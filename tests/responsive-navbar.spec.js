@@ -25,8 +25,8 @@ test('desktop navigation remains visible without the menu toggle', async ({ page
   await mockUser(page);
   await page.goto('/');
 
-  await expect(page.getByRole('button', { name: 'Menüyü aç' })).toBeHidden();
-  await expect(page.locator('#primary-navigation')).toBeVisible();
+  await expect(page.locator('.pill-mobile-menu')).toBeHidden();
+  await expect(page.locator('.pill-nav-items')).toBeVisible();
   await expectNoHorizontalOverflow(page);
 });
 
@@ -35,17 +35,17 @@ test('compact navigation opens, navigates, and closes cleanly', async ({ page })
   await mockUser(page);
   await page.goto('/');
 
-  const toggle = page.getByRole('button', { name: 'Menüyü aç' });
+  const toggle = page.locator('.pill-mobile-menu');
   await expect(toggle).toBeVisible();
-  await expect(page.locator('#primary-navigation')).toBeHidden();
+  await expect(page.locator('#pill-mobile-popover')).toBeHidden();
   await toggle.click();
-  await expect(page.locator('#primary-navigation')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Fiyatlar' })).toBeVisible();
+  await expect(page.locator('#pill-mobile-popover')).toBeVisible();
+  await expect(page.locator('#pill-mobile-popover').getByRole('button', { name: 'Fiyatlar' })).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
-  await page.getByRole('button', { name: 'Fiyatlar' }).click();
+  await page.locator('#pill-mobile-popover').getByRole('button', { name: 'Fiyatlar' }).click();
   await expect(page).toHaveURL(/\/fiyatlar$/);
-  await expect(page.locator('#primary-navigation')).toBeHidden();
+  await expect(page.locator('#pill-mobile-popover')).toBeHidden();
 });
 
 test('mobile navigation contains long account names without overflow', async ({ page }) => {
@@ -58,8 +58,8 @@ test('mobile navigation contains long account names without overflow', async ({ 
   });
   await page.goto('/');
 
-  await page.getByRole('button', { name: 'Menüyü aç' }).click();
-  await expect(page.getByRole('button', { name: 'Profil' })).toBeVisible();
-  await expect(page.locator('.nav-user-button')).toBeVisible();
+  await page.locator('.pill-mobile-menu').click();
+  await expect(page.locator('#pill-mobile-popover').getByRole('button', { name: 'Profil' })).toBeVisible();
+  await expect(page.locator('.pill-mobile-popover-account')).toContainText('Oldukça Uzun Bir Kullanıcı Adı Soyadı');
   await expectNoHorizontalOverflow(page);
 });

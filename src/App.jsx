@@ -7,6 +7,10 @@ import Pricing from './pages/Pricing';
 import Corporate from './pages/Corporate';
 import ApiDocs from './pages/ApiDocs';
 import Login from './pages/Login';
+import LegalPage from './pages/LegalPage';
+import CookiePolicy from './pages/CookiePolicy';
+import CookieConsentBanner from './components/CookieConsentBanner';
+import { consentEvents, getConsent } from './lib/cookieConsent';
 import Admin from './pages/Admin';
 import Contact from './pages/Contact';
 import Checkout from './pages/Checkout';
@@ -17,7 +21,8 @@ import { Footer } from './components/Footer';
 import PillNav from './components/PillNav';
 import StarBorder from './components/StarBorder';
 import { Seo } from './components/Seo';
-import { apiJson, resetAuthState } from './lib/api';
+import { resetAuthState } from './lib/api';
+import { getCurrentUser, signOut } from './lib/authAdapter';
 import { useLanguagePreference } from './lib/language';
 import { applyTheme, getInitialTheme, THEME_STORAGE_KEY } from './lib/theme';
 import { getPageForPath, getPathForPage } from './seo';
@@ -44,6 +49,7 @@ function App() {
   }, []);
 
   const [currentPage, setCurrentPage] = useState(initialPage);
+  const [cookieConsent, setCookieConsent] = useState(getConsent);
   const [theme, setTheme] = useState(() => getInitialTheme());
   const [currentUser, setCurrentUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -70,6 +76,13 @@ function App() {
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
+
+  useEffect(() => {
+    const syncConsent = () => setCookieConsent(getConsent());
+    window.addEventListener(consentEvents.changeEvent, syncConsent);
+    window.addEventListener('storage', syncConsent);
+    return () => { window.removeEventListener(consentEvents.changeEvent, syncConsent); window.removeEventListener('storage', syncConsent); };
+  }, []);
 
   useEffect(() => {
     let hasManualTheme = false;
@@ -139,7 +152,7 @@ function App() {
     let isMounted = true;
     const requestId = ++authRequestIdRef.current;
 
-    apiJson('/api/v1/auth/me', { skipAuthExpiredEvent: true })
+    getCurrentUser()
       .then((user) => {
         if (isMounted && requestId === authRequestIdRef.current) setCurrentUser(user);
       })
@@ -197,7 +210,7 @@ function App() {
         hasRefreshToken: false,
       });
     }
-    await apiJson('/api/v1/auth/logout', { method: 'POST' }).catch(() => null);
+    await signOut().catch(() => null);
     setCurrentUser(null);
     goToPage('home');
   };
@@ -241,9 +254,15 @@ function App() {
       case 'api-docs':
         return <ApiDocs onNavigate={goToPage} appLanguage={language} />;
       case 'contact':
-        return <Contact appLanguage={language} />;
+        return <Contact appLanguage={language} functionalConsent={cookieConsent.functional} />;
+      case 'cookies':
+        return <CookiePolicy appLanguage={language} />;
+      case 'privacy':
+      case 'terms':
+      case 'kvkk':
+        return <LegalPage documentType={currentPage} appLanguage={language} />;
       case 'login':
-        return <Login onAuthenticated={handleAuthenticated} appLanguage={language} />;
+        return <Login onAuthenticated={handleAuthenticated} appLanguage={language} appTheme={theme} />;
       case 'profile':
         return <Profile currentUser={currentUser} onUserUpdated={handleUserUpdated} onNavigate={goToPage} appLanguage={language} />;
       case 'admin':
@@ -266,12 +285,10 @@ function App() {
           logo="/images/logo-new.png"
           logoAlt="Konuşmatik"
           items={[
-            { page: 'home', href: getPathForPage('home'), label: t('Keşfet', 'Explore') },
             { page: 'tts', href: getPathForPage('tts'), label: t('Seslendirme', 'Text to Speech') },
             { page: 'asr', href: getPathForPage('asr'), label: t('Deşifre', 'Transcription') },
             { page: 'pricing', href: getPathForPage('pricing'), label: t('Fiyatlar', 'Pricing') },
-            { page: 'corporate', href: getPathForPage('corporate'), label: t('Kurumsal', 'Enterprise') },
-            { page: 'api-docs', href: getPathForPage('api-docs'), label: 'API' },
+            { page: 'corporate', href: getPathForPage('corporate'), label: t('Hakkımızda', 'Enterprise') },
             { page: 'contact', href: getPathForPage('contact'), label: t('İletişim', 'Contact') },
             ...(showProfileNavLink ? [{ page: 'profile', href: getPathForPage('profile'), label: t('Profil', 'Profile') }] : []),
           ]}
@@ -346,12 +363,10 @@ function App() {
           </button>
           <div id="primary-navigation" className="nav-mobile-panel">
             <ul className="nav-links">
-              <li><button type="button" className={`nav-item ${currentPage === 'home' ? 'active' : ''}`} onClick={() => goToPage('home')}>{t('Keşfet', 'Explore')}</button></li>
               <li><button type="button" className={`nav-item ${currentPage === 'tts' ? 'active' : ''}`} onClick={() => goToPage('tts')}>{t('Seslendirme', 'Text to Speech')}</button></li>
               <li><button type="button" className={`nav-item ${currentPage === 'asr' ? 'active' : ''}`} onClick={() => goToPage('asr')}>{t('Deşifre', 'Transcription')}</button></li>
               <li><button type="button" className={`nav-item ${currentPage === 'pricing' ? 'active' : ''}`} onClick={() => goToPage('pricing')}>{t('Fiyatlar', 'Pricing')}</button></li>
-              <li><button type="button" className={`nav-item ${currentPage === 'corporate' ? 'active' : ''}`} onClick={() => goToPage('corporate')}>{t('Kurumsal', 'Enterprise')}</button></li>
-              <li><button type="button" className={`nav-item ${currentPage === 'api-docs' ? 'active' : ''}`} onClick={() => goToPage('api-docs')}>API</button></li>
+              <li><button type="button" className={`nav-item ${currentPage === 'corporate' ? 'active' : ''}`} onClick={() => goToPage('corporate')}>{t('Hakkımızda', 'Enterprise')}</button></li>
               <li><button type="button" className={`nav-item ${currentPage === 'contact' ? 'active' : ''}`} onClick={() => goToPage('contact')}>{t('İletişim', 'Contact')}</button></li>
               {showProfileNavLink && <li><button type="button" className={`nav-item ${currentPage === 'profile' ? 'active' : ''}`} onClick={() => goToPage('profile')}>{t('Profil', 'Profile')}</button></li>}
             </ul>
@@ -379,6 +394,7 @@ function App() {
       </nav>
       {renderPage()}
       <Footer onNavigate={goToPage} appLanguage={language} />
+      <CookieConsentBanner consent={cookieConsent} appLanguage={language} />
     </>
   );
 }

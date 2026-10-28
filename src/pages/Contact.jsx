@@ -2,6 +2,8 @@ import StudioHero from '../components/StudioHero';
 import './Contact.theme.css';
 import '../application-light-theme.css';
 import { contactHeroContent, contactSteps } from '../data/studioContent';
+import { corporatePhoneDisplay, corporatePhoneHref } from '../data/companyContact';
+import { openPreferences } from '../lib/cookieConsent';
 
 const officeMapUrls = {
   workOffice:
@@ -28,11 +30,12 @@ const contactCards = [
     href: 'mailto:info@deepzeka.com',
   },
   {
-    eyebrow: 'Çalışma Saatleri',
-    eyebrowEn: 'Business Hours',
-    title: '09:00 - 18:00',
-    text: 'Pazartesi - Cuma arasında ekiplerimizle iletişime geçebilirsiniz.',
-    textEn: 'You can reach our teams from Monday through Friday.',
+    eyebrow: 'Telefon',
+    eyebrowEn: 'Phone',
+    title: corporatePhoneDisplay,
+    text: 'Kurumsal görüşme ve teklif talepleriniz için arayın.',
+    textEn: 'Call us about enterprise consultations and quote requests.',
+    href: corporatePhoneHref,
   },
 ];
 
@@ -60,7 +63,7 @@ const offices = [
   },
 ];
 
-export default function Contact({ appLanguage }) {
+export default function Contact({ appLanguage, functionalConsent = false }) {
   const language = appLanguage || 'tr';
   const t = (tr, en) => (language === 'en' ? en : tr);
   return (
@@ -103,13 +106,13 @@ export default function Contact({ appLanguage }) {
                   <p>{office.address}</p>
                 </div>
                 <div className="map-frame-wrap">
-                  <iframe
+                  {functionalConsent ? <iframe
                     title={t(office.mapTitle, office.mapTitleEn)}
                     src={office.mapUrl}
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     allowFullScreen
-                  />
+                  /> : <div className="map-consent-placeholder"><p>{t('Google Maps haritası işlevsel izninizle yüklenir.', 'Google Maps loads with your functional consent.')}</p><button type="button" onClick={openPreferences}>{t('Çerez tercihlerini aç', 'Open cookie preferences')}</button></div>}
                 </div>
               </article>
             ))}

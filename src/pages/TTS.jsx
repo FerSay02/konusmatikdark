@@ -150,8 +150,9 @@ function extractVoicesResponse(payload) {
   return [];
 }
 
-function formatCreditValue(value, language = 'tr') {
-  return Number(Number(value || 0).toLocaleString(language === 'en' ? 'en-US' : 'tr-TR'));
+async function fetchVoiceList() {
+  const payload = await apiJson('/api/v1/voices', { skipAuthExpiredEvent: true });
+  return extractVoicesResponse(payload);
 }
 
 function VoiceIcon({ type }) {
@@ -263,9 +264,16 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
   const [engineVersion, setEngineVersion] = useState(
     prefill?.engineVersion === 'clone' ? 'v1' : (prefill?.engineVersion || 'v1')
   );
-  const [voiceId, setVoiceId] = useState(prefill?.voiceId || voiceOptions[0].id);
+  const [voiceId, setVoiceId] = useState(() => {
+    const initialEngine = prefill?.engineVersion === 'clone' ? 'v1' : (prefill?.engineVersion || 'v1');
+    return getAvailableVoiceOptions(initialEngine).some((voice) => voice.id === prefill?.voiceId)
+      ? prefill.voiceId
+      : 'woman';
+  });
   const [text, setText] = useState(typeof prefill?.text === 'string' ? prefill.text : '');
-  const [format, setFormat] = useState(prefill?.format || 'mp3');
+  const [format, setFormat] = useState(
+    prefill?.engineVersion === 'v2' ? 'wav' : (prefill?.format || 'mp3')
+  );
   const [audioUrl, setAudioUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -277,7 +285,6 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
   const [packagePopupButtonLabel, setPackagePopupButtonLabel] = useState('Paketler sayfasına git');
   const [packagePopupTarget, setPackagePopupTarget] = useState('pricing');
   const [packageMessage, setPackageMessage] = useState('TTS çıktısı indirebilmek için aktif TTS paketiniz olmalı.');
-  const [ttsCharacterLimit, setTtsCharacterLimit] = useState(GUEST_TTS_MAX_CHARS);
   const [ttsRemainingCredits, setTtsRemainingCredits] = useState(null);
   const [ttsVoiceCloningEnabled, setTtsVoiceCloningEnabled] = useState(false);
   const [ttsVoiceSlotLimit, setTtsVoiceSlotLimit] = useState(0);
@@ -285,7 +292,7 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
   const [ttsAvailableVoiceSlots, setTtsAvailableVoiceSlots] = useState(0);
   const [pricingRates, setPricingRates] = useState(null);
   const [userVoices, setUserVoices] = useState([]);
-  const [voiceListLoading, setVoiceListLoading] = useState(false);
+  const [voiceListLoading, setVoiceListLoading] = useState(true);
   const [voiceListError, setVoiceListError] = useState('');
   const [selectedCloneVoiceId, setSelectedCloneVoiceId] = useState('');
   const [showVoiceModal, setShowVoiceModal] = useState(false);
@@ -293,7 +300,6 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
   const [voiceAudioFile, setVoiceAudioFile] = useState(null);
   const [voiceConsentConfirmed, setVoiceConsentConfirmed] = useState(false);
   const [voiceFormError, setVoiceFormError] = useState('');
-  const [voiceFormMessage, setVoiceFormMessage] = useState('');
   const [voiceNotice, setVoiceNotice] = useState('');
   const [voiceSubmitting, setVoiceSubmitting] = useState(false);
   const [deletingVoiceId, setDeletingVoiceId] = useState('');
@@ -317,19 +323,21 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
       status: normalizeVoiceStatus(voice.status),
     }))
     .filter((voice) => voice.id);
-  const selectedCloneVoice = normalizedUserVoices.find((voice) => voice.id === selectedCloneVoiceId) || null;
-  const readyCloneVoices = normalizedUserVoices.filter((voice) => voice.status === 'ready');
+  const selectedCloneVoice = normalizedUserVoices.find((voice) => voice.id === selectedCloneVoiceId && voice.status === 'ready')
+    || normalizedUserVoices.find((voice) => voice.status === 'ready')
+    || normalizedUserVoices[0]
+    || null;
+  const activeCloneVoiceId = selectedCloneVoice?.id || '';
   const canUseCloneEngine = Boolean(ttsVoiceCloningEnabled && ttsVoiceSlotLimit > 0);
   const canCreateCloneVoice = canUseCloneEngine && ttsAvailableVoiceSlots > 0;
-  const activeCloneVoices = normalizedUserVoices.filter((voice) => ['pending', 'processing', 'ready'].includes(voice.status));
   const cloneEngineDisplay = getCloneEngineCopy(canUseCloneEngine);
-  const selectedEngineCopy = engineVersion === 'clone' ? cloneEngineDisplay : availableEngineOptions.find((engine) => engine.id === engineVersion) || availableEngineOptions[0];
-  const isCloneVoiceReady = !selectedCloneVoice || selectedCloneVoice.status !== 'ready' ? false : true;
   const charCount = text.length;
   const estimatedSeconds = Math.max(2, Math.round(charCount / 14));
   const engineCreditRate = getEngineCreditRate(pricingRates, engineVersion);
   const estimatedCredits = getEstimatedCredits(charCount, engineCreditRate);
-  const maxChars = ttsCharacterLimit;
+  const maxChars = ttsRemainingCredits === null
+    ? GUEST_TTS_MAX_CHARS
+    : getCreditLimitedMaxChars(ttsRemainingCredits, engineCreditRate);
   const voiceEnrollmentCreditCost = Number(pricingRates?.voice_enrollment?.credit_cost || 0) || null;
   const cloneUsageCreditRate = Number(pricingRates?.voice_clone?.credit_cost || 0) || null;
   const advancedLocked = !advancedEnabled;
@@ -340,9 +348,7 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
     setVoiceListLoading(true);
     setVoiceListError('');
     try {
-      const payload = await apiJson('/api/v1/voices', { skipAuthExpiredEvent: true });
-      const voices = extractVoicesResponse(payload);
-      setUserVoices(voices);
+      setUserVoices(await fetchVoiceList());
     } catch {
       setUserVoices([]);
       setVoiceListError('');
@@ -428,7 +434,6 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
       } catch {
         if (!isMounted) return;
         setTtsRemainingCredits(null);
-        setTtsCharacterLimit(GUEST_TTS_MAX_CHARS);
         setAdvancedEnabled(false);
         setTtsVoiceCloningEnabled(false);
         setTtsVoiceSlotLimit(0);
@@ -439,47 +444,14 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
 
     loadPricingRates();
     loadTtsLimit();
-    loadVoiceList();
+    fetchVoiceList()
+      .then((voices) => { if (isMounted) setUserVoices(voices); })
+      .catch(() => { if (isMounted) setUserVoices([]); })
+      .finally(() => { if (isMounted) setVoiceListLoading(false); });
     return () => {
       isMounted = false;
     };
   }, []);
-
-  useEffect(() => {
-    if (ttsRemainingCredits === null) {
-      setTtsCharacterLimit(GUEST_TTS_MAX_CHARS);
-      return;
-    }
-
-    setTtsCharacterLimit(getCreditLimitedMaxChars(ttsRemainingCredits, engineCreditRate));
-  }, [engineCreditRate, ttsRemainingCredits]);
-
-  useEffect(() => {
-    if (engineVersion === 'clone') {
-      setEngineVersion('v1');
-      return;
-    }
-
-    const isVoiceAvailable = availableVoiceOptions.some((voice) => voice.id === voiceId);
-    if (!isVoiceAvailable) {
-      setVoiceId('woman');
-    }
-  }, [availableVoiceOptions, engineVersion, voiceId]);
-
-  useEffect(() => {
-    if (engineVersion !== 'clone') return;
-    const normalized = userVoices.map((voice) => ({
-      ...voice,
-      status: normalizeVoiceStatus(voice.status),
-    })).filter((voice) => voice.id);
-    const currentVoice = normalized.find((voice) => voice.id === selectedCloneVoiceId) || null;
-    if (currentVoice && currentVoice.status === 'ready') return;
-
-    const nextReadyVoice = normalized.find((voice) => voice.status === 'ready') || normalized[0] || null;
-    if (nextReadyVoice?.id && nextReadyVoice.id !== selectedCloneVoiceId) {
-      setSelectedCloneVoiceId(nextReadyVoice.id);
-    }
-  }, [engineVersion, userVoices, selectedCloneVoiceId]);
 
   useEffect(() => {
     const normalized = userVoices.map((voice) => ({
@@ -503,12 +475,6 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
       });
     }
   }, [maxChars, text.length]);
-
-  useEffect(() => {
-    if (engineVersion !== 'v1' && format === 'mp3') {
-      setFormat('wav');
-    }
-  }, [engineVersion, format]);
 
   useEffect(() => {
     if (!showPackagePopup) return undefined;
@@ -564,7 +530,6 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
     }
 
     setVoiceFormError('');
-    setVoiceFormMessage('');
     setVoiceName('');
     setVoiceAudioFile(null);
     setVoiceConsentConfirmed(false);
@@ -575,7 +540,6 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
     if (voiceSubmitting) return;
     setShowVoiceModal(false);
     setVoiceFormError('');
-    setVoiceFormMessage('');
     setVoiceName('');
     setVoiceAudioFile(null);
     setVoiceConsentConfirmed(false);
@@ -642,7 +606,6 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
 
     setVoiceSubmitting(true);
     setVoiceFormError('');
-    setVoiceFormMessage('');
 
     try {
       const formData = new FormData();
@@ -650,6 +613,7 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
       formData.append('consentConfirmed', 'true');
       formData.append('audio', voiceAudioFile);
 
+      // TODO(BACKEND): Define retention and deletion for reference audio and generated voices; record any required cloning authorization server-side.
       const response = await apiFetch('/api/v1/voices', {
         method: 'POST',
         skipAuthExpiredEvent: true,
@@ -698,7 +662,7 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
         throw new Error(detail?.detail || 'Ses silinemedi.');
       }
 
-      if (selectedCloneVoiceId === voice.id) {
+      if (activeCloneVoiceId === voice.id) {
         setSelectedCloneVoiceId('');
       }
       await loadVoiceList();
@@ -740,7 +704,7 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
     }
 
     const selected = availableVoiceOptions.find((item) => item.id === voiceId) || { id: 'woman', language: 'tr' };
-    const cloneVoice = normalizedUserVoices.find((item) => item.id === selectedCloneVoiceId) || null;
+    const cloneVoice = selectedCloneVoice;
     if (engineVersion === 'clone') {
       if (!canUseCloneEngine) {
         setPackagePopupTitle('Klonlanmış Ses');
@@ -791,6 +755,7 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
           return;
         }
 
+        // TODO(BACKEND): Confirm TTS text/output retention, erasure, access controls and any model-training policy for this synthesis request.
         response = await apiFetch('/api/v1/tts/jobs/download-sync-file', {
           method: 'POST',
           skipAuthExpiredEvent: true,
@@ -834,7 +799,7 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
       return;
     }
 
-    const cloneVoice = normalizedUserVoices.find((item) => item.id === selectedCloneVoiceId) || null;
+    const cloneVoice = selectedCloneVoice;
     if (engineVersion === 'clone') {
       if (!canUseCloneEngine) {
         setPackagePopupTitle('Klonlanmış Ses');
@@ -1002,6 +967,8 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
                       className={`tts-engine-card ${engineVersion === engine.id ? 'active' : ''}`}
                       onClick={() => {
                         setEngineVersion(engine.id);
+                        setVoiceId((current) => getAvailableVoiceOptions(engine.id).some((voice) => voice.id === current) ? current : 'woman');
+                        if (engine.id !== 'v1') setFormat('wav');
                       }}
                       aria-pressed={engineVersion === engine.id}
                     >
@@ -1081,15 +1048,15 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
 
                     {!canUseCloneEngine && (
                       <div className="tts-clone-lock">
-                        <strong>{t('Klonlanmış Ses', 'Cloned Voice')}</strong>
-                        <span>{t('Premium özellik', 'Premium feature')}</span>
+                        <strong>{t(cloneEngineDisplay.title, cloneEngineDisplay.titleEn)}</strong>
+                        <span>{t(cloneEngineDisplay.description, cloneEngineDisplay.descriptionEn)}</span>
                       </div>
                     )}
 
                     <label className="tts-clone-select-label">
                       <span>{t('Ses seçin', 'Select voice')}</span>
                       <select
-                        value={selectedCloneVoiceId}
+                        value={activeCloneVoiceId}
                         onChange={(event) => setSelectedCloneVoiceId(event.target.value)}
                         disabled={voiceListLoading || normalizedUserVoices.length === 0}
                       >
@@ -1128,7 +1095,7 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
                         normalizedUserVoices.map((voice) => {
                           const status = getVoiceStatusLabel(voice.status, language);
                           const isReady = voice.status === 'ready';
-                          const isActive = selectedCloneVoiceId === voice.id;
+                          const isActive = activeCloneVoiceId === voice.id;
 
                           return (
                             <div

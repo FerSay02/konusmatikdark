@@ -1,3 +1,5 @@
+import { corporatePhoneDisplay } from './data/companyContact';
+
 export const siteUrl = (import.meta.env.VITE_SITE_URL || 'https://konusmatik.com').replace(/\/$/, '');
 
 export const pageRoutes = {
@@ -9,6 +11,10 @@ export const pageRoutes = {
   'api-docs': '/api-dokumantasyon',
   contact: '/iletisim',
   login: '/giris',
+  privacy: '/gizlilik-politikasi/',
+  terms: '/kullanim-kosullari/',
+  kvkk: '/kvkk-aydinlatma-metni/',
+  cookies: '/cerez-politikasi/',
   profile: '/profile',
   admin: '/admin',
   checkout: '/checkout',
@@ -32,8 +38,8 @@ export const seoPages = {
     title: 'Konuşmatik | Türkçe Seslendirme ve Deşifre Platformu',
     titleEn: 'Konusmatik | Text-to-Speech and Transcription Platform',
     description:
-      'Konuşmatik ile metinleri doğal Türkçe sese dönüştürün, ses ve video kayıtlarını deşifre edin, bulut veya kurum içi local kullanım seçeneklerinden yararlanın.',
-    descriptionEn: 'Convert text into natural speech, transcribe audio and video, and use Konusmatik in the cloud or on-premise.',
+      'Konuşmatik ile metinleri doğal Türkçe sese dönüştürün, ses kayıtlarını deşifre edin, bulut veya kurum içi local kullanım seçeneklerinden yararlanın.',
+    descriptionEn: 'Convert text into natural speech, transcribe audio recordings, and use Konusmatik in the cloud or on-premise.',
   },
   tts: {
     title: 'Metni Sese Çevir | Türkçe AI Seslendirme',
@@ -57,11 +63,11 @@ export const seoPages = {
     descriptionEn: 'Compare Konusmatik text-to-speech, transcription, and enterprise local deployment plans.',
   },
   corporate: {
-    title: 'Kurumsal | Local Kurulum ve Türkçe Ses Teknolojileri',
-    titleEn: 'Enterprise | Local Deployment and Voice Technology',
+    title: 'Kurumsal Yapay Zekâ Çözümleri | Konuşmatik & DeepZeka',
+    titleEn: 'Enterprise AI Solutions | Konusmatik & DeepZeka',
     description:
-      'Konuşmatik kurumsal çözümleri; kapalı ağ, kendi sunucunuzda local kurulum, API entegrasyonu, KVKK odaklı kullanım ve Türkçe ses teknolojileri sunar.',
-    descriptionEn: 'Deploy Konusmatik on-premise or in an air-gapped network with enterprise API integration and data privacy.',
+      'DeepZeka yapay zekâ ekosistemini keşfedin. Konuşmatik, Doculysis, DeePoint ve Clear Voice ile ses, belge ve görüşme analizi çözümlerini inceleyin.',
+    descriptionEn: 'Explore the DeepZeka AI ecosystem. Discover voice, document and conversation intelligence solutions from Konusmatik, Doculysis, DeePoint and Clear Voice.',
   },
   'api-docs': {
     title: 'API Dokümantasyonu | Konuşmatik Kurumsal TTS ve ASR',
@@ -74,9 +80,13 @@ export const seoPages = {
     title: 'İletişim | Konuşmatik Demo ve Kurumsal Teklif',
     titleEn: 'Contact | Konusmatik Demo and Enterprise Quote',
     description:
-      'Konuşmatik için demo, local kurulum, API entegrasyonu, kurumsal teklif ve teknik görüşme talepleriniz için DeepZeka ekibiyle iletişime geçin.',
-    descriptionEn: 'Contact DeepZeka for Konusmatik demos, local deployment, API integration, and enterprise quotes.',
+      `Konuşmatik demo, local kurulum, API entegrasyonu ve kurumsal teklif talepleri için DeepZeka ekibini ${corporatePhoneDisplay} numarasından arayın.`,
+    descriptionEn: `Call DeepZeka at ${corporatePhoneDisplay} for Konusmatik demos, local deployment, API integration, and enterprise quotes.`,
   },
+  privacy: { title: 'Gizlilik Politikası — Yayın Hazırlığı | Konuşmatik', titleEn: 'Privacy Policy — Pending Review | Konusmatik', description: 'Konuşmatik gizlilik sayfası yayına hazırlık aşamasındadır; doğrulanabilen frontend veri akışları ve hukuki inceleme durumu.', descriptionEn: 'Konusmatik privacy page pending company verification and legal review.', noindex: true },
+  terms: { title: 'Kullanım Koşulları — Yayın Hazırlığı | Konuşmatik', titleEn: 'Terms of Use — Pending Review | Konusmatik', description: 'Konuşmatik kullanım koşulları hukuki inceleme aşamasındadır; mevcut hizmet arayüzü ve yayın durumu hakkında bilgi.', descriptionEn: 'Konusmatik terms of use pending company verification and legal review.', noindex: true },
+  kvkk: { title: 'KVKK Aydınlatma Metni — Yayın Hazırlığı | Konuşmatik', titleEn: 'KVKK Notice — Pending Review | Konusmatik', description: 'Konuşmatik KVKK aydınlatma sayfası hukuki inceleme aşamasındadır; doğrulanabilen veri girişleri ve eksik onay durumu.', descriptionEn: 'Konusmatik KVKK notice pending company verification and legal review.', noindex: true },
+  cookies: { title: 'Çerez Politikası — Yayın Hazırlığı | Konuşmatik', titleEn: 'Cookie Policy — Pending Review | Konusmatik', description: 'Konuşmatik çerez tercihleri, tarayıcı depolaması ve işlevsel harita izni hakkında doğrulanabilir teknik bilgiler.', descriptionEn: 'Technical information about Konusmatik cookie choices, browser storage and functional map consent. Pending legal review.', noindex: true },
   login: {
     title: 'Konuşmatik Giriş',
     titleEn: 'Konusmatik Log In',

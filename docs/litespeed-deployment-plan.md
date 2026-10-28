@@ -1,0 +1,21 @@
+# Konuşmatik LiteSpeed yayın hazırlığı
+
+Yayın yöntemi: cPanel File Manager. cPanel ekranında hesap ana dizini `/home/u7874648` ve `konusmatik.com` adlı klasör görülüyor. Kullanıcının bu site klasöründe oluşturduğu benzersiz TXT dosyasına `konusmatik.com` üzerinden erişilmesi, test anında o klasörün alan adı tarafından sunulduğuna dair güçlü bir yol kanıtıdır. Ancak bu, cPanel **Domains → Document Root** değerinin ve üst dizin rewrite/alias kurallarının şu an kesin olarak doğrulandığı anlamına gelmez. File Manager'daki tam yol ile Domains kaydı tekrar eşleştirilmeden dosya aktarılmamalı; `public_html` varsayılmamalı.
+
+## Yayın paketi
+
+`npm run build` sonrasında `npm run deploy:manifest` çalıştırın. `docs/litespeed-dist-manifest.txt`, güncel `dist/` içinden üretilen yayın dosyalarının listesidir; iç test raporu `seo-validation-report.json` dışarıda bırakılır. Listedeki dosyalar, `dist` adlı ek bir klasör oluşturmadan, doğrulanmış Document Root içine aktarılır. Gizli `.htaccess` dosyası listede ve pakette yer alır. `web.config` de build kopyasıdır; LiteSpeed yapılandırması `.htaccess` üzerinden çalışır. `node_modules`, `src`, `content`, `.env` ve test sonuçları web köküne yüklenmez. Hukuki taslaklar onaylanana kadar oluşturulan paket yayın için onaylı sayılmaz.
+
+## cPanel'de aktarım öncesi denetim
+
+1. Domains ekranında `konusmatik.com` için Document Root değerini okuyup kaydedin. File Manager'da o dizini açın ve gizli dosyaların görünür olduğundan emin olun.
+2. TXT kanıtının bulunduğu klasörün tam yolunu Domains kaydıyla eşleştirin. Kök ve üst dizinlerdeki mevcut `.htaccess` dosyalarını, özel yönlendirmeleri, korunan yolları, `.well-known`/SSL doğrulama dosyalarını, bilinmeyen `data` dizinlerini ve aynı kökteki diğer uygulamaları inceleyip bir envanter çıkarın.
+3. Doğrulanmış kökün mevcut içeriğini zaman damgalı bir yedek olarak web dışındaki güvenli bir konuma kopyalayın veya indirin. Özellikle eski `index.html`, `.htaccess`, `robots.txt`, `sitemap.xml`, `assets/`, `rehber/`, `cozumler/`, uygulama rota klasörleri ve hosting yapılandırmaları korunmalıdır. Yedeği açıp birkaç dosyayı karşılaştırarak okunabildiğini doğrulayın; yedek arşivini web kökünde bırakmayın.
+4. İlgisiz dosya ve dizinleri, kullanıcı yüklemelerini, bilinmeyen veri klasörlerini, SSL doğrulama yollarını ve sunucu yapılandırmalarını silmeyin. File Manager'da toplu temizleme veya kökün tamamını değiştirme yapmayın.
+5. Hukuki, backend ve hosting onayları verilirse paketteki `dist/` **içeriğini** doğrulanmış köke aynı göreli yollarla aktarın. `dist` klasörünün kendisini alt klasör olarak yüklemeyin. `index.html`, `robots.txt`, `sitemap.xml`, `.htaccess` ve çakışan rota dosyaları için önce yedek alın. Paket `.htaccess` kurallarını mevcut korunan yollar ve özel yönlendirmelerle karşılaştırıp gerekli kuralları birleştirin; körlemesine üzerine yazmayın. Aktarım bittikten sonra manifesti dosya sayısı ve göreli yol bakımından karşılaştırın.
+
+## Yayın sonrası kontrol ve geri alma
+
+Yerel proje kökünde `node scripts/verify-live-deployment.mjs` çalıştırın. Betik 20 içerik sayfasının, ana sayfanın, Kurumsal ve üç yasal sayfanın ilk HTML yanıtını; kaynak rotalardan dinamik hesaplanan sitemap URL kümesini; robots dosyasını, canonical değerlerini, slash yönlendirmelerini, SEO 404'lerini ve JS/CSS MIME türlerini kontrol eder. TTS/ASR sayfa HTML ve varlıkları da kontrol edilir; gerçek ses üretimi ve deşifre işlemleri için giriş yapılmış hesapla ayrıca işlevsel deneme gerekir.
+
+Herhangi bir kritik kontrol başarısızsa yeni dosyaları rastgele silmeyin. Aktarım öncesi envanterle karşılaştırıp yalnızca bu yayında üstüne yazılan dosyaları yedekten geri koyun; eski `.htaccess` kurallarını ve `index.html` dosyasını birlikte geri yükleyin. Yeni, benzersiz isimli asset dosyalarını kaldırmak gerekirse önce bunların başka sürüm tarafından kullanılmadığını doğrulayın. `.well-known`, bilinmeyen `data` dizinleri ve ilgisiz uygulamalara dokunmayın. CDN veya LiteSpeed önbelleği kullanılıyorsa yalnızca siteye ait HTML önbelleğini, dosyalar doğru konumda doğrulandıktan sonra temizleyin. Ardından ana sayfa, eski kullanıcı girişi, TTS/ASR, robots/sitemap ve seçilmiş SEO rotalarını tekrar doğrulayın.

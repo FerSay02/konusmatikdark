@@ -307,6 +307,7 @@ export default function Profile({ currentUser, onUserUpdated, onNavigate, appLan
     setError('');
 
     try {
+      // TODO(BACKEND): Define an authenticated account-deletion endpoint and the retention/erasure result before offering a deletion action in this profile UI.
       const updated = await apiJson('/api/v1/auth/me', {
         method: 'PATCH',
         body: JSON.stringify(form),
@@ -499,7 +500,6 @@ export default function Profile({ currentUser, onUserUpdated, onNavigate, appLan
               <h2 id="profile-api-title">{t('API erişiminizi güvenle yönetin', 'Manage your API access securely')}</h2>
               <p>{t('Uygulamalarınız için yeni anahtar oluşturun, kullanım durumunu takip edin veya erişimi iptal edin.', 'Create keys for your applications, track their usage status, or revoke access.')}</p>
             </div>
-            <button type="button" className="profile-secondary-btn" onClick={() => onNavigate?.('api-docs')}>{t('API Dokümantasyonu', 'API Documentation')}</button>
           </div>
 
           <div className="contact-card profile-preview-key-manager-v3">

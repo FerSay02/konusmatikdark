@@ -14,16 +14,16 @@ const solutionItems = [
   {
     title: 'Metinden Sese (TTS)',
     titleEn: 'Text to Speech (TTS)',
-    description: 'Yazılı metinlerinizi doğal, akıcı ve stüdyo kalitesinde Türkçe ses dosyalarına dönüştürün.',
-    descriptionEn: 'Convert your written text into natural, fluent, studio-quality audio.',
+    description: 'Yazılı metinlerinizi seçtiğiniz ses modeliyle Türkçe ses dosyalarına dönüştürün.',
+    descriptionEn: 'Convert written text into Turkish audio with your chosen voice model.',
     icon: 'speaker',
     action: 'tts',
   },
   {
     title: 'Sesten Metne (ASR)',
     titleEn: 'Speech to Text (ASR)',
-    description: 'Toplantı, ders ve medya kayıtlarınızı yüksek doğrulukla yazılı metne çevirip düzenleyin.',
-    descriptionEn: 'Convert meeting, lecture, and media recordings into editable text with high accuracy.',
+    description: 'Toplantı, ders ve medya ses kayıtlarını yazılı metne çevirip gözden geçirin.',
+    descriptionEn: 'Turn meeting, lecture, and media audio recordings into text for review.',
     icon: 'transcript',
     action: 'asr',
   },
@@ -44,10 +44,10 @@ const solutionItems = [
     action: 'tts',
   },
   {
-    title: 'Video & Altyazı Deşifresi',
-    titleEn: 'Video & Subtitle Transcription',
-    description: 'Video kayıtlarından okunabilir metin çıkarın, altyazı ve arşiv işlerinizi hızlandırın.',
-    descriptionEn: 'Extract readable text from video and speed up subtitle and archive workflows.',
+    title: 'Video Konuşması Deşifresi',
+    titleEn: 'Video Speech Transcription',
+    description: 'Videodan çıkardığınız ses izini deşifre edip altyazı metnini hazırlayın.',
+    descriptionEn: 'Transcribe an extracted video audio track to prepare subtitle text.',
     icon: 'caption',
     action: 'asr',
   },
@@ -68,10 +68,10 @@ const solutionItems = [
     action: 'corporate',
   },
   {
-    title: 'Online Dikte & Not Alma',
-    titleEn: 'Online Dictation & Notes',
-    description: 'Konuşarak anında not alın, toplantı özetlerini ve görüşme detaylarını yazılı hale getirin.',
-    descriptionEn: 'Take notes by speaking and turn meeting summaries and interview details into text.',
+    title: 'Ses Kaydından Notlar',
+    titleEn: 'Notes from Audio',
+    description: 'Kayıtlı konuşmayı metne çevirip toplantı notlarını ayrıca hazırlayın.',
+    descriptionEn: 'Transcribe recorded speech and prepare meeting notes separately.',
     icon: 'dictation',
     action: 'asr',
   },
@@ -268,7 +268,7 @@ export default function Home({ onGoTts, onGoAsr, onNavigate, appLanguage }) {
         <div className="banner-content split-top">
           <div className="banner-col split-headline">
             <h1><ShinyText text={t('Konuşmatik', 'Konusmatik')} speed={7} delay={2} color="var(--hero-title-start)" shineColor="#d21784" spread={120} direction="left" yoyo={false} pauseOnHover={false} /></h1>
-            <p>{t('Seslendirme ve deşifre işlerinizi bulutta kullanın; kurumlar için aynı altyapıyı local sistem olarak da konumlandırın.', 'Use text-to-speech and transcription in the cloud, or deploy the same infrastructure locally for your organization.')}</p>
+            <p>{t('Türkçe yapay zekâ seslendirme ve sesten metne işlemlerini bulutta kullanın; kurumlar için local kurulum seçeneğini değerlendirin.', 'Use Turkish AI voice generation and speech-to-text in the cloud, or explore local deployment for your organization.')}</p>
           </div>
           <button type="button" className={`home-hero-scroll-cue ${isHeroCueVisible ? 'is-visible' : 'is-hidden'}`} onClick={scrollToStudioActions} aria-label={t('Çalışma alanını keşfet', 'Explore the workspace')}>
             <span className="home-hero-scroll-cue-icon"><i /><b /></span>
@@ -420,21 +420,21 @@ export default function Home({ onGoTts, onGoAsr, onNavigate, appLanguage }) {
             <span className="step-num">01</span>
             <div className="step-copy">
               <strong>{t('İçeriğinizi Belirleyin', 'Choose Your Content')}</strong>
-              <span>{t('Metninizi yazın veya ses/video dosyanızı sisteme yükleyin.', 'Write your text or upload an audio or video file.')}</span>
+              <span>{t('Metninizi yazın veya desteklenen ses dosyanızı sisteme yükleyin.', 'Write your text or upload a supported audio file.')}</span>
             </div>
           </div>
           <div className="story-step-card">
             <span className="step-num">02</span>
             <div className="step-copy">
               <strong>{t('Yapay Zeka İşleme', 'AI Processing')}</strong>
-              <span>{t('Türkçe ses ve konuşma tanıma motorlarımız saniyeler içinde işlesin.', 'Our voice and speech-recognition engines process it in seconds.')}</span>
+              <span>{t('Türkçe ses üretimi veya konuşma tanıma işlemini başlatın.', 'Start Turkish speech generation or speech recognition.')}</span>
             </div>
           </div>
           <div className="story-step-card">
             <span className="step-num">03</span>
             <div className="step-copy">
               <strong>{t('Sonucu Alın & Dışa Aktarın', 'Get & Export the Result')}</strong>
-              <span>{t('HD ses dosyanızı indirin, altyazı veya deşifre metnini doğrudan kopyalayın.', 'Download your HD audio or copy the subtitle or transcript directly.')}</span>
+              <span>{t('Ses dosyanızı indirin veya deşifre metnini kopyalayın.', 'Download the audio file or copy the transcript.')}</span>
             </div>
           </div>
         </div>
@@ -442,7 +442,7 @@ export default function Home({ onGoTts, onGoAsr, onNavigate, appLanguage }) {
         <div className="home-story-copy">
           <h2 id="home-story-title">{t('Ses ve metin işlerinizi tek akışta toparlayın.', 'Bring your audio and text workflows into one flow.')}</h2>
           <p>
-            {t('Metni sese çevirin, ses ve video kayıtlarını deşifre edin. İçerik üreticileri, eğitim ekipleri ve kurum içi/local kullanım senaryoları için hızlı, temiz ve yönetilebilir bir deneyim sunar.', 'Convert text into speech and transcribe audio or video. Get a fast, clean, manageable experience for creators, education teams, and internal or local enterprise use cases.')}
+            {t('Türkçe ', 'Create Turkish narration with ')}<a className="home-seo-link" href="/cozumler/turkce-seslendirme/">{t('metinden sese (TTS)', 'text-to-speech (TTS)')}</a>{t(' ile anlatım üretin; ', ' and turn audio into text with ')}<a className="home-seo-link" href="/cozumler/sesten-metne/">{t('sesten metne (ASR)', 'speech-to-text (ASR)')}</a>{t(' ile ses kayıtlarını yazıya aktarın. İçerik ve eğitim ekipleri için seslendirme, kurumlar için local kurulum seçeneklerini inceleyin.', '. Explore voiceovers for content and education teams, and local deployment options for organizations.')}
           </p>
         </div>
       </section>
@@ -463,7 +463,7 @@ export default function Home({ onGoTts, onGoAsr, onNavigate, appLanguage }) {
         <div className="home-solutions-head">
           <h2 id="home-solutions-title">{t('Seslendirme ve deşifre için yerli, local kurulabilir çözüm alanları', 'Locally deployable text-to-speech and transcription solutions')}</h2>
           <p>
-            {t('Türkçe modellerimizi bulutta kullanın veya kurum içi (on-premise) sunucularınızda kapalı ağ mimarisiyle bağımsız çalıştırın.', 'Use our Turkish models in the cloud or run them independently on your own on-premise servers in an air-gapped architecture.')}
+            {t('Türkçe modellerimizi bulutta kullanın veya ', 'Use our Turkish models in the cloud or explore ')}<a className="home-seo-link" href="/cozumler/on-premise-tts/">{t('kurum içi (on-premise) kurulumu', 'on-premise deployment')}</a>{t(' değerlendirin. Kurumsal API, gerçek zamanlı konuşma tanıma akışını da belgeler.', '. The enterprise API also documents a real-time speech recognition workflow.')}
           </p>
         </div>
 

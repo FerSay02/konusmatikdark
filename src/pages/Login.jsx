@@ -1,10 +1,14 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { apiJson } from '../lib/api';
 import { readStoredLanguage, restoreTurkishUiText } from '../lib/language';
-import Lightfall from '../components/Lightfall';
+import GoogleSignInButton from '../components/GoogleSignInButton';
+import GoogleRegistrationOnboarding from '../components/GoogleRegistrationOnboarding';
+import { completeGoogleRegistration, emailRegistrationEnabled, googleAuthConfigured, googleOnboardingConfigured, registerWithEmail, signInWithEmail, signInWithGoogle, termsVersion } from '../lib/authAdapter';
+import { legalPageDocuments, legalPageSections } from './legalContent';
+import './Login.polish.css';
+import './Login.legal-dialog.css';
 
 const rememberedEmailKey = 'konusmatik_remembered_email';
-const loginLightfallColors = ['#6c3ce9', '#d21784', '#f9a8d4'];
 
 function PasswordVisibilityIcon({ visible }) {
   return (
@@ -16,7 +20,7 @@ function PasswordVisibilityIcon({ visible }) {
   );
 }
 
-export default function Login({ onAuthenticated, appLanguage }) {
+export default function Login({ onAuthenticated, appLanguage, appTheme }) {
   const language = appLanguage || readStoredLanguage();
   const isEnglish = language === 'en';
   const t = useCallback((tr, en) => (isEnglish ? en : restoreTurkishUiText(tr)), [isEnglish]);
@@ -35,6 +39,21 @@ export default function Login({ onAuthenticated, appLanguage }) {
   const [forgotStep, setForgotStep] = useState('email');
   const [resetCode, setResetCode] = useState('');
   const [resetToken, setResetToken] = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
+  const [googleFlow, setGoogleFlow] = useState('idle');
+  const [googleBusy, setGoogleBusy] = useState(false);
+  const googleBusyRef = useRef(false);
+  const [googleError, setGoogleError] = useState('');
+  const [legalDialogType, setLegalDialogType] = useState(null);
+  const legalDialogRef = useRef(null);
+
+  useEffect(() => {
+    const dialog = legalDialogRef.current;
+    if (!dialog) return;
+    if (legalDialogType && !dialog.open) dialog.showModal();
+    else if (!legalDialogType && dialog.open) dialog.close();
+  }, [legalDialogType]);
 
   const isRegisterMode = mode === 'register';
   const isForgotMode = mode === 'forgot';
@@ -46,6 +65,7 @@ export default function Login({ onAuthenticated, appLanguage }) {
   };
 
   const switchMode = (nextMode) => {
+    if (nextMode === 'register' && !emailRegistrationEnabled) return;
     setMode(nextMode);
     setFullName('');
     setPhone('');
@@ -60,6 +80,49 @@ export default function Login({ onAuthenticated, appLanguage }) {
     setRememberMe(nextMode === 'login' ? Boolean(localStorage.getItem(rememberedEmailKey)) : false);
     setShowPassword(false);
     setShowPasswordConfirm(false);
+    setTermsAccepted(false);
+    setMarketingConsent(false);
+    setGoogleFlow('idle');
+    setGoogleError('');
+  };
+
+  const handleGoogleCredential = useCallback(async (credential) => {
+    if (googleBusyRef.current) return;
+    googleBusyRef.current = true;
+    setGoogleBusy(true);
+    setGoogleError('');
+    try {
+      const result = await signInWithGoogle(credential);
+      if (result.state === 'authenticated') {
+        onAuthenticated?.(result.user);
+      } else if (result.state === 'needs_legal_acceptance') {
+        if (googleOnboardingConfigured) setGoogleFlow('onboarding');
+        else setGoogleError(t('Kayıt onayı sunucuda henüz yapılandırılmadı.', 'Registration consent is not yet configured on the server.'));
+      } else if (result.state === 'account_link_required') {
+        setGoogleFlow('account_link_required');
+      }
+    } catch (err) {
+      if (err?.code === 'BACKEND_NOT_CONFIGURED') setGoogleError(t('Google ile giriş henüz kullanılamıyor.', 'Google sign-in is not available yet.'));
+      else if (err?.code === 'INVALID_CREDENTIAL') setGoogleError(t('Google doğrulaması tamamlanmadı. Tekrar deneyin.', 'Google verification did not finish. Please retry.'));
+      else if (err?.code === 'ACCOUNT_LINK_REQUIRED') setGoogleFlow('account_link_required');
+      else setGoogleError(t('Google ile giriş tamamlanamadı. Tekrar deneyin.', 'Google sign-in could not be completed. Please retry.'));
+    } finally {
+      googleBusyRef.current = false;
+      setGoogleBusy(false);
+    }
+  }, [onAuthenticated, t]);
+
+  const handleGoogleOnboarding = async (consent) => {
+    setGoogleBusy(true);
+    setGoogleError('');
+    try {
+      const user = await completeGoogleRegistration(consent);
+      onAuthenticated?.(user);
+    } catch {
+      setGoogleError(t('Kayıt tamamlanamadı. Lütfen tekrar deneyin.', 'Registration could not be completed. Please retry.'));
+    } finally {
+      setGoogleBusy(false);
+    }
   };
 
   const openForgotPassword = (event) => {
@@ -122,6 +185,14 @@ export default function Login({ onAuthenticated, appLanguage }) {
     }
 
     if (isRegisterMode) {
+      if (!emailRegistrationEnabled) {
+        setError(t('Yeni kayıtlar hukuki onay tamamlanana kadar kapalıdır.', 'New registrations are unavailable until legal approval is complete.'));
+        return;
+      }
+      if (!termsAccepted) {
+        setError(t('Kullanım Koşulları kabul edilmelidir.', 'Please accept the Terms of Use.'));
+        return;
+      }
       if (!isPhoneValid) {
         setError(t('Telefon formati yanlis girildi.', 'The phone number format is incorrect.'));
         return;
@@ -140,21 +211,15 @@ export default function Login({ onAuthenticated, appLanguage }) {
       setIsLoading(true);
 
       try {
-        await apiJson('/api/v1/auth/register', {
-          method: 'POST',
-          body: JSON.stringify({
-            email,
-            password,
-            full_name: fullName,
-            phone,
-          }),
-        });
+        await registerWithEmail({ email, password, full_name: fullName, phone, termsAccepted, marketingConsent });
         setMode('login');
         setFullName('');
         setPhone('');
         setPassword('');
         setPasswordConfirm('');
         setRememberMe(false);
+        setTermsAccepted(false);
+        setMarketingConsent(false);
         setShowPassword(false);
         setShowPasswordConfirm(false);
         setSuccess(t('Kayit tamamlandi. Giris yapabilirsiniz.', 'Registration is complete. You can log in.'));
@@ -170,10 +235,8 @@ export default function Login({ onAuthenticated, appLanguage }) {
     setIsLoading(true);
 
     try {
-      const data = await apiJson('/api/v1/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await signInWithEmail({ email, password });
+      if (!data?.user) throw new Error(t('Oturum doğrulanamadı.', 'Session could not be verified.'));
       if (rememberMe) {
         localStorage.setItem(rememberedEmailKey, email);
       } else {
@@ -204,35 +267,19 @@ export default function Login({ onAuthenticated, appLanguage }) {
 
   return (
     <main className="login-page">
-      <Lightfall
-        className="login-lightfall"
-        colors={loginLightfallColors}
-        backgroundColor="transparent"
-        speed={1}
-        streakCount={8}
-        glow={1}
-        density={1}
-        opacity={0.82}
-        mouseInteraction
-        mouseStrength={1}
-        mouseRadius={0.6}
-      />
       <section className="login-visual">
         <div className="login-copy">
           <h1>{t('Projelerinizi kaldiginiz yerden kolayca yonetin.', 'Manage your projects easily from where you left off.')}</h1>
           <p>{t('Seslendirme, desifre ve paket kullanimini tek panelden takip edin.', 'Track text-to-speech, transcription, and package usage from one panel.')}</p>
         </div>
 
-        <div className="login-metrics" aria-label={t('Hesap ozeti', 'Account summary')}>
-          <div>
-            <strong>10M+</strong>
-            <span>{t('Islenen karakter', 'Processed characters')}</span>
-          </div>
-          <div>
-            <strong>%99,5</strong>
-            <span>{t('Servis erisilebilirligi', 'Service availability')}</span>
-          </div>
-        </div>
+        <svg className="login-voice-art" viewBox="0 0 560 330" role="img" aria-label={t('Yapay zekâ ses dalgası illüstrasyonu', 'AI voice wave illustration')}>
+          <defs><linearGradient id="voice-grad" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#a480ff"/><stop offset=".55" stopColor="#d21784"/><stop offset="1" stopColor="#ffc7e9"/></linearGradient><radialGradient id="voice-glow"><stop stopColor="#bd78ff" stopOpacity=".7"/><stop offset="1" stopColor="#bd78ff" stopOpacity="0"/></radialGradient></defs>
+          <ellipse cx="280" cy="165" rx="245" ry="150" fill="url(#voice-glow)" opacity=".45"/>
+          <g className="voice-orbit" fill="none" stroke="url(#voice-grad)"><ellipse cx="280" cy="165" rx="225" ry="115" strokeWidth="1.5" opacity=".55"/><ellipse cx="280" cy="165" rx="186" ry="82" strokeWidth="2" opacity=".75"/><path d="M50 165c80-65 140 65 230 0s150-65 230 0" strokeWidth="3" opacity=".8"/></g>
+          <g className="voice-bars" fill="url(#voice-grad)">{[24,46,80,126,172,112,66,36,24,56,104,148,188,148,104,56,24,36,66,112,172,126,80,46,24].map((height, index) => <rect key={index} x={75 + index * 17} y={165-height/2} width="8" height={height} rx="4" />)}</g>
+          <circle cx="280" cy="165" r="8" fill="#fff"/><circle cx="280" cy="165" r="22" fill="none" stroke="#fff" opacity=".4"/>
+        </svg>
       </section>
 
       <section className="login-panel" aria-labelledby="login-title">
@@ -248,14 +295,15 @@ export default function Login({ onAuthenticated, appLanguage }) {
             <p>{subtitle}</p>
           </div>
 
-          {!isForgotMode && <div className="login-mode-tabs" role="tablist" aria-label={t('Giris veya kayit secimi', 'Login or registration selection')}>
+          {!isForgotMode && <div className="login-mode-tabs" role="group" aria-label={t('Giris veya kayit secimi', 'Login or registration selection')}>
             <button type="button" className={mode === 'login' ? 'active' : ''} onClick={() => switchMode('login')}>
               {t('Giris Yap', 'Log In')}
             </button>
-            <button type="button" className={mode === 'register' ? 'active' : ''} onClick={() => switchMode('register')}>
+            <button type="button" className={mode === 'register' ? 'active' : ''} onClick={() => switchMode('register')} disabled={!emailRegistrationEnabled}>
               {t('Kayit Ol', 'Register')}
             </button>
           </div>}
+          {!isForgotMode && !emailRegistrationEnabled && <p className="login-registration-hold" role="status">{t('Yeni kayıtlar, Kullanım Koşulları hukuken onaylanana kadar kapalıdır. Mevcut hesabınızla giriş yapabilirsiniz.', 'New registrations are unavailable until the Terms of Use receive legal approval. Existing users can still sign in.')}</p>}
 
           <form className={`login-form ${isRegisterMode ? 'login-form--register' : ''} ${isForgotMode ? 'login-form--forgot' : ''}`} onSubmit={handleSubmit}>
             {isRegisterMode && (
@@ -338,13 +386,21 @@ export default function Login({ onAuthenticated, appLanguage }) {
               </>
             )}
 
-            {error && <p className="login-help-text" style={{ color: '#b91c1c' }}>{error}</p>}
-            {success && <p className="login-help-text" style={{ color: '#047857' }}>{success}</p>}
-            {!error && !success && (
+            {error && <p className="login-help-text login-register-wide" role="alert">{error}</p>}
+            {success && <p className="login-help-text login-register-wide" role="status">{success}</p>}
+            {!error && !success && !isRegisterMode && (
               <p className="login-help-text">
-                {isForgotMode ? t('E-posta gelmezse spam klasörünü kontrol edin veya destek ekibimizle iletişime geçin.', 'If the email does not arrive, check your spam folder or contact support.') : isRegisterMode ? t('Kayit sonrasi paket secerek seslendirme ve desifre islemlerine baslayabilirsiniz.', 'After registration, choose a package to start text-to-speech and transcription.') : t('Kurumsal hesabiniz varsa yoneticinizin tanimladigi e-posta ile giris yapin.', 'If you have an enterprise account, log in with the email assigned by your administrator.')}
+                {isForgotMode ? t('E-posta gelmezse spam klasörünü kontrol edin veya destek ekibimizle iletişime geçin.', 'If the email does not arrive, check your spam folder or contact support.') : t('Kurumsal hesabiniz varsa yoneticinizin tanimladigi e-posta ile giris yapin.', 'If you have an enterprise account, log in with the email assigned by your administrator.')}
               </p>
             )}
+
+            {isRegisterMode && <div className="login-consents">
+              <div className="login-consent"><input id="login-terms-accepted" type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} required /> <span><label htmlFor="login-terms-accepted">{t('Kullanım Koşulları metnini kabul ediyorum:', 'I accept the Terms of Use:')}</label> <button type="button" className="login-legal-trigger" onClick={() => setLegalDialogType('terms')}>{t('Kullanım Koşulları', 'Terms of Use')}</button></span></div>
+              {termsVersion && <p className="login-disclosure">{t('Koşullar sürümü', 'Terms version')}: {termsVersion}</p>}
+              <p className="login-disclosure">{t('Kişisel veriler hakkında bilgi:', 'Information about personal data:')} <button type="button" className="login-legal-trigger" onClick={() => setLegalDialogType('kvkk')}>{t('KVKK Aydınlatma Metni', 'KVKK Notice')}</button> · <button type="button" className="login-legal-trigger" onClick={() => setLegalDialogType('privacy')}>{t('Gizlilik Politikası', 'Privacy Policy')}</button></p>
+              <label className="login-consent"><input type="checkbox" checked={marketingConsent} onChange={(event) => setMarketingConsent(event.target.checked)} /> <span>{t('İsteğe bağlı pazarlama iletileri almak istiyorum.', 'I would like to receive optional marketing messages.')}</span></label>
+              <p className="login-disclosure">{t('Pazarlama tercihi kayıt için gerekli değildir. Tercihin sunucuya kaydı entegrasyon sonrası sağlanacaktır.', 'Marketing is optional. Saving this preference requires backend integration.')}</p>
+            </div>}
 
             {!isRegisterMode && !isForgotMode && (
               <div className="login-options">
@@ -371,8 +427,29 @@ export default function Login({ onAuthenticated, appLanguage }) {
               </button>
             )}
           </form>
+          {!isForgotMode && <div className="login-google">
+            <p className="login-google-label">{t('veya', 'or')}</p>
+            <GoogleSignInButton language={language} theme={appTheme === 'dark' ? 'filled_black' : 'outline'} enabled={googleAuthConfigured} busy={googleBusy} onCredential={handleGoogleCredential} />
+            {googleError && <p className="login-google-error" role="alert">{googleError}</p>}
+            {googleFlow === 'account_link_required' && <div className="google-account-link" role="status">
+              <p>{t('Bu e-posta için mevcut bir hesap bulundu. Hesapları güvenli biçimde bağlamak için önce e-posta ile giriş yapın.', 'An account already exists for this email. Sign in with email first to link accounts securely.')}</p>
+              <button type="button" onClick={() => switchMode('login')}>{t('E-posta ile giriş', 'Sign in with email')}</button>
+            </div>}
+            {googleFlow === 'onboarding' && <GoogleRegistrationOnboarding language={language} termsVersion={termsVersion} busy={googleBusy} error={googleError} onComplete={handleGoogleOnboarding} onCancel={() => setGoogleFlow('idle')} onOpenLegal={setLegalDialogType} />}
+          </div>}
         </div>
       </section>
+      <dialog ref={legalDialogRef} className="login-legal-dialog" aria-labelledby="login-legal-dialog-title" onClose={() => setLegalDialogType(null)} onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
+        {legalDialogType && (() => {
+          const document = legalPageDocuments[legalDialogType];
+          const index = isEnglish ? 1 : 0;
+          return <div className="login-legal-dialog__scroll">
+            <header className="login-legal-dialog__header"><div><span>{t('Yasal bilgilendirme', 'Legal information')}</span><h2 id="login-legal-dialog-title">{document.title[index]}</h2></div><button type="button" className="login-legal-dialog__close" aria-label={t('Kapat', 'Close')} onClick={() => legalDialogRef.current?.close()}>×</button></header>
+            <p className="login-legal-dialog__intro">{document.intro[index]}</p>
+            <div className="login-legal-dialog__sections">{legalPageSections[legalDialogType].map((section) => <section key={section[0]}><h3>{section[index]}</h3><p>{section[index + 2]}</p></section>)}</div>
+          </div>;
+        })()}
+      </dialog>
     </main>
   );
 }

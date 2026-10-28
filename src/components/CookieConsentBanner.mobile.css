@@ -1,0 +1,8 @@
+@media (max-width:380px) {
+  .cookie-banner { gap:10px; padding:14px; max-height:44dvh; }
+  .cookie-actions { grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+  .cookie-actions button:last-child { grid-column:1/-1; }
+  .cookie-dialog { margin:auto; }
+  .cookie-dialog-inner { padding:18px; }
+  .cookie-category { padding:10px 0; }
+}

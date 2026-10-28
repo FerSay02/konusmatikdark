@@ -116,7 +116,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
       setFileName('');
       setFileSize(0);
       setTranscriptText('');
-      setErrorText(t('Dosya boyutu en fazla 10 MB olabilir.', 'The file size can be at most 10 MB.'));
+      setErrorText(t('Dosya boyutu en fazla 100 MB olabilir.', 'The file size can be at most 100 MB.'));
       return;
     }
     setSelectedFile(f);
@@ -174,6 +174,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
       formData.append('language', language);
       formData.append('task', 'transcribe');
 
+      // TODO(BACKEND): Confirm uploaded-audio and transcript retention, deletion, processor access and model-training policy for this ASR job.
       const response = await apiFetch('/api/v1/asr/jobs/sync', {
         method: 'POST',
         skipAuthExpiredEvent: true,

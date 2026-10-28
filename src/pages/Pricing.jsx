@@ -82,7 +82,6 @@ function normalizePlan(plan, language = 'tr') {
   const quotaUnit = String(plan.quota_unit || plan.unit || '').toLowerCase();
   const isTts = type === 'tts';
   const isVoiceCloning = type === 'voice_cloning';
-  const isCreditBased = ['credit', 'credits', 'kredi'].includes(quotaUnit);
   const isMinuteBased = ['minute', 'minutes', 'dakika', 'min'].includes(quotaUnit);
   const displayAmount = isTts || isMinuteBased || isVoiceCloning ? quota : quota / 60;
   const numberLocale = language === 'en' ? 'en-US' : 'tr-TR';
@@ -111,7 +110,7 @@ function normalizePlan(plan, language = 'tr') {
     voiceCloningEnabled: Boolean(plan.voice_cloning_enabled),
     voiceSlotLimit: Number(plan.voice_slot_limit || 0),
     price,
-    priceWithVat: priceWithVat || (price > 0 ? Math.round(price * 1.2 * 100) / 100 : 0),
+    priceWithVat: priceWithVat || null,
     perUnit: `${formatMoney(price / perUnitBase, language)} TL / ${perUnitLabel}`,
   };
 }

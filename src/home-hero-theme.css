@@ -37,3 +37,5 @@ html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-icon { border-
 html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-icon i,
 html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-icon b { border-color: #ffffff !important; }
 html[data-theme='light'] .home-banner-split .home-hero-scroll-cue-label { background: transparent !important; color: #ffffff !important; }
+.home-seo-link{color:inherit;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:.18em}
+.home-seo-link:hover,.home-seo-link:focus-visible{text-decoration-color:currentColor}

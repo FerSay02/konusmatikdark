@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import './PillNav.css';
 
@@ -17,7 +17,12 @@ export default function PillNav({
   initialLoadAnimation = true,
   rightContent = null,
 }) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileMenuState, setMobileMenuState] = useState({ route: activeHref, open: false });
+  const isMobileMenuOpen = mobileMenuState.route === activeHref && mobileMenuState.open;
+  const setIsMobileMenuOpen = useCallback((next) => setMobileMenuState((current) => ({
+    route: activeHref,
+    open: typeof next === 'function' ? next(current.route === activeHref && current.open) : next,
+  })), [activeHref]);
   const navItemsRef = useRef(null);
   const logoRef = useRef(null);
   const circleRefs = useRef([]);
@@ -34,17 +39,16 @@ export default function PillNav({
     const closeOnResize = () => {
       if (window.matchMedia('(min-width: 1100px)').matches) setIsMobileMenuOpen(false);
     };
+    const closeOnNavigation = () => setIsMobileMenuOpen(false);
     window.addEventListener('keydown', closeOnEscape);
     window.addEventListener('resize', closeOnResize);
+    window.addEventListener('popstate', closeOnNavigation);
     return () => {
       window.removeEventListener('keydown', closeOnEscape);
       window.removeEventListener('resize', closeOnResize);
+      window.removeEventListener('popstate', closeOnNavigation);
     };
-  }, []);
-
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [activeHref]);
+  }, [setIsMobileMenuOpen]);
 
   useEffect(() => {
     document.body.classList.toggle('mobile-nav-open', isMobileMenuOpen);
@@ -104,7 +108,7 @@ export default function PillNav({
   return (
     <div className={`pill-nav-container ${className}`}>
       <nav className="pill-nav" style={cssVars} aria-label="Primary">
-        <a className="pill-logo" href="/" aria-label={logoAlt} ref={logoRef} onClick={(event) => { event.preventDefault(); handleNavigate('home'); }}>
+        <a className={`pill-logo${activeHref === '/' ? ' is-active' : ''}`} href="/" aria-label={logoAlt} aria-current={activeHref === '/' ? 'page' : undefined} ref={logoRef} onClick={(event) => { event.preventDefault(); handleNavigate('home'); }}>
           <img src={logo} alt="" aria-hidden="true" />
           <span className="pill-logo-name">Konuşmatik</span>
         </a>
@@ -144,7 +148,7 @@ export default function PillNav({
             <button type="button" key={item.href} className={item.href === activeHref ? 'is-active' : ''} onClick={() => handleNavigate(item.page)}>{item.label}</button>
           ))}
         </div>
-        {rightContent && <div className="pill-mobile-popover-account">{rightContent}</div>}
+        {rightContent && <div className="pill-mobile-popover-account" onClickCapture={() => setIsMobileMenuOpen(false)}>{rightContent}</div>}
       </div>
     </div>
   );

@@ -197,7 +197,7 @@ async function seedCheckout(page) {
 }
 
 function languageToggle(page) {
-  return page.locator('.language-toggle');
+  return page.locator('.pill-nav-right-content .language-toggle').first();
 }
 
 async function toggleLanguage(page) {
@@ -247,7 +247,7 @@ test.describe('TR/EN language toggle matrix', () => {
     });
   }
 
-  test('language survives navbar navigation in both directions', async ({ page }) => {
+  test('language survives header and footer navigation', async ({ page }) => {
     await mockApi(page);
     await resetLanguage(page);
 
@@ -256,14 +256,14 @@ test.describe('TR/EN language toggle matrix', () => {
     await expectActiveLanguage(page, 'en');
     await expectTextState(page, pageCases.find((item) => item.route === '/api-dokumantasyon'), 'en');
 
-    await page.locator('.nav-links .nav-item').filter({ hasText: 'Pricing' }).click();
+    await page.locator('.pill-nav-items .pill').filter({ hasText: 'Pricing' }).click();
     await expect(page).toHaveURL(/\/fiyatlar$/);
     await expectActiveLanguage(page, 'en');
     await expectTextState(page, pageCases.find((item) => item.route === '/fiyatlar'), 'en');
 
     await toggleLanguage(page);
     await expectActiveLanguage(page, 'tr');
-    await page.locator('.nav-links .nav-item').filter({ hasText: 'API' }).click();
+    await page.locator('.footer a[href="/api-dokumantasyon"]').click();
     await expect(page).toHaveURL(/\/api-dokumantasyon$/);
     await expectActiveLanguage(page, 'tr');
     await expectTextState(page, pageCases.find((item) => item.route === '/api-dokumantasyon'), 'tr');
