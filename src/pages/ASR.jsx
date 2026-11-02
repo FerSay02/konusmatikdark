@@ -13,6 +13,16 @@ import {
   API_BASE_URL,
 } from '../lib/api';
 import { readStoredLanguage, restoreTurkishUiText } from '../lib/language';
+import {
+  ASR_LANGUAGE,
+  ASR_MODEL_DISPLAY_NAME,
+  buildRealtimeStartMessage,
+  buildRealtimeUpdateMessage,
+  buildSrt,
+  buildTimestampGranularities,
+  buildVtt,
+  formatTimestamp,
+} from '../lib/asrSupport';
 import StudioHero from '../components/StudioHero';
 import StarBorder from '../components/StarBorder';
 import { asrHeroContent, asrSteps, asrFeatures } from '../data/studioContent';
@@ -39,19 +49,6 @@ function formatDuration(seconds) {
     return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
   }
   return `${pad(mins)}:${pad(secs)}`;
-}
-
-function formatTimestamp(seconds, forceHours = false) {
-  if (seconds == null || isNaN(seconds) || seconds < 0) return '00:00.000';
-  const hrs = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-  const ms = Math.floor((seconds % 1) * 1000);
-  const pad = (n, z = 2) => String(n).padStart(z, '0');
-  if (hrs > 0 || forceHours) {
-    return `${pad(hrs)}:${pad(mins)}:${pad(secs)}.${pad(ms, 3)}`;
-  }
-  return `${pad(mins)}:${pad(secs)}.${pad(ms, 3)}`;
 }
 
 function isVideoFile(fileName, mimeType) {
@@ -433,27 +430,14 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
         mimeType = 'application/json;charset=utf-8';
       } else if (normalizedFormat === 'srt') {
         if (segments && segments.length > 0) {
-          content = segments
-            .map((seg, i) => {
-              const start = formatTimestamp(seg.start, true).replace('.', ',');
-              const end = formatTimestamp(seg.end, true).replace('.', ',');
-              return `${i + 1}\n${start} --> ${end}\n${seg.text}\n`;
-            })
-            .join('\n');
+          content = buildSrt(segments);
         } else {
           content = `1\n00:00:00,000 --> 00:00:10,000\n${transcriptText}\n`;
         }
         mimeType = 'application/x-subrip;charset=utf-8';
       } else if (normalizedFormat === 'vtt') {
         if (segments && segments.length > 0) {
-          const cues = segments
-            .map((seg, i) => {
-              const start = formatTimestamp(seg.start, true);
-              const end = formatTimestamp(seg.end, true);
-              return `${i + 1}\n${start} --> ${end}\n${seg.text}\n`;
-            })
-            .join('\n');
-          content = `WEBVTT\n\n${cues}`;
+content = buildVtt(segments);
         } else {
           content = `WEBVTT\n\n1\n00:00:00.000 --> 00:00:10.000\n${transcriptText}\n`;
         }
@@ -584,18 +568,13 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
 
       ws.onopen = () => {
         setRealtimeStatus('connected');
-        const granularities = enableRealtimeTimestamps
-          ? (enableRealtimeWordTimestamps ? ['segment', 'word'] : ['segment'])
-          : [];
         ws.send(
-          JSON.stringify({
-            type: 'session.start',
-            model: 'konusmatik-asr',
-            encoding: 'pcm_s16le',
-            sample_rate: 16000,
-            language: language === 'en' ? 'en' : 'tr',
-            timestamp_granularities: granularities,
-          })
+          JSON.stringify(
+            buildRealtimeStartMessage({
+              includeTimestamps: enableRealtimeTimestamps,
+              includeWordTimestamps: enableRealtimeWordTimestamps,
+            })
+          )
         );
       };
 
@@ -681,15 +660,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
     setEnableRealtimeTimestamps(newTimestamps);
     setEnableRealtimeWordTimestamps(newWords);
     if (realtimeWsRef.current && realtimeWsRef.current.readyState === WebSocket.OPEN) {
-      const granularities = newTimestamps
-        ? (newWords ? ['segment', 'word'] : ['segment'])
-        : [];
-      realtimeWsRef.current.send(
-        JSON.stringify({
-          type: 'session.update',
-          timestamp_granularities: granularities,
-        })
-      );
+      realtimeWsRef.current.send(JSON.stringify(buildRealtimeUpdateMessage(newTimestamps, newWords)));
     }
   };
 
@@ -706,15 +677,15 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
 
     const formData = new FormData();
     formData.append('file', selectedFile);
-    formData.append('language', language);
+    // The audio language, not the interface language: the engine decodes Turkish only.
+    formData.append('language', ASR_LANGUAGE);
     formData.append('task', 'transcribe');
 
     if (enableTimestamps) {
-      if (enableWordTimestamps) {
-        formData.append('timestamp_granularities', JSON.stringify(['segment', 'word']));
-      } else {
-        formData.append('timestamp_granularities', JSON.stringify(['segment']));
-      }
+      formData.append(
+        'timestamp_granularities',
+        JSON.stringify(buildTimestampGranularities(enableTimestamps, enableWordTimestamps))
+      );
     }
 
     try {
@@ -1410,8 +1381,8 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                       </div>
                       <p className="asr-realtime-desc">
                         {t(
-                          'Mikrofonunuzdan alınan ses anlık olarak Konuşmatik Whisper motoruna iletilir ve canlı olarak yazıya dökülür.',
-                          'Audio from your microphone is streamed directly to Konuşmatik Whisper engine and transcribed live.'
+                          'Mikrofonunuzdan alınan ses anlık olarak Konuşmatik ASR motoruna iletilir ve canlı olarak yazıya dökülür.',
+                          'Audio from your microphone is streamed directly to the Konuşmatik ASR engine and transcribed live.'
                         )}
                       </p>
                     </div>
@@ -1630,7 +1601,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                   <div className="tts-usage-stats">
                     <div className="tts-usage-item">
                       <span className="tts-usage-label">{t('Model', 'Model')}</span>
-                      <span className="tts-usage-value" style={{ color: '#E8356D' }}>Konuşmatik Whisper V1</span>
+                      <span className="tts-usage-value" style={{ color: '#E8356D' }}>{ASR_MODEL_DISPLAY_NAME} V2</span>
                     </div>
                     <div className="tts-usage-item">
                       <span className="tts-usage-label">{t('Ses Kodlaması', 'Audio Encoding')}</span>

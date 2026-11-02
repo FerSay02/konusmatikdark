@@ -2,7 +2,7 @@ import { API_BASE_REST } from './apiDocsV2';
 
 export const corporateAsrUrlParameters = [
   { name: 'audio_url', type: 'string', required: true, defaultVal: '-', desc: 'Doğrudan erişilebilir HTTPS ses veya video adresi. Özel/iç ağ adresleri engellenir (SSRF koruması). Maksimum 100 MB.', descEn: 'Directly reachable HTTPS audio or video URL. Private/internal network addresses are blocked (SSRF protection). Max 100 MB.' },
-  { name: 'language', type: 'string', required: false, defaultVal: 'tr', desc: 'Dil kodu.', descEn: 'Language code.' },
+  { name: 'language', type: 'string', required: false, defaultVal: 'tr', desc: 'Ses dili. Şu an yalnızca Türkçe (tr) desteklenir; diğer değerler 400 unsupported_language döner.', descEn: 'Audio language. Only Turkish (tr) is supported for now; other values return 400 unsupported_language.' },
   { name: 'timestamp_granularities', type: 'string[]', required: false, defaultVal: '-', desc: '"segment" ve/veya "word". Sonuçta zaman damgalı segment ve kelime listesi döner.', descEn: '"segment" and/or "word". The result includes timestamped segments and words.' },
   { name: 'webhook_id', type: 'uuid', required: false, defaultVal: '-', desc: 'Kayıtlı ve aktif bir webhook uç noktasının kimliği. İş bitince olay bu adrese gönderilir.', descEn: 'ID of a registered, active webhook endpoint. The completion event is delivered to it.' },
 ];

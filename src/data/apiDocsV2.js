@@ -4,7 +4,7 @@ export const API_BASE_REALTIME_WS = 'wss://api.konusmatik.com/api/v1/realtime';
 export const quickStartSteps = [
   { num: '01', title: 'API Anahtarınızı Edinin', titleEn: 'Get Your API Key', desc: 'Konuşmatik web panelinizden (Profil / API Anahtarları) bir anahtar oluşturun ve KONUSMATIK_API_KEY ortam değişkeninde saklayın.', descEn: 'Create an API key from your profile (Profile / API Keys) and store it in the KONUSMATIK_API_KEY environment variable.' },
   { num: '02', title: 'OpenAI SDK veya REST Seçin', titleEn: 'Choose OpenAI SDK or REST', desc: 'Canonical uç noktalar resmi OpenAI Python SDK ve cURL istekleriyle doğrudan uyumludur. Yüksek hacimli toplu işler için Kurumsal Asenkron API kullanın.', descEn: 'Canonical endpoints are directly compatible with the OpenAI Python SDK and cURL requests. For large batch processing, use the Corporate Async API.' },
-  { num: '03', title: 'Üretim Modelleriyle Çalışın', titleEn: 'Work with Production Models', desc: 'Resmi model isimleri: konusmatik-asr-v1 ve konusmatik-tts-v2. TTS sesleri: sila, deniz, taha.', descEn: 'Official model names: konusmatik-asr-v1 and konusmatik-tts-v2. Native TTS voices: sila, deniz, taha.' },
+  { num: '03', title: 'Üretim Modelleriyle Çalışın', titleEn: 'Work with Production Models', desc: 'Resmi model isimleri: konusmatik-asr-v2 ve konusmatik-tts-v2. TTS sesleri: sila, deniz, taha.', descEn: 'Official model names: konusmatik-asr-v2 and konusmatik-tts-v2. Native TTS voices: sila, deniz, taha.' },
 ];
 
 export const sdkSetupExamples = {
@@ -49,7 +49,7 @@ client = OpenAI(
 
 with open("audio.wav", "rb") as audio_file:
     transcript = client.audio.transcriptions.create(
-        model="konusmatik-asr-v1",
+        model="konusmatik-asr-v2",
         file=audio_file,
     )
 
@@ -63,7 +63,7 @@ const client = new OpenAI({
 });
 
 const transcript = await client.audio.transcriptions.create({
-  model: "konusmatik-asr-v1",
+  model: "konusmatik-asr-v2",
   file: fs.createReadStream("audio.wav"),
 });
 
@@ -108,7 +108,7 @@ await fs.promises.writeFile("output.wav", buffer);`,
 };
 
 export const modelsData = [
-  { id: 'konusmatik-asr-v1', name: 'Konuşmatik ASR v1', type: 'Konuşma Tanıma (STT)', typeEn: 'Speech to Text (ASR)', description: 'Ses dosyalarını yüksek doğrulukla Türkçe metne dönüştürür.', descriptionEn: 'Transcribes audio files into accurate Turkish text.', inputFormat: 'multipart/form-data (MP3, WAV, M4A, WEBM, OGG)', inputFormatEn: 'multipart/form-data (MP3, WAV, M4A, WEBM, OGG)', outputFormat: 'json, text, verbose_json', outputFormatEn: 'json, text, verbose_json', latency: '14 Eşzamanlı GPU İnference', latencyEn: '14 concurrent GPU inferences' },
+  { id: 'konusmatik-asr-v2', name: 'Konuşmatik ASR v1', type: 'Konuşma Tanıma (STT)', typeEn: 'Speech to Text (ASR)', description: 'Ses dosyalarını yüksek doğrulukla Türkçe metne dönüştürür.', descriptionEn: 'Transcribes audio files into accurate Turkish text.', inputFormat: 'multipart/form-data (MP3, WAV, M4A, WEBM, OGG)', inputFormatEn: 'multipart/form-data (MP3, WAV, M4A, WEBM, OGG)', outputFormat: 'json, text, verbose_json', outputFormatEn: 'json, text, verbose_json', latency: '14 Eşzamanlı GPU İnference', latencyEn: '14 concurrent GPU inferences' },
   { id: 'konusmatik-tts-v2', name: 'Konuşmatik TTS v1', type: 'Doğal Ses Sentezi (TTS)', typeEn: 'Text to Speech (TTS)', description: 'Türkçe metinleri doğal ve akıcı seslendirerek kayıpsız WAV ses çıktısı üretir.', descriptionEn: 'Generates natural-sounding Turkish speech as lossless WAV audio.', inputFormat: 'JSON body (max 10.000 karakter)', inputFormatEn: 'JSON body (max 10,000 chars)', outputFormat: 'audio/wav (RIFF/WAVE Binary)', outputFormatEn: 'audio/wav (RIFF/WAVE Binary)', latency: '32 Eşzamanlı GPU İnference', latencyEn: '32 concurrent GPU inferences' },
 ];
 
@@ -232,8 +232,8 @@ X-Request-ID: <request_id>`;
 
 export const asrParameters = [
   { name: 'file', type: 'file', required: true, defaultVal: '-', desc: 'Ses dosyası (Maksimum 100 MB, Maksimum 3 saat / 10.800s).', descEn: 'Audio file (Max 100 MB, Max 3 hours / 10,800s).' },
-  { name: 'model', type: 'string', required: true, defaultVal: 'konusmatik-asr-v1', desc: 'Üretim ASR model adı: konusmatik-asr-v1', descEn: 'Production ASR model ID: konusmatik-asr-v1' },
-  { name: 'language', type: 'string', required: false, defaultVal: 'tr', desc: 'Dil kodu (Varsayılan: tr).', descEn: 'Language code (Default: tr).' },
+  { name: 'model', type: 'string', required: true, defaultVal: 'konusmatik-asr-v2', desc: 'Üretim ASR model adı: konusmatik-asr-v2', descEn: 'Production ASR model ID: konusmatik-asr-v2' },
+  { name: 'language', type: 'string', required: false, defaultVal: 'tr', desc: 'Ses dili (Varsayılan: tr). Şu an yalnızca Türkçe desteklenir; diğer değerler 400 unsupported_language hatası döner.', descEn: 'Audio language (Default: tr). Only Turkish is supported for now; other values return a 400 unsupported_language error.' },
   { name: 'response_format', type: 'string', required: false, defaultVal: 'json', desc: 'json, text veya verbose_json.', descEn: 'json, text, or verbose_json.' },
 ];
 
@@ -250,7 +250,7 @@ client = OpenAI(
 
 with open("ses_kaydi.wav", "rb") as audio_file:
     transcription = client.audio.transcriptions.create(
-        model="konusmatik-asr-v1",
+        model="konusmatik-asr-v2",
         file=audio_file,
         language="tr",
         response_format="json",
@@ -259,7 +259,7 @@ with open("ses_kaydi.wav", "rb") as audio_file:
 print("Deşifre Metni:", transcription.text)`,
   curl: `curl -X POST "${API_BASE_REST}/audio/transcriptions" \\
   -H "Authorization: Bearer $KONUSMATIK_API_KEY" \\
-  -F "model=konusmatik-asr-v1" \\
+  -F "model=konusmatik-asr-v2" \\
   -F "file=@ses_kaydi.wav" \\
   -F "language=tr"`,
 };
@@ -466,7 +466,7 @@ export const realtimeAudioSpec = [
 
 export const realtimeEventTable = [
   { dir: 'Server -> Client', dirEn: 'Server -> Client', event: 'session.created', desc: 'Bağlantı kabul edilince varsayılan oturum objesi döner.', descEn: 'Returned after connection with the default session object.' },
-  { dir: 'Client -> Server', dirEn: 'Client -> Server', event: 'session.update', desc: 'Model (konusmatik-asr-v1), ses formatı ve VAD ayarlarını yapılandırır.', descEn: 'Configures model, audio format, and VAD settings.' },
+  { dir: 'Client -> Server', dirEn: 'Client -> Server', event: 'session.update', desc: 'Model (konusmatik-asr-v2), ses formatı ve VAD ayarlarını yapılandırır.', descEn: 'Configures model, audio format, and VAD settings.' },
   { dir: 'Server -> Client', dirEn: 'Server -> Client', event: 'session.updated', desc: 'Güncellenen oturum yapılandırmasını onaylar.', descEn: 'Confirms the updated session configuration.' },
   { dir: 'Client -> Server', dirEn: 'Client -> Server', event: 'input_audio_buffer.append', desc: 'Base64 PCM16 ses parçasını gönderir.', descEn: 'Sends a Base64 PCM16 audio chunk.' },
   { dir: 'Server -> Client', dirEn: 'Server -> Client', event: 'conversation.item.input_audio_transcription.delta', desc: 'Canlı transkripsiyon parçasını (kelime/hece) döner.', descEn: 'Returns real-time transcription deltas.' },
@@ -506,7 +506,7 @@ async def main():
         )
 
     async with client.realtime.connect(
-        model="konusmatik-asr-v1",
+        model="konusmatik-asr-v2",
     ) as connection:
         await connection.session.update(
             session={
@@ -593,7 +593,7 @@ async def main():
         await ws.send(json.dumps({
             "type": "session.update",
             "session": {
-                "model": "konusmatik-asr-v1",
+                "model": "konusmatik-asr-v2",
                 "input_audio_format": "pcm16",
                 "language": "tr",
                 "turn_detection": {"type": "server_vad"}
@@ -678,7 +678,7 @@ ws.on("open", () => {
   ws.send(JSON.stringify({
     type: "session.update",
     session: {
-      model: "konusmatik-asr-v1",
+      model: "konusmatik-asr-v2",
       input_audio_format: "pcm16",
       turn_detection: { type: "server_vad" },
     },
