@@ -49,8 +49,28 @@ export function formatTimestamp(seconds, forceHours = false) {
   return `${pad(mins)}:${pad(secs)}.${pad(ms, 3)}`;
 }
 
-function cues(segments, decimalSeparator) {
-  return segments
+// Segments safe to show and export: ordered, never overlapping, never past the end of the audio. The engine's
+// segments of adjacent chunks can overlap by seconds, and the last segment of a short file can outlast the audio.
+// A segment is cut where the next one starts; non-overlapping segments are returned unchanged. Returns copies:
+// the stored/API values are never modified.
+export function normalizeSegmentsForDisplay(segments, durationSeconds = null) {
+  if (!Array.isArray(segments)) return [];
+  const copies = segments.map((seg) => ({ ...seg }));
+  for (let i = 0; i < copies.length - 1; i += 1) {
+    if (copies[i].end > copies[i + 1].start) {
+      copies[i].end = Math.max(copies[i].start, copies[i + 1].start);
+    }
+  }
+  if (typeof durationSeconds === 'number' && durationSeconds > 0) {
+    copies.forEach((seg) => {
+      seg.end = Math.max(seg.start, Math.min(seg.end, durationSeconds));
+    });
+  }
+  return copies;
+}
+
+function cues(segments, decimalSeparator, durationSeconds) {
+  return normalizeSegmentsForDisplay(segments, durationSeconds)
     .map((seg, i) => {
       const start = formatTimestamp(seg.start, true).replace('.', decimalSeparator);
       const end = formatTimestamp(seg.end, true).replace('.', decimalSeparator);
@@ -59,10 +79,12 @@ function cues(segments, decimalSeparator) {
     .join('\n');
 }
 
-export function buildSrt(segments) {
-  return cues(segments, ',');
+export function buildSrt(segments, durationSeconds = null) {
+  return cues(segments, ',', durationSeconds);
 }
 
-export function buildVtt(segments) {
-  return `WEBVTT\n\n${cues(segments, '.')}`;
+export function buildVtt(segments, durationSeconds = null) {
+  return `WEBVTT
+
+${cues(segments, '.', durationSeconds)}`;
 }

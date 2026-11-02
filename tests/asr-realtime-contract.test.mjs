@@ -10,6 +10,7 @@ import {
   buildTimestampGranularities,
   buildVtt,
   formatTimestamp,
+  normalizeSegmentsForDisplay,
 } from '../src/lib/asrSupport.js';
 
 console.log('--- Testing ASR model, language and timestamp contract ---');
@@ -74,6 +75,23 @@ assert.strictEqual(
   'WEBVTT\n\n1\n00:00:00.000 --> 00:00:01.500\nbir\n\n2\n00:00:04.300 --> 00:01:00.000\niki\n\n3\n01:01:01.123 --> 01:01:01.900\nüç\n'
 );
 console.log('✓ SRT / VTT');
+
+// 5b. The engine's segments of adjacent chunks overlap and a short file's last segment can outlast the audio:
+// what is shown and exported must be ordered and inside the audio, while the stored values stay untouched.
+const overlapping = [
+  { start: 0, end: 13.44, text: 'bir' },
+  { start: 11.39, end: 24.22, text: 'iki' },
+  { start: 24.22, end: 30, text: 'üç' },
+];
+const safe = normalizeSegmentsForDisplay(overlapping, 28.5);
+assert.deepStrictEqual(safe.map((s) => [s.start, s.end]), [[0, 11.39], [11.39, 24.22], [24.22, 28.5]]);
+assert.strictEqual(overlapping[0].end, 13.44, 'the source segments must not be modified');
+assert.deepStrictEqual(normalizeSegmentsForDisplay(overlapping).map((s) => s.end), [11.39, 24.22, 30]);
+assert.deepStrictEqual(normalizeSegmentsForDisplay([{ start: 0, end: 1, text: 'a' }, { start: 2, end: 3, text: 'b' }], 10).map((s) => [s.start, s.end]), [[0, 1], [2, 3]]);
+assert.deepStrictEqual(normalizeSegmentsForDisplay(null), []);
+assert.ok(buildSrt(overlapping, 28.5).includes('00:00:00,000 --> 00:00:11,390'));
+assert.ok(buildVtt(overlapping, 28.5).includes('00:00:24.220 --> 00:00:28.500'));
+console.log('✓ overlap-safe display');
 
 // 6. The product is called Konuşmatik ASR: no engine/library name in user-facing sources
 for (const file of ['../src/pages/ASR.jsx', '../src/lib/asrSupport.js']) {

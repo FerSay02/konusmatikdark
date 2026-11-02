@@ -22,6 +22,7 @@ import {
   buildTimestampGranularities,
   buildVtt,
   formatTimestamp,
+  normalizeSegmentsForDisplay,
 } from '../lib/asrSupport';
 import StudioHero from '../components/StudioHero';
 import StarBorder from '../components/StarBorder';
@@ -176,15 +177,6 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
     };
   }, []);
 
-  // Cleanup object URLs, polling timers and realtime audio on unmount
-  useEffect(() => {
-    return () => {
-      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-      if (mediaObjectUrl) URL.revokeObjectURL(mediaObjectUrl);
-      stopRealtimeRecording();
-    };
-  }, [mediaObjectUrl]);
-
   // Handle escape on modal
   useEffect(() => {
     if (!showPackagePopup) return;
@@ -211,11 +203,14 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
     return transcriptText.split(/\s+/).filter(Boolean).length;
   }, [transcriptText]);
 
+  // Engine segments of adjacent chunks can overlap and the last one can outlast the audio: show/export ordered copies.
+  const displaySegments = useMemo(() => normalizeSegmentsForDisplay(segments, mediaDuration), [segments, mediaDuration]);
+
   // Active segment detection based on current media playback time
   const activeSegmentIndex = useMemo(() => {
-    if (!segments || segments.length === 0) return -1;
-    return segments.findIndex((s) => currentTime >= s.start && currentTime < s.end);
-  }, [segments, currentTime]);
+    if (!displaySegments || displaySegments.length === 0) return -1;
+    return displaySegments.findIndex((s) => currentTime >= s.start && currentTime < s.end);
+  }, [displaySegments, currentTime]);
 
   // File Selection and Metadata Inspection
   const handleSelectFile = (file) => {
@@ -430,14 +425,14 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
         mimeType = 'application/json;charset=utf-8';
       } else if (normalizedFormat === 'srt') {
         if (segments && segments.length > 0) {
-          content = buildSrt(segments);
+          content = buildSrt(segments, mediaDuration);
         } else {
           content = `1\n00:00:00,000 --> 00:00:10,000\n${transcriptText}\n`;
         }
         mimeType = 'application/x-subrip;charset=utf-8';
       } else if (normalizedFormat === 'vtt') {
         if (segments && segments.length > 0) {
-content = buildVtt(segments);
+          content = buildVtt(segments, mediaDuration);
         } else {
           content = `WEBVTT\n\n1\n00:00:00.000 --> 00:00:10.000\n${transcriptText}\n`;
         }
@@ -527,7 +522,9 @@ content = buildVtt(segments);
         if (realtimeWsRef.current.readyState === WebSocket.OPEN) {
           try {
             realtimeWsRef.current.send(JSON.stringify({ type: 'session.stop' }));
-          } catch {}
+          } catch {
+            // the socket may already be closing: the close below still runs
+          }
           realtimeWsRef.current.close();
         }
         realtimeWsRef.current = null;
@@ -538,6 +535,15 @@ content = buildVtt(segments);
     setIsRealtimeActive(false);
     setRealtimeStatus('idle');
   };
+
+  // Cleanup object URLs, polling timers and realtime audio on unmount
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      if (mediaObjectUrl) URL.revokeObjectURL(mediaObjectUrl);
+      stopRealtimeRecording();
+    };
+  }, [mediaObjectUrl]);
 
   const startRealtimeRecording = async () => {
     setRealtimeError('');
@@ -1087,7 +1093,7 @@ content = buildVtt(segments);
                   {/* Segmented View */}
                   {viewMode === 'segments' && segments && segments.length > 0 ? (
                     <div className="asr-segments-container" role="feed" aria-label={t('Transkripsiyon segmentleri', 'Transcription segments')}>
-                      {segments.map((seg, idx) => {
+                      {displaySegments.map((seg, idx) => {
                         const isActive = idx === activeSegmentIndex;
                         return (
                           <div
