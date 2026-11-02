@@ -32,6 +32,7 @@ test('registration requires terms, keeps marketing optional and does not invent 
   await page.route('**/api/v1/**', async (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path === '/api/v1/auth/me') return route.fulfill({ status: 401, contentType: 'application/json', body: '{}' });
+    if (path === '/api/v1/auth/registration-terms') return route.fulfill({ status: 200, contentType: 'application/json', body: '{"terms_version":"server-v1"}' });
     if (path === '/api/v1/auth/register') {
       registered = JSON.parse(route.request().postData() || '{}');
       return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
@@ -41,6 +42,7 @@ test('registration requires terms, keeps marketing optional and does not invent 
   });
   await page.goto('/giris');
   await page.getByRole('button', { name: 'Kayit Ol' }).first().click();
+  await expect(page.getByText('Koşullar sürümü: server-v1')).toBeVisible();
   await expect(page.getByText('Kayit sonrasi paket secerek')).toHaveCount(0);
   await expect(page.getByText('İlk Google kaydı adımlarını gör')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Google ile devam et' })).toBeDisabled();
@@ -57,6 +59,7 @@ test('registration requires terms, keeps marketing optional and does not invent 
   await consent.first().check();
   await page.locator('.btn-login-submit').click();
   await expect.poll(() => registered?.email).toBe('test@example.com');
+  expect(registered).toMatchObject({ terms_accepted: true, terms_version: 'server-v1' });
   await expect(page).toHaveURL(/\/giris$/);
   await expect(page.getByRole('status')).toBeVisible();
   await page.locator('input[autocomplete="current-password"]').fill('safe-pass-123');

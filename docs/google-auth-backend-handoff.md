@@ -1,5 +1,7 @@
 # Google authentication: frontend/backend handoff
 
+> Historical handoff: the endpoint and feature-flag details below predate the current implementation. For the current contract and server-owned terms version, see [email-registration-terms.md](email-registration-terms.md).
+
 Status: frontend integration boundary prepared. Google login is disabled until the backend exchange, onboarding and approved legal version are configured and tested. No real Google session has been verified.
 
 ## Public configuration

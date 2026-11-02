@@ -43,3 +43,44 @@ html[data-theme='light'] .login-legal-trigger:hover { color: #35166b; }
   .login-legal-dialog__sections section { padding: 15px 0; }
 }
 @media (prefers-reduced-motion: reduce) { .login-legal-dialog__close { transition: none; } .login-legal-dialog__close:hover { transform: none; } }
+
+/* Google registration confirmation uses the same card treatment as login. */
+.login-card--google-consent .login-card-header,
+.login-card--google-consent .login-mode-tabs,
+.login-card--google-consent .login-registration-hold,
+.login-card--google-consent .login-form,
+.login-card--google-consent .login-google-label { display: none; }
+.login-card--google-consent .login-google { margin: 0; padding: 0; border: 0; }
+.login-card--google-consent .google-onboarding {
+  display: grid; gap: 18px; margin: 0; padding: clamp(20px, 4vw, 30px);
+  border: 1px solid rgba(185, 143, 240, .3); border-radius: 18px;
+  background: linear-gradient(150deg, rgba(133, 78, 202, .15), rgba(37, 20, 62, .36));
+  box-shadow: 0 14px 34px rgba(13, 5, 30, .18);
+}
+.login-card--google-consent .google-onboarding h2 { margin: 0; color: #fff; font-size: clamp(1.35rem, 3vw, 1.65rem); }
+.login-card--google-consent .google-onboarding p { margin: 0; color: #d7cbe9; line-height: 1.55; }
+.login-card--google-consent .google-onboarding label { display: flex; align-items: flex-start; gap: 12px; line-height: 1.55; cursor: pointer; }
+.login-card--google-consent .google-onboarding input[type='checkbox'] { flex: none; width: 18px; height: 18px; margin: 3px 0 0; accent-color: #b126b3; }
+.login-card--google-consent .google-terms-version { font-size: .82rem; color: #bfb0d2; }
+.login-card--google-consent .google-sign-in { width: 100%; }
+.login-card--google-consent .google-onboarding-complete {
+  min-height: 46px; border: 0; border-radius: 12px; color: #fff;
+  background: linear-gradient(100deg, #6836e6, #c71986); font: inherit; font-weight: 700; cursor: pointer;
+}
+.login-card--google-consent .google-onboarding-complete:disabled { cursor: not-allowed; }
+.login-card--google-consent .google-onboarding-cancel,
+.google-sign-in .google-sign-in-cancel,
+.google-sign-in .google-sign-in-retry {
+  min-height: 46px; padding: 10px 18px; border: 1px solid rgba(190, 159, 235, .48);
+  border-radius: 12px; background: #2b193f !important; color: #f6f1ff !important;
+  font: inherit; font-weight: 650; cursor: pointer; transition: background .18s ease, border-color .18s ease;
+}
+.login-card--google-consent .google-onboarding-cancel:hover,
+.google-sign-in .google-sign-in-cancel:hover,
+.google-sign-in .google-sign-in-retry:hover { background: #42235c !important; border-color: #c9a8ff; }
+html[data-theme='light'] .login-card--google-consent .google-onboarding { background: #faf6ff; border-color: #dfcbed; box-shadow: 0 10px 24px rgba(75, 40, 105, .07); }
+html[data-theme='light'] .login-card--google-consent .google-onboarding h2 { color: #291a3a; }
+html[data-theme='light'] .login-card--google-consent .google-onboarding p { color: #594a69; }
+html[data-theme='light'] .login-card--google-consent .google-onboarding-cancel,
+html[data-theme='light'] .google-sign-in .google-sign-in-cancel,
+html[data-theme='light'] .google-sign-in .google-sign-in-retry { color: #442267 !important; border-color: #cbb0e1; background: #f6effd !important; }

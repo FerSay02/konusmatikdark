@@ -31,10 +31,26 @@ import {
   ttsParameters,
   ttsVoicesData,
 } from '../data/apiDocsV2';
+import {
+  corporateAsrResultFields,
+  corporateAsrSyncExample,
+  corporateAsrUrlExample,
+  corporateAsrUrlParameters,
+  webhookEndpointsTable,
+  webhookErrorCodes,
+  webhookEventExamples,
+  webhookHeadersTable,
+  webhookManagementExample,
+  webhookRetrySchedule,
+  webhookVerifyExample,
+} from '../data/apiDocsWebhooks';
 
 const codeLanguageLabels = {
   curl: 'cURL',
   python: 'Python',
+  node: 'Node.js',
+  completed: 'asr.job.completed',
+  failed: 'asr.job.failed',
 };
 
 function CopyButton({ textToCopy, language = 'tr' }) {
@@ -75,7 +91,7 @@ function CopyButton({ textToCopy, language = 'tr' }) {
 }
 
 function CodeConsole({ examples, language, defaultLanguage }) {
-  const keys = ['python', 'curl'].filter((key) => examples[key]);
+  const keys = ['python', 'node', 'curl', 'completed', 'failed'].filter((key) => examples[key]);
   const initial = defaultLanguage && examples[defaultLanguage] ? defaultLanguage : keys[0];
   const [activeLanguage, setActiveLanguage] = useState(() => {
     try {
@@ -89,6 +105,7 @@ function CodeConsole({ examples, language, defaultLanguage }) {
 
   const selectLanguage = (key) => {
     setActiveLanguage(key);
+    if (!['python', 'node', 'curl'].includes(key)) return;
     try {
       localStorage.setItem('konusmatik_api_docs_code_language', key);
     } catch {
@@ -320,6 +337,7 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
       label: t('Konuşmatik Asenkron API', 'Konuşmatik Async API'),
       items: [
         ['corporate-asr', 'Konuşmatik Asenkron ASR'],
+        ['corporate-webhooks', t('Webhook Bildirimleri', 'Webhook Notifications')],
         ['corporate-tts', 'Konuşmatik Asenkron TTS'],
         ['realtime-api', t('Konuşmatik Asenkron Realtime ASR', 'Konuşmatik Async Realtime ASR')],
       ],
@@ -682,6 +700,89 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
                 <div className="api-endpoint-console-wrap">
                   <h4>{t('İş Oluşturma, Polling ve Sonuç Alma', 'Create Job, Polling, and Result')}</h4>
                   <CodeConsole examples={corporateAsrPollingExample} language={language} defaultLanguage="python" />
+                </div>
+                <div className="api-v2-subsection">
+                  <h3>{t('URL ile ASR İşi (Dosya Yüklemeden)', 'ASR Job from URL (No Upload)')}</h3>
+                  <p>{t('Ses veya video dosyasını yüklemek yerine HTTPS adresini verin; Konuşmatik dosyayı sunucu tarafında indirir ve kuyruğa alır. Yanıt HTTP 202 Accepted döner.', 'Provide an HTTPS address instead of uploading; Konuşmatik downloads the file server-side and queues it. Responds with HTTP 202 Accepted.')}</p>
+                  <EndpointHeader id="corporate-asr-url" method="POST" path="/corporate/asr/jobs/url" description={t("Uzak bir URL'den asenkron ASR işi oluşturur. /corporate/asr/jobs uç noktası da JSON gövdede audio_url kabul eder.", 'Creates an async ASR job from a remote URL. /corporate/asr/jobs also accepts audio_url in a JSON body.')} />
+                  <ParametersTable parameters={corporateAsrUrlParameters} language={language} t={t} />
+                  <CodeConsole examples={corporateAsrUrlExample} language={language} defaultLanguage="python" />
+                </div>
+                <div className="api-v2-subsection">
+                  <h3>{t('Zaman Damgaları ve Sonuç Alanları', 'Timestamps & Result Fields')}</h3>
+                  <p>{t('İş oluştururken veya sonuç alırken timestamp_granularities[] ile segment ve/veya word seçin. Sonuç ayrıca srt ve vtt altyazı çıktıları içerir.', 'Choose segment and/or word with timestamp_granularities[] when creating a job or fetching the result. The result also includes srt and vtt subtitle outputs.')}</p>
+                  <EndpointHeader method="GET" path="/corporate/asr/jobs/{id}/download" description={t('Sonuç dosyası için süreli indirme bağlantısı döndürür (url, expires_in_seconds).', 'Returns a time-limited download link for the result file (url, expires_in_seconds).')} />
+                  <ParametersTable parameters={corporateAsrResultFields} language={language} t={t} />
+                </div>
+                <div className="api-v2-subsection">
+                  <h3>{t('Senkron ASR', 'Synchronous ASR')}</h3>
+                  <EndpointHeader id="corporate-asr-sync" method="POST" path="/corporate/asr/jobs/sync" description={t('Kısa dosyalar için kuyruk beklemeden sonucu aynı istekte döndürür (HTTP 201).', 'For short files, returns the result in the same request without polling (HTTP 201).')} />
+                  <CodeConsole examples={corporateAsrSyncExample} language={language} defaultLanguage="python" />
+                </div>
+              </div>
+            </div>
+
+            {/* Webhooks */}
+            <div id="corporate-webhooks" className="api-v2-corporate-service api-v2-nav-target">
+              <SectionIntro
+                headingLevel="h3"
+                title={t('Webhook Bildirimleri', 'Webhook Notifications')}
+                description={t("Polling yapmak yerine, ASR işi tamamlandığında veya başarısız olduğunda Konuşmatik'in HTTPS adresinize imzalı bir olay göndermesini sağlayın.", 'Instead of polling, have Konuşmatik send a signed event to your HTTPS URL when an ASR job completes or fails.')}
+              />
+              <div className="api-endpoint-card">
+                <div className="api-v2-subsection">
+                  <h3>{t('Uç Nokta Yönetimi', 'Endpoint Management')}</h3>
+                  <div className="api-v2-table-wrap">
+                    <table className="api-v2-table">
+                      <thead><tr><th>{t('Metod', 'Method')}</th><th>{t('Yol', 'Path')}</th><th>{t('Açıklama', 'Description')}</th></tr></thead>
+                      <tbody>
+                        {webhookEndpointsTable.map((row) => (
+                          <tr key={`${row.method}-${row.path}`}>
+                            <td><span className={`api-http-method ${row.method.toLowerCase()}`}>{row.method}</span></td>
+                            <td><code>{row.path}</code></td>
+                            <td>{local(row, 'desc')}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p>{t('İşe bağlamak için ASR iş oluştururken webhook_id gönderin. Uç nokta HTTPS olmalıdır; özel ağ adresleri reddedilir ve yönlendirmeler (redirect) takip edilmez.', 'Pass webhook_id when creating an ASR job to attach it. The endpoint must be HTTPS; private network addresses are rejected and redirects are not followed.')}</p>
+                  <CodeConsole examples={webhookManagementExample} language={language} defaultLanguage="python" />
+                </div>
+
+                <div className="api-v2-subsection">
+                  <h3>{t('Olay Türleri ve Gövde', 'Event Types & Payload')}</h3>
+                  <p>{t('Desteklenen olaylar: asr.job.completed ve asr.job.failed. Her istek POST + application/json olarak gelir.', 'Supported events: asr.job.completed and asr.job.failed. Each request is a POST with application/json.')}</p>
+                  <CodeConsole examples={webhookEventExamples} language={language} defaultLanguage="completed" />
+                  <div className="api-v2-table-wrap">
+                    <table className="api-v2-table">
+                      <thead><tr><th>{t('Hata Kodu', 'Error Code')}</th><th>{t('Açıklama', 'Description')}</th></tr></thead>
+                      <tbody>{webhookErrorCodes.map((row) => <tr key={row.code}><td><code>{row.code}</code></td><td>{local(row, 'desc')}</td></tr>)}</tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="api-v2-subsection">
+                  <h3>{t('İstek Başlıkları ve İmza Doğrulama', 'Headers & Signature Verification')}</h3>
+                  <p>{t('İmza, HMAC_SHA256(secret, "{timestamp}." + ham_gövde) değerinin hex karşılığıdır. İmzayı ham gövde üzerinden, sabit zamanlı karşılaştırmayla doğrulayın ve 5 dakikadan eski zaman damgalarını reddedin.', 'The signature is the hex of HMAC_SHA256(secret, "{timestamp}." + raw_body). Verify it over the raw body with a constant-time comparison and reject timestamps older than 5 minutes.')}</p>
+                  <div className="api-v2-table-wrap">
+                    <table className="api-v2-table">
+                      <thead><tr><th>{t('Başlık', 'Header')}</th><th>{t('Örnek', 'Example')}</th><th>{t('Açıklama', 'Description')}</th></tr></thead>
+                      <tbody>{webhookHeadersTable.map((row) => <tr key={row.name}><td><code>{row.name}</code></td><td><code>{row.value}</code></td><td>{local(row, 'desc')}</td></tr>)}</tbody>
+                    </table>
+                  </div>
+                  <CodeConsole examples={webhookVerifyExample} language={language} defaultLanguage="python" />
+                </div>
+
+                <div className="api-v2-subsection">
+                  <h3>{t('Yeniden Deneme Politikası', 'Retry Policy')}</h3>
+                  <p>{t('2xx yanıtı başarılı sayılır. 408, 429 ve 5xx yanıtları ile ağ hataları toplam 6 denemeye kadar üstel bekleme ile tekrarlanır; diğer 4xx yanıtlar kalıcı hata sayılır ve tekrar denenmez. Başarısız teslimatlar deliveries kaydında dead_letter durumuna geçer. Yanıtınızı 10 saniye içinde döndürün.', '2xx is success. 408, 429, 5xx and network errors are retried with exponential backoff up to 6 attempts total; other 4xx responses are permanent failures and are not retried. Failed deliveries move to dead_letter in the deliveries log. Respond within 10 seconds.')}</p>
+                  <div className="api-v2-table-wrap">
+                    <table className="api-v2-table">
+                      <thead><tr><th>{t('Deneme', 'Attempt')}</th><th>{t('Bekleme', 'Delay')}</th></tr></thead>
+                      <tbody>{webhookRetrySchedule.map((row) => <tr key={row.attempt}><td><code>{row.attempt}</code></td><td>{local(row, 'delay')}</td></tr>)}</tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>

@@ -4,6 +4,9 @@ import './Profile.theme.css';
 import { apiJson, isAuthError } from '../lib/api';
 import { readStoredLanguage, restoreTurkishUiText } from '../lib/language';
 import StudioHero from '../components/StudioHero';
+import LinkedLoginMethods from '../components/LinkedLoginMethods';
+import OperationHistory from '../components/OperationHistory';
+import StoragePreferences from '../components/StoragePreferences';
 
 const profileSteps = [
   { num: 1, label: 'Hesap Bilgileri', labelEn: 'Account Details', desc: 'Profilinizi yönetin', descEn: 'Manage your profile' },
@@ -476,6 +479,12 @@ export default function Profile({ currentUser, onUserUpdated, onNavigate, appLan
             </article>
           </div>
         </section>
+
+        <LinkedLoginMethods language={language} t={t} />
+
+        <OperationHistory language={language} t={t} />
+
+        <StoragePreferences language={language} t={t} />
 
         <section className="corp-block" aria-labelledby="profile-plans-title">
           <div className="profile-preview-section-row-v3">
