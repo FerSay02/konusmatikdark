@@ -5,20 +5,26 @@
  */
 
 /**
- * Classifies the readiness payload into 'up' or 'down'.
+ * Classifies the readiness payload into 'up', 'down', or 'unknown'.
  * 'up' only if the response arrived, HTTP status is 200, and body.status === "ok"
- * with all reported services 'ok'. Everything else (network error, timeout,
- * non-JSON body, 5xx, 503 degraded, any service not "ok") is 'down'.
+ * with all reported services 'ok'.
+ * 'unknown' for any 4xx client errors (404, 401, 403, 429, etc.).
+ * Everything else (network error, timeout, non-JSON body, 5xx, 503 degraded,
+ * any service not "ok") is 'down'.
  *
  * @param {Object} [params]
  * @param {boolean} [params.ok]
  * @param {number} [params.status]
  * @param {any} [params.body]
  * @param {any} [params.error]
- * @returns {'up' | 'down'}
+ * @returns {'up' | 'down' | 'unknown'}
  */
 export function classifyReadiness({ ok, status, body, error } = {}) {
   if (error) return 'down';
+  const statusCode = Number(status);
+  if (Number.isFinite(statusCode) && statusCode >= 400 && statusCode < 500) {
+    return 'unknown';
+  }
   if (ok === false || status !== 200) return 'down';
   if (!body || typeof body !== 'object') return 'down';
   if (body.status !== 'ok') return 'down';
@@ -40,7 +46,7 @@ export function classifyReadiness({ ok, status, body, error } = {}) {
 }
 
 /**
- * Fetches the backend /api/v1/ready endpoint and returns 'up' or 'down'.
+ * Fetches the backend /ready endpoint and returns 'up', 'down', or 'unknown'.
  * Always safe; never throws.
  *
  * @param {Object} [options]
@@ -48,7 +54,7 @@ export function classifyReadiness({ ok, status, body, error } = {}) {
  * @param {typeof fetch} [options.fetchImpl]
  * @param {number} [options.timeoutMs]
  * @param {AbortSignal} [options.signal]
- * @returns {Promise<'up' | 'down'>}
+ * @returns {Promise<'up' | 'down' | 'unknown'>}
  */
 export async function fetchServiceStatus({
   baseUrl = '',
@@ -73,7 +79,7 @@ export async function fetchServiceStatus({
 
   try {
     const normalizedBase = (baseUrl || '').replace(/\/+$/, '');
-    const url = `${normalizedBase}/api/v1/ready`;
+    const url = `${normalizedBase}/ready`;
     const response = await fetchImpl(url, {
       method: 'GET',
       cache: 'no-store',
@@ -109,7 +115,7 @@ export async function fetchServiceStatus({
  * and request cancellation / deduplication.
  *
  * @param {Object} options
- * @param {(context?: { signal?: AbortSignal }) => Promise<'up' | 'down'>} options.check
+ * @param {(context?: { signal?: AbortSignal }) => Promise<'up' | 'down' | 'unknown'>} options.check
  * @param {(callback: () => void, delayMs: number) => any} [options.setTimer]
  * @param {(timerId: any) => void} [options.clearTimer]
  * @param {() => boolean} [options.isVisible]
@@ -194,7 +200,7 @@ export function createStatusMonitor({
       activeAbortController = null;
     }
 
-    if (result === 'up') {
+    if (result !== 'down') {
       if (isNoticeVisible) {
         isNoticeVisible = false;
         onChange(false);

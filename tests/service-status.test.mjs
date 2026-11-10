@@ -105,6 +105,30 @@ assert.equal(
   'classifyReadiness: any service not ok must return down'
 );
 
+// 1.8 404 → unknown
+assert.equal(
+  classifyReadiness({
+    ok: false,
+    status: 404,
+    body: { detail: 'Not Found' },
+  }),
+  'unknown',
+  'classifyReadiness: 404 must return unknown'
+);
+
+// 1.9 401, 403, 429 → unknown
+for (const status of [401, 403, 429]) {
+  assert.equal(
+    classifyReadiness({
+      ok: false,
+      status,
+      body: null,
+    }),
+    'unknown',
+    `classifyReadiness: ${status} must return unknown`
+  );
+}
+
 console.log('✓ classifyReadiness tests passed');
 
 // 2. fetchServiceStatus tests with fake fetchImpl
@@ -122,16 +146,16 @@ console.log('✓ classifyReadiness tests passed');
 
   const res1 = await fetchServiceStatus({ baseUrl: 'https://api.example.com/', fetchImpl: fakeFetch });
   assert.equal(res1, 'up');
-  assert.equal(recorded[0].url, 'https://api.example.com/api/v1/ready', 'URL should not have double slash');
+  assert.equal(recorded[0].url, 'https://api.example.com/ready', 'URL should not have double slash');
   assert.equal(recorded[0].options.cache, 'no-store', 'cache must be no-store');
 
   const res2 = await fetchServiceStatus({ baseUrl: 'https://api.example.com', fetchImpl: fakeFetch });
   assert.equal(res2, 'up');
-  assert.equal(recorded[1].url, 'https://api.example.com/api/v1/ready', 'URL without trailing slash must match');
+  assert.equal(recorded[1].url, 'https://api.example.com/ready', 'URL without trailing slash must match');
 
   const res3 = await fetchServiceStatus({ baseUrl: '', fetchImpl: fakeFetch });
   assert.equal(res3, 'up');
-  assert.equal(recorded[2].url, '/api/v1/ready', 'empty baseUrl should produce /api/v1/ready');
+  assert.equal(recorded[2].url, '/ready', 'empty baseUrl should produce /ready');
 }
 
 // 2.2 timeout aborts and yields "down" (use a fetch that never resolves and timeoutMs: 50)
@@ -191,6 +215,51 @@ console.log('✓ classifyReadiness tests passed');
     fetchImpl: nonJsonFetch,
   });
   assert.equal(status, 'down', 'non-JSON 502 must yield down');
+}
+
+// 2.5 404 yields "unknown"
+{
+  const notFoundFetch = async () => ({
+    ok: false,
+    status: 404,
+    json: async () => ({ detail: 'Not Found' }),
+  });
+
+  const status = await fetchServiceStatus({
+    baseUrl: 'https://api.example.com',
+    fetchImpl: notFoundFetch,
+  });
+  assert.equal(status, 'unknown', '404 fetch must yield unknown');
+}
+
+// 2.6 401/403/429 yield "unknown"
+for (const code of [401, 403, 429]) {
+  const httpErrorFetch = async () => ({
+    ok: false,
+    status: code,
+    json: async () => ({ detail: 'Client error' }),
+  });
+
+  const status = await fetchServiceStatus({
+    baseUrl: 'https://api.example.com',
+    fetchImpl: httpErrorFetch,
+  });
+  assert.equal(status, 'unknown', `${code} fetch must yield unknown`);
+}
+
+// 2.7 503 degraded yields "down"
+{
+  const degradedFetch = async () => ({
+    ok: false,
+    status: 503,
+    json: async () => ({ status: 'degraded' }),
+  });
+
+  const status = await fetchServiceStatus({
+    baseUrl: 'https://api.example.com',
+    fetchImpl: degradedFetch,
+  });
+  assert.equal(status, 'down', '503 degraded fetch must yield down');
 }
 
 console.log('✓ fetchServiceStatus tests passed');
@@ -534,6 +603,95 @@ function createDeferred() {
   monitor.stop();
 }
 
+// 3.9 unknown at start and throughout → notice never shown
+{
+  const clock = createFakeClock();
+  let noticeVisible = false;
+  const monitor = createStatusMonitor({
+    check: async () => 'unknown',
+    setTimer: clock.setTimer,
+    clearTimer: clock.clearTimer,
+    isVisible: () => true,
+    onChange: (visible) => { noticeVisible = visible; },
+    confirmDelayMs: 10000,
+    pollMs: 60000,
+  });
+
+  monitor.start();
+  await flushMicrotasks();
+
+  assert.equal(noticeVisible, false, 'Notice must not be shown on unknown at start');
+  assert.equal(clock.countPendingTimers(), 1, 'Should have 1 scheduled timer for next poll');
+
+  await clock.advanceTime(60000);
+  assert.equal(noticeVisible, false, 'Notice must stay hidden after next poll is unknown');
+
+  await clock.advanceTime(60000);
+  assert.equal(noticeVisible, false, 'Notice must stay hidden after multiple unknown polls');
+
+  monitor.stop();
+  assert.equal(clock.countPendingTimers(), 0, 'No timers remain after stop');
+}
+
+// 3.10 shown notice is hidden by an unknown check
+{
+  const clock = createFakeClock();
+  const changes = [];
+  let status = 'down';
+  const monitor = createStatusMonitor({
+    check: async () => status,
+    setTimer: clock.setTimer,
+    clearTimer: clock.clearTimer,
+    isVisible: () => true,
+    onChange: (visible) => { changes.push({ time: clock.getTime(), visible }); },
+    confirmDelayMs: 10000,
+    pollMs: 60000,
+  });
+
+  monitor.start();
+  await flushMicrotasks();
+  await clock.advanceTime(10000);
+  assert.deepEqual(changes, [{ time: 10000, visible: true }], 'Notice shown after confirm');
+
+  status = 'unknown';
+  await clock.advanceTime(60000);
+  assert.equal(changes.length, 2);
+  assert.deepEqual(changes[1], { time: 70000, visible: false }, 'Shown notice must be hidden when check returns unknown');
+
+  monitor.stop();
+  assert.equal(clock.countPendingTimers(), 0);
+}
+
+// 3.11 down then unknown on confirm retry → never shown
+{
+  const clock = createFakeClock();
+  const changes = [];
+  let call = 0;
+  const monitor = createStatusMonitor({
+    check: async () => {
+      call++;
+      return call === 1 ? 'down' : 'unknown';
+    },
+    setTimer: clock.setTimer,
+    clearTimer: clock.clearTimer,
+    isVisible: () => true,
+    onChange: (visible) => { changes.push(visible); },
+    confirmDelayMs: 10000,
+    pollMs: 60000,
+  });
+
+  monitor.start();
+  await flushMicrotasks();
+  assert.equal(changes.length, 0, 'First blip does not show notice');
+
+  await clock.advanceTime(10000);
+  assert.equal(changes.length, 0, 'Notice was never shown because retry check was unknown');
+  assert.equal(clock.countPendingTimers(), 1, 'Scheduled 60s poll');
+
+  monitor.stop();
+  assert.equal(clock.countPendingTimers(), 0);
+}
+
 console.log('✓ createStatusMonitor timing contract tests passed');
 
 // 4. Source-level checks
@@ -565,5 +723,21 @@ assert.ok(noticeSource.includes('role="status"') || noticeSource.includes("role=
 assert.ok(noticeSource.includes('aria-live="polite"') || noticeSource.includes("aria-live='polite'"), 'MaintenanceNotice.jsx must have aria-live="polite"');
 
 console.log('✓ MaintenanceNotice.jsx copy and accessibility check passed');
+
+// 4.3 src/lib/serviceStatus.js contains no /api/v1/ready
+const serviceStatusSource = fs.readFileSync(path.resolve('src/lib/serviceStatus.js'), 'utf8');
+assert.ok(
+  !serviceStatusSource.includes('/api/v1/ready'),
+  'src/lib/serviceStatus.js must not contain /api/v1/ready anywhere'
+);
+console.log('✓ src/lib/serviceStatus.js contains no /api/v1/ready check passed');
+
+// 4.4 vite.config.js proxies ^/ready$
+const viteConfigSource = fs.readFileSync(path.resolve('vite.config.js'), 'utf8');
+assert.ok(
+  /'\^\\\/ready\$'|"\^\\\/ready\$"|'\^\/ready\$'|"\^\/ready\$"/.test(viteConfigSource),
+  'vite.config.js must proxy ^/ready$'
+);
+console.log('✓ vite.config.js proxies ^/ready$ check passed');
 
 console.log('All service status and maintenance notice tests passed successfully!');

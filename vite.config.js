@@ -34,6 +34,14 @@ export default defineConfig(({ mode }) => {
       ...(proxyTarget
         ? {
             proxy: {
+              '^/ready$': {
+                target: proxyTarget,
+                changeOrigin: true,
+                secure: proxyTarget.startsWith('https://'),
+                // The dev browser talks to 192.168.1.113, not api.konusmatik.com.
+                // Strip an upstream Domain attribute without changing production.
+                cookieDomainRewrite: '',
+              },
               '^/api(?:/|$)': {
                 target: proxyTarget,
                 changeOrigin: true,
