@@ -86,6 +86,10 @@ try {
   for (const [source, target] of [
     ['/kurumsal/', '/kurumsal'],
     [`/${seoPages[0].section}/${seoPages[0].slug}`, `/${seoPages[0].section}/${seoPages[0].slug}/`],
+    ['/fiyatlar', '/'],
+    ['/fiyatlar/', '/'],
+    ['/checkout', '/'],
+    ['/checkout/', '/'],
   ]) {
     const { response } = await fetchPage(source, 'manual');
     checked.push({ url: source, status: response.status });
