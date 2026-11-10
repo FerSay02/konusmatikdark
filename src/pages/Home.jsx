@@ -5,6 +5,7 @@ import SpotlightCard from '../components/SpotlightCard';
 import BorderGlow from '../components/BorderGlow';
 import StarBorder from '../components/StarBorder';
 import ShinyText from '../components/ShinyText';
+import MaintenanceNotice from '../components/MaintenanceNotice';
 import '../home-hero-theme.css';
 import '../home-light-theme.css';
 
@@ -238,6 +239,7 @@ export default function Home({ onGoTts, onGoAsr, onNavigate, appLanguage }) {
 
   return (
     <div className="home-container">
+      <MaintenanceNotice appLanguage={appLanguage} />
       <div className="banner home-banner-split">
         <div className="home-web-threads" aria-hidden="true">
           <WebThreads
