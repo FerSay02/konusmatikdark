@@ -6,7 +6,6 @@ export const pageRoutes = {
   home: '/',
   tts: '/seslendirme',
   asr: '/desifre',
-  pricing: '/fiyatlar',
   corporate: '/kurumsal',
   'api-docs': '/api-dokumantasyon',
   contact: '/iletisim',
@@ -17,7 +16,6 @@ export const pageRoutes = {
   cookies: '/cerez-politikasi/',
   profile: '/profile',
   admin: '/admin',
-  checkout: '/checkout',
   'payment-success': '/payment/success',
   'payment-fail': '/payment/fail',
 };
@@ -54,13 +52,6 @@ export const seoPages = {
     description:
       'Konuşmatik deşifre aracıyla toplantı, ders, röportaj ve medya kayıtlarını Türkçe metne çevirin; transkriptleri kopyalayın, indirin ve arşivleyin.',
     descriptionEn: 'Transcribe meetings, lectures, interviews, and media recordings; copy, download, and archive the results.',
-  },
-  pricing: {
-    title: 'Fiyatlar | Konuşmatik TTS ve ASR Paketleri',
-    titleEn: 'Pricing | Konusmatik TTS and ASR Plans',
-    description:
-      'Konuşmatik fiyatlarını inceleyin; metinden sese karakter paketleri, sesten metne dakika paketleri ve kurumsal local kurulum seçenekleri hakkında bilgi alın.',
-    descriptionEn: 'Compare Konusmatik text-to-speech, transcription, and enterprise local deployment plans.',
   },
   corporate: {
     title: 'Kurumsal Yapay Zekâ Çözümleri | Konuşmatik & DeepZeka',
@@ -106,13 +97,6 @@ export const seoPages = {
     titleEn: 'Konusmatik Admin',
     description: 'Konuşmatik yönetim paneli.',
     descriptionEn: 'Konusmatik administration panel.',
-    noindex: true,
-  },
-  checkout: {
-    title: 'Konuşmatik Ödeme',
-    titleEn: 'Konusmatik Checkout',
-    description: 'Konuşmatik paket satın alma ve ödeme akışı.',
-    descriptionEn: 'Konusmatik plan purchase and checkout.',
     noindex: true,
   },
   'payment-success': {

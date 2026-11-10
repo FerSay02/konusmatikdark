@@ -9,8 +9,8 @@ const sections = {
   cozumler: { title: 'Çözümler', description: 'Konuşmatik seslendirme ve deşifre kullanım alanlarını, kurumsal senaryoları ve ilgili ürün akışlarını inceleyin.', intro: 'Seslendirme ve konuşma tanımayı gerçek iş ihtiyaçlarına bağlayan kullanım senaryoları.' },
 };
 // Unapproved legal drafts remain reachable but are not submitted for indexing.
-const appPaths = ['/', '/seslendirme', '/desifre', '/fiyatlar', '/kurumsal', '/api-dokumantasyon', '/iletisim'];
-const privateAppPaths = ['/giris', '/profile', '/admin', '/checkout', '/payment/success', '/payment/fail'];
+const appPaths = ['/', '/seslendirme', '/desifre', '/kurumsal', '/api-dokumantasyon', '/iletisim'];
+const privateAppPaths = ['/giris', '/profile', '/admin', '/payment/success', '/payment/fail'];
 const legalPaths = new Set(['/gizlilik-politikasi', '/kullanim-kosullari', '/kvkk-aydinlatma-metni', '/cerez-politikasi']);
 const contentPaths = new Set(['/rehber', '/cozumler', ...seoPages.map((page) => `/${page.section}/${page.slug}`)]);
 const validPaths = new Set([...appPaths, ...legalPaths, ...contentPaths]);

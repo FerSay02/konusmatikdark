@@ -60,7 +60,6 @@ export function Footer({ onNavigate, appLanguage = 'tr' }) {
             <li><a href="/cozumler/">{t('Çözümler', 'Solutions')}</a></li>
             <li><a href={getPathForPage('tts')} onClick={(e) => handleNav(e, 'tts')}>{t('Seslendirme', 'Text to Speech')}</a></li>
             <li><a href={getPathForPage('asr')} onClick={(e) => handleNav(e, 'asr')}>{t('Deşifre', 'Transcription')}</a></li>
-            <li><a href={getPathForPage('pricing')} onClick={(e) => handleNav(e, 'pricing')}>{t('Fiyatlar', 'Pricing')}</a></li>
             <li><a href={getPathForPage('corporate')} onClick={(e) => handleNav(e, 'corporate')}>{t('Kurumsal', 'Enterprise')}</a></li>
             <li><a href="/api-dokumantasyon" onClick={(e) => handleNav(e, 'api-docs')}>{t('API Dokümantasyonu', 'API Documentation')}</a></li>
             <li><a href={getPathForPage('contact')} onClick={(e) => handleNav(e, 'contact')}>{t('İletişim', 'Contact')}</a></li>
@@ -70,7 +69,6 @@ export function Footer({ onNavigate, appLanguage = 'tr' }) {
           <h3>{t('Şirket', 'Company')}</h3>
           <ul>
             <li><a href={getPathForPage('corporate')} onClick={(e) => handleNav(e, 'corporate')}>{t('Hakkımızda', 'About Us')}</a></li>
-            <li><a href={getPathForPage('pricing')} onClick={(e) => handleNav(e, 'pricing')}>{t('Fiyatlandırma', 'Pricing')}</a></li>
             <li><a href={getPathForPage('contact')} onClick={(e) => handleNav(e, 'contact')}>{t('İletişim', 'Contact')}</a></li>
             <li><a href="/gizlilik-politikasi/" onClick={(e) => handleNav(e, 'privacy')}>{t('Gizlilik Politikası', 'Privacy Policy')}</a></li>
             <li><a href="/kullanim-kosullari/" onClick={(e) => handleNav(e, 'terms')}>{t('Kullanım Koşulları', 'Terms of Use')}</a></li>

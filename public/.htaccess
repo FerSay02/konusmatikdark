@@ -3,13 +3,15 @@ Options -MultiViews
   RewriteEngine On
   RewriteBase /
 
+  RewriteRule ^(fiyatlar|checkout)/?$ / [R=301,L]
+
   # Serve real files, including prerendered index.html, assets and sitemap.
   RewriteCond %{REQUEST_FILENAME} -f
   RewriteRule ^ - [L]
 
   # App pages use canonical URLs without a trailing slash.
-  RewriteRule ^(seslendirme|desifre|fiyatlar|kurumsal|api-dokumantasyon|iletisim|giris|profile|admin|checkout|payment/(success|fail))/$ /$1 [R=301,L,NE]
-  RewriteRule ^(seslendirme|desifre|fiyatlar|kurumsal|api-dokumantasyon|iletisim|giris|profile|admin|checkout|payment/(success|fail))$ $1/index.html [L]
+  RewriteRule ^(seslendirme|desifre|kurumsal|api-dokumantasyon|iletisim|giris|profile|admin|payment/(success|fail))/$ /$1 [R=301,L,NE]
+  RewriteRule ^(seslendirme|desifre|kurumsal|api-dokumantasyon|iletisim|giris|profile|admin|payment/(success|fail))$ $1/index.html [L]
 
   # Public legal pages use trailing-slash canonicals.
   RewriteRule ^(gizlilik-politikasi|kullanim-kosullari|kvkk-aydinlatma-metni|cerez-politikasi)$ /$1/ [R=301,L,NE]

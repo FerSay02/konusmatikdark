@@ -6,7 +6,7 @@ import { sitemapXml } from './seo-content.mjs';
 
 const root = path.resolve('dist');
 const routes = ['/rehber', '/cozumler', ...seoPages.map((page) => `/${page.section}/${page.slug}`)];
-const knownRoutes = new Set(['/', '/seslendirme', '/desifre', '/fiyatlar', '/kurumsal', '/api-dokumantasyon', '/iletisim', ...routes]);
+const knownRoutes = new Set(['/', '/seslendirme', '/desifre', '/kurumsal', '/api-dokumantasyon', '/iletisim', ...routes]);
 const sitemap = fs.readFileSync(path.join(root, 'sitemap.xml'), 'utf8');
 const robots = fs.readFileSync(path.join(root, 'robots.txt'), 'utf8');
 const titles = new Set();
@@ -89,7 +89,7 @@ const mappedUrls = [...registry.matchAll(/"(https:\/\/konusmatik\.com\/[^"\n]+)"
 assert.ok(mappedUrls.length >= 100, 'at least 100 keyword candidates');
 for (const url of mappedUrls) assert.ok(knownRoutes.has(new URL(url).pathname.replace(/\/$/, '') || '/'), `registry target exists: ${url}`);
 assert.equal(new Set(registry.split(/\r?\n/).slice(1).filter(Boolean).map((row) => row.split('","')[0])).size, mappedUrls.length, 'no duplicate keyword phrases');
-for (const route of ['/', '/seslendirme', '/desifre', '/fiyatlar', '/kurumsal', '/api-dokumantasyon', '/iletisim', '/gizlilik-politikasi/', '/kullanim-kosullari/', '/kvkk-aydinlatma-metni/', '/cerez-politikasi/']) {
+for (const route of ['/', '/seslendirme', '/desifre', '/kurumsal', '/api-dokumantasyon', '/iletisim', '/gizlilik-politikasi/', '/kullanim-kosullari/', '/kvkk-aydinlatma-metni/', '/cerez-politikasi/']) {
   const target = route === '/' ? path.join(root, 'index.html') : path.join(root, route.slice(1), 'index.html');
   const html = fs.readFileSync(target, 'utf8');
   checkMetadata(html, route);
@@ -129,10 +129,10 @@ for (const route of ['/', '/seslendirme', '/desifre', '/fiyatlar', '/kurumsal', 
   assert.ok(html.includes('"@type":"Organization"'), `${route}: organization schema`);
   if (route !== '/iletisim' && !legalHold) assert.ok(html.includes('"@type":"SoftwareApplication"'), `${route}: app schema`);
 }
-for (const route of ['/giris', '/profile', '/admin', '/checkout', '/payment/success', '/payment/fail']) {
+for (const route of ['/giris', '/profile', '/admin', '/payment/success', '/payment/fail']) {
   const html = fs.readFileSync(path.join(root, route.slice(1), 'index.html'), 'utf8');
   assert.ok(html.includes('noindex, nofollow'), `${route}: private noindex`);
 }
-const report = { status: 'passed', contentRoutes: routes.length, appRoutes: 11, keywordCandidates: mappedUrls.length, checks: ['unique titles and descriptions', 'H1 and H2 structure', 'canonical and OG URL', 'structured data fields', 'internal links and audio samples', 'exact and near-duplicate body copy', 'sitemap coverage', 'robots access', 'keyword mapping'] };
+const report = { status: 'passed', contentRoutes: routes.length, appRoutes: 10, keywordCandidates: mappedUrls.length, checks: ['unique titles and descriptions', 'H1 and H2 structure', 'canonical and OG URL', 'structured data fields', 'internal links and audio samples', 'exact and near-duplicate body copy', 'sitemap coverage', 'robots access', 'keyword mapping'] };
 fs.writeFileSync(path.join(root, 'seo-validation-report.json'), JSON.stringify(report, null, 2) + '\n');
-console.log(`SEO verification passed: ${routes.length} content routes, 11 prerendered app routes, ${mappedUrls.length} keyword candidates, metadata, schema, sitemap and links.`);
+console.log(`SEO verification passed: ${routes.length} content routes, 10 prerendered app routes, ${mappedUrls.length} keyword candidates, metadata, schema, sitemap and links.`);

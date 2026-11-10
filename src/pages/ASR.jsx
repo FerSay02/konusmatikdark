@@ -1689,10 +1689,10 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
               type="button"
               onClick={() => {
                 setShowPackagePopup(false);
-                onNavigate?.('pricing');
+                onNavigate?.('contact');
               }}
             >
-              {t('Paketler sayfasina git', 'Go to Plans')}
+              {t('İletişime Geçin', 'Contact Us')}
             </button>
           </div>
         </div>
