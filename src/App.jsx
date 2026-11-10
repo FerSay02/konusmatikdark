@@ -3,7 +3,6 @@ import './index.css';
 import Home from './pages/Home';
 import TTS from './pages/TTS';
 import ASR from './pages/ASR';
-import Pricing from './pages/Pricing';
 import Corporate from './pages/Corporate';
 import ApiDocs from './pages/ApiDocs';
 import Login from './pages/Login';
@@ -13,7 +12,6 @@ import CookieConsentBanner from './components/CookieConsentBanner';
 import { consentEvents, getConsent } from './lib/cookieConsent';
 import Admin from './pages/Admin';
 import Contact from './pages/Contact';
-import Checkout from './pages/Checkout';
 import PaymentResult from './pages/PaymentResult';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
@@ -28,13 +26,15 @@ import { applyTheme, getInitialTheme, THEME_STORAGE_KEY } from './lib/theme';
 import { getPageForPath, getPathForPage } from './seo';
 import './application-light-theme.css';
 
-function readStoredCheckoutPlan() {
-  try {
-    const stored = sessionStorage.getItem('konusmatik_checkout_plan');
-    return stored ? JSON.parse(stored) : null;
-  } catch {
-    return null;
-  }
+try {
+  sessionStorage.removeItem('konusmatik_checkout_plan');
+} catch {
+  // Session storage unavailable
+}
+
+function isRemovedPricingPath(pathname) {
+  const normalized = pathname.replace(/\/+$/, '') || '/';
+  return normalized === '/fiyatlar' || normalized === '/checkout' || normalized === '/pricing';
 }
 
 function App() {
@@ -43,9 +43,13 @@ function App() {
     const path = window.location.pathname;
     if (path === '/payment/success' || paymentState === 'success') return 'payment-success';
     if (path === '/payment/fail' || paymentState === 'failed' || paymentState === 'fail') return 'payment-fail';
+    if (isRemovedPricingPath(path)) {
+      window.history.replaceState({ page: 'home' }, '', '/');
+      return 'home';
+    }
     const pageFromPath = getPageForPath(path);
     if (pageFromPath) return pageFromPath;
-    return paymentState ? 'pricing' : 'home';
+    return 'home';
   }, []);
 
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -53,7 +57,6 @@ function App() {
   const [theme, setTheme] = useState(() => getInitialTheme());
   const [currentUser, setCurrentUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [checkoutPlan, setCheckoutPlan] = useState(() => readStoredCheckoutPlan());
   const [ttsPrefill, setTtsPrefill] = useState({
     engineVersion: 'v1',
     voiceId: 'woman',
@@ -141,6 +144,11 @@ function App() {
         setCurrentPage('payment-fail');
         return;
       }
+      if (isRemovedPricingPath(window.location.pathname)) {
+        window.history.replaceState({ page: 'home' }, '', '/');
+        setCurrentPage('home');
+        return;
+      }
       setCurrentPage(getPageForPath(window.location.pathname));
     };
 
@@ -177,7 +185,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const protectedPages = new Set(['profile', 'admin', 'checkout']);
+    const protectedPages = new Set(['profile', 'admin']);
     const handleAuthExpired = () => {
       if (import.meta.env.DEV) {
         console.warn('[AUTH_LOGOUT]', {
@@ -231,12 +239,6 @@ function App() {
     setCurrentPage('asr');
   };
 
-  const openCheckout = (plan) => {
-    setCheckoutPlan(plan);
-    sessionStorage.setItem('konusmatik_checkout_plan', JSON.stringify(plan));
-    goToPage('checkout');
-  };
-
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
@@ -245,10 +247,6 @@ function App() {
         return <TTS prefill={useTtsPrefill ? ttsPrefill : null} onNavigate={goToPage} appLanguage={language} />;
       case 'asr':
         return <ASR prefill={useAsrPrefill ? asrPrefill : null} onNavigate={goToPage} appLanguage={language} />;
-      case 'pricing':
-        return <Pricing currentUser={currentUser} onNavigate={goToPage} onCheckout={openCheckout} appLanguage={language} />;
-      case 'checkout':
-        return <Checkout currentUser={currentUser} selectedPlan={checkoutPlan} onNavigate={goToPage} appLanguage={language} />;
       case 'corporate':
         return <Corporate onNavigate={goToPage} appLanguage={language} />;
       case 'api-docs':
@@ -287,7 +285,6 @@ function App() {
           items={[
             { page: 'tts', href: getPathForPage('tts'), label: t('Seslendirme', 'Text to Speech') },
             { page: 'asr', href: getPathForPage('asr'), label: t('Deşifre', 'Transcription') },
-            { page: 'pricing', href: getPathForPage('pricing'), label: t('Fiyatlar', 'Pricing') },
             { page: 'corporate', href: getPathForPage('corporate'), label: t('Hakkımızda', 'Enterprise') },
             { page: 'contact', href: getPathForPage('contact'), label: t('İletişim', 'Contact') },
             ...(showProfileNavLink ? [{ page: 'profile', href: getPathForPage('profile'), label: t('Profil', 'Profile') }] : []),
@@ -365,7 +362,6 @@ function App() {
             <ul className="nav-links">
               <li><button type="button" className={`nav-item ${currentPage === 'tts' ? 'active' : ''}`} onClick={() => goToPage('tts')}>{t('Seslendirme', 'Text to Speech')}</button></li>
               <li><button type="button" className={`nav-item ${currentPage === 'asr' ? 'active' : ''}`} onClick={() => goToPage('asr')}>{t('Deşifre', 'Transcription')}</button></li>
-              <li><button type="button" className={`nav-item ${currentPage === 'pricing' ? 'active' : ''}`} onClick={() => goToPage('pricing')}>{t('Fiyatlar', 'Pricing')}</button></li>
               <li><button type="button" className={`nav-item ${currentPage === 'corporate' ? 'active' : ''}`} onClick={() => goToPage('corporate')}>{t('Hakkımızda', 'Enterprise')}</button></li>
               <li><button type="button" className={`nav-item ${currentPage === 'contact' ? 'active' : ''}`} onClick={() => goToPage('contact')}>{t('İletişim', 'Contact')}</button></li>
               {showProfileNavLink && <li><button type="button" className={`nav-item ${currentPage === 'profile' ? 'active' : ''}`} onClick={() => goToPage('profile')}>{t('Profil', 'Profile')}</button></li>}

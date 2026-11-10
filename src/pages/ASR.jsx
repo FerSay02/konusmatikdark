@@ -1682,17 +1682,17 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                 <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
               </svg>
             </div>
-            <h3 id="asr-package-title">{t('Once paket satin almaniz gerek', 'You need to purchase a plan first')}</h3>
+            <h3 id="asr-package-title">{t('Ek kullanım hakkı gerekiyor', 'Additional usage is required')}</h3>
             <p>{t(packageMessage.tr, packageMessage.en)}</p>
             <button
               className="tts-package-confirm"
               type="button"
               onClick={() => {
                 setShowPackagePopup(false);
-                onNavigate?.('pricing');
+                onNavigate?.('contact');
               }}
             >
-              {t('Paketler sayfasina git', 'Go to Plans')}
+              {t('İletişime Geçin', 'Contact Us')}
             </button>
           </div>
         </div>

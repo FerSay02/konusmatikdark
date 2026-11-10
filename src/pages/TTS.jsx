@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import './StudioReveal.css';
 import '../application-light-theme.css';
 import { apiFetch, apiJson } from '../lib/api';
@@ -259,7 +259,7 @@ function formatAudioTime(value) {
 export default function TTS({ prefill, onNavigate, appLanguage }) {
   const language = appLanguage || readStoredLanguage();
   const isEnglish = language === 'en';
-  const t = (tr, en) => (isEnglish ? en : restoreTurkishUiText(tr));
+  const t = useCallback((tr, en) => (isEnglish ? en : restoreTurkishUiText(tr)), [isEnglish]);
 
   const [engineVersion, setEngineVersion] = useState(
     prefill?.engineVersion === 'clone' ? 'v1' : (prefill?.engineVersion || 'v1')
@@ -281,10 +281,10 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
   const [audioCurrentTime, setAudioCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(0);
   const [showPackagePopup, setShowPackagePopup] = useState(false);
-  const [packagePopupTitle, setPackagePopupTitle] = useState('Önce paket satın almanız gerek');
-  const [packagePopupButtonLabel, setPackagePopupButtonLabel] = useState('Paketler sayfasına git');
-  const [packagePopupTarget, setPackagePopupTarget] = useState('pricing');
-  const [packageMessage, setPackageMessage] = useState('TTS çıktısı indirebilmek için aktif TTS paketiniz olmalı.');
+  const [packagePopupTitle, setPackagePopupTitle] = useState(() => t('Ek Kullanım', 'Additional Usage'));
+  const [packagePopupButtonLabel, setPackagePopupButtonLabel] = useState(() => t('İletişime Geçin', 'Contact Us'));
+  const [packagePopupTarget, setPackagePopupTarget] = useState('contact');
+  const [packageMessage, setPackageMessage] = useState(() => t('Ek kullanım için bizimle iletişime geçin.', 'Contact us for additional usage.'));
   const [ttsRemainingCredits, setTtsRemainingCredits] = useState(null);
   const [ttsVoiceCloningEnabled, setTtsVoiceCloningEnabled] = useState(false);
   const [ttsVoiceSlotLimit, setTtsVoiceSlotLimit] = useState(0);
@@ -491,11 +491,12 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
     if (showPackagePopup) return;
 
     queueMicrotask(() => {
-      setPackagePopupTitle('Önce paket satın almanız gerek');
-      setPackagePopupButtonLabel('Paketler sayfasına git');
-      setPackagePopupTarget('pricing');
+      setPackagePopupTitle(t('Ek Kullanım', 'Additional Usage'));
+      setPackagePopupButtonLabel(t('İletişime Geçin', 'Contact Us'));
+      setPackagePopupTarget('contact');
+      setPackageMessage(t('Ek kullanım için bizimle iletişime geçin.', 'Contact us for additional usage.'));
     });
-  }, [showPackagePopup]);
+  }, [showPackagePopup, t]);
 
   useEffect(() => {
     if (!error || !error.toLowerCase().includes('too many preview request')) return;
@@ -503,12 +504,12 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
     queueMicrotask(() => {
       setError('');
       setPackagePopupTitle('Önizleme hakkınız bitti');
-      setPackageMessage('Daha fazla seslendirme işlemi için giriş yapıp paketlerimizi inceleyebilirsiniz.');
+      setPackageMessage(t('Daha fazla seslendirme işlemi için giriş yapabilirsiniz.', 'Log in for more speech synthesis actions.'));
       setPackagePopupButtonLabel('Giriş Yap');
       setPackagePopupTarget('login');
       setShowPackagePopup(true);
     });
-  }, [error]);
+  }, [error, t]);
 
   const updateAdvancedSetting = (key, value) => {
     setAdvancedSettings((current) => ({ ...current, [key]: value }));
@@ -516,10 +517,10 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
 
   const openVoiceModal = () => {
     if (!canUseCloneEngine) {
-      setPackagePopupTitle('Klonlanmış Ses');
-      setPackageMessage('Ses klonlama özelliği yalnızca uygun paketlerde kullanılabilir.');
-      setPackagePopupButtonLabel('Paketleri İncele');
-      setPackagePopupTarget('pricing');
+      setPackagePopupTitle(t('Klonlanmış Ses', 'Cloned Voice'));
+      setPackageMessage(t('Ek kullanım için bizimle iletişime geçin.', 'Contact us for additional usage.'));
+      setPackagePopupButtonLabel(t('İletişime Geçin', 'Contact Us'));
+      setPackagePopupTarget('contact');
       setShowPackagePopup(true);
       return;
     }
@@ -707,10 +708,10 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
     const cloneVoice = selectedCloneVoice;
     if (engineVersion === 'clone') {
       if (!canUseCloneEngine) {
-        setPackagePopupTitle('Klonlanmış Ses');
-        setPackageMessage('Ses klonlama özelliği yalnızca uygun paketlerde kullanılabilir.');
-        setPackagePopupButtonLabel('Paketleri İncele');
-        setPackagePopupTarget('pricing');
+        setPackagePopupTitle(t('Klonlanmış Ses', 'Cloned Voice'));
+        setPackageMessage(t('Ek kullanım için bizimle iletişime geçin.', 'Contact us for additional usage.'));
+        setPackagePopupButtonLabel(t('İletişime Geçin', 'Contact Us'));
+        setPackagePopupTarget('contact');
         setShowPackagePopup(true);
         return;
       }
@@ -802,10 +803,10 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
     const cloneVoice = selectedCloneVoice;
     if (engineVersion === 'clone') {
       if (!canUseCloneEngine) {
-        setPackagePopupTitle('Klonlanmış Ses');
-        setPackageMessage('Ses klonlama özelliği yalnızca uygun paketlerde kullanılabilir.');
-        setPackagePopupButtonLabel('Paketleri İncele');
-        setPackagePopupTarget('pricing');
+        setPackagePopupTitle(t('Klonlanmış Ses', 'Cloned Voice'));
+        setPackageMessage(t('Ek kullanım için bizimle iletişime geçin.', 'Contact us for additional usage.'));
+        setPackagePopupButtonLabel(t('İletişime Geçin', 'Contact Us'));
+        setPackagePopupTarget('contact');
         setShowPackagePopup(true);
         return;
       }
@@ -1288,7 +1289,7 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
                   {advancedLocked && (
                     <div className="tts-advanced-lock">
                       <strong>{t('Paket kullanıcılarına özel', 'For package users')}</strong>
-                      <button type="button" onClick={() => onNavigate?.('pricing')}>{t('Paketleri Gör', 'View Packages')}</button>
+                      <button type="button" onClick={() => onNavigate?.('contact')}>{t('İletişime Geçin', 'Contact Us')}</button>
                     </div>
                   )}
                   <fieldset className="tts-advanced-controls" disabled={advancedLocked}>
@@ -1462,7 +1463,7 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
               {ttsRemainingCredits !== null && voiceEnrollmentCreditCost !== null && (
                 <div className="tts-voice-modal-footnote">
                   {ttsRemainingCredits < voiceEnrollmentCreditCost
-                    ? t('Yetersiz karakter hakkı. Paketleri inceleyebilirsiniz.', 'Insufficient character quota. You can review packages.')
+                    ? t('Yetersiz karakter hakkı. Ek kullanım için bizimle iletişime geçebilirsiniz.', 'Insufficient character quota. Contact us for additional usage.')
                     : t('Ses oluşturma işlemi işlemeye alındığında sesiniz listede görünür.', 'Your voice will appear in the list once processing starts.')}
                 </div>
               )}

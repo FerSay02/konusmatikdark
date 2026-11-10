@@ -387,13 +387,8 @@ export default function Profile({ currentUser, onUserUpdated, onNavigate, appLan
     }
   };
 
-  const openEnterprisePricing = () => {
-    try {
-      sessionStorage.setItem('konusmatik_pricing_audience', 'enterprise');
-    } catch {
-      // Navigation should still work if storage is unavailable.
-    }
-    onNavigate?.('pricing');
+  const openEnterpriseContact = () => {
+    onNavigate?.('contact');
   };
 
   if (!currentUser && !isLoading) {
@@ -489,7 +484,7 @@ export default function Profile({ currentUser, onUserUpdated, onNavigate, appLan
         <section className="corp-block" aria-labelledby="profile-plans-title">
           <div className="profile-preview-section-row-v3">
             <div className="contact-section-heading"><h2 id="profile-plans-title">{t('Sahip olduğunuz paketler', 'Your plans')}</h2></div>
-            <button type="button" className="profile-secondary-btn" onClick={() => onNavigate?.('pricing')}>{t('Yeni Paket Al', 'Purchase New Plan')}</button>
+            <button type="button" className="profile-secondary-btn" onClick={() => onNavigate?.('contact')}>{t('İletişime Geçin', 'Contact Us')}</button>
           </div>
           {entitlementList.length ? (
             <div className="profile-preview-plan-grid-v3">
@@ -498,7 +493,7 @@ export default function Profile({ currentUser, onUserUpdated, onNavigate, appLan
           ) : (
             <div className="profile-no-package">
               <strong>{t('Aktif ücretli paket bulunmuyor.', 'No active paid package found.')}</strong>
-              <p>{t('Ücretsiz haklarınızla deneyebilir veya ihtiyacınıza uygun bir paket satın alabilirsiniz.', 'You can try it with your free credits or purchase a package that fits your needs.')}</p>
+              <p>{t('Ücretsiz haklarınızla deneyebilir, ek kullanım için bizimle iletişime geçebilirsiniz.', 'You can try it with your free credits, or contact us for additional usage.')}</p>
             </div>
           )}
         </section>
@@ -522,8 +517,8 @@ export default function Profile({ currentUser, onUserUpdated, onNavigate, appLan
             {!hasCorporateEntitlement && (
               <div className="profile-no-package">
                 <strong>{t('API key oluşturmak için aktif kurumsal paket gerekir.', 'An active enterprise package is required to create an API key.')}</strong>
-                <p>{t('Kurumsal paket satın aldıktan veya admin tarafından tanımlandıktan sonra API key oluşturabilirsiniz.', 'After purchasing an enterprise package or having one assigned by an admin, you can create an API key.')}</p>
-                <button type="button" className="profile-primary-btn" onClick={openEnterprisePricing}>{t('Kurumsal Paket Al', 'Get Enterprise Package')}</button>
+                <p>{t('Kurumsal hesabınız tanımlandıktan sonra API key oluşturabilirsiniz.', 'After your enterprise account is assigned, you can create an API key.')}</p>
+                <button type="button" className="profile-primary-btn" onClick={openEnterpriseContact}>{t('İletişime Geçin', 'Contact Us')}</button>
               </div>
             )}
 

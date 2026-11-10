@@ -308,13 +308,8 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
     };
   }, [mobileSectionOpen]);
 
-  const openEnterprisePricing = () => {
-    try {
-      sessionStorage.setItem('konusmatik_pricing_audience', 'enterprise');
-    } catch {
-      // The page can still navigate when storage is unavailable.
-    }
-    onNavigate?.('pricing');
+  const openEnterpriseContact = () => {
+    onNavigate?.('contact');
   };
 
   const navGroups = [
@@ -937,7 +932,7 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
               <p>{t('Profilinizden API anahtarınızı oluşturun; TTS, ASR ve Realtime servislerini uygulamanıza entegre edin.', 'Create an API key from your profile and integrate TTS, ASR, and Realtime services into your application.')}</p>
               <div className="corp-cta-actions">
                 <button type="button" className="corp-btn-primary" onClick={() => onNavigate?.('profile')}>{t('API Anahtarı Oluştur', 'Create API Key')}</button>
-                <button type="button" className="corp-btn-secondary" onClick={openEnterprisePricing}>{t('Kurumsal Paketler', 'Enterprise Plans')}</button>
+                <button type="button" className="corp-btn-secondary" onClick={openEnterpriseContact}>{t('İletişime Geçin', 'Contact Us')}</button>
                 <button type="button" className="corp-btn-secondary" onClick={() => onNavigate?.('contact')}>{t('Teknik Destek', 'Technical Support')}</button>
               </div>
             </div>

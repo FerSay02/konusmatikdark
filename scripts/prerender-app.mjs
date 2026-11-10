@@ -54,7 +54,7 @@ ${page === 'corporate' ? corporateSchemas(seo).map((schema, index) => `<script i
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, html, 'utf8');
   }
-  console.log('Prerendered 11 public app routes and emitted noindex shells for account routes.');
+  console.log('Prerendered 10 public app routes and emitted noindex shells for account routes.');
 } finally {
   await server.close();
 }
