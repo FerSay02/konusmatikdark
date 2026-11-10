@@ -150,4 +150,51 @@ if (fs.existsSync(distDir)) {
   console.log('✓ dist/ checks passed');
 }
 
+// 8. No buy / browse packages wording in src/**/*.jsx (skip Pricing.jsx and Checkout.jsx)
+const forbiddenWordingPatterns = [
+  { pattern: /satin al(?!ma\b)/i, label: 'satin al' },
+  { pattern: /satın al(?!ma\b)/i, label: 'satın al' },
+  { pattern: /purchase a plan/i, label: 'purchase a plan' },
+  { pattern: /purchase a package/i, label: 'purchase a package' },
+  { pattern: /paketleri inceleyebilirsiniz/i, label: 'Paketleri inceleyebilirsiniz' },
+  { pattern: /review packages/i, label: 'review packages' },
+];
+
+for (const filePath of jsxFiles) {
+  const baseName = path.basename(filePath);
+  if (baseName === 'Pricing.jsx' || baseName === 'Checkout.jsx') {
+    continue;
+  }
+  const content = fs.readFileSync(filePath, 'utf8');
+  for (const { pattern, label } of forbiddenWordingPatterns) {
+    assert.ok(
+      !pattern.test(content),
+      `File ${path.relative('.', filePath)} must not match purchase wording pattern: ${label}`
+    );
+  }
+}
+console.log('✓ No forbidden purchase/browse wording in src/**/*.jsx');
+
+// 9. Required replacement wording in ASR.jsx, Profile.jsx, and TTS.jsx
+const asrSource = fs.readFileSync(path.resolve('src/pages/ASR.jsx'), 'utf8');
+assert.ok(
+  asrSource.includes('Ek kullanım hakkı gerekiyor') && asrSource.includes('Additional usage is required'),
+  'ASR.jsx must contain new wording "Ek kullanım hakkı gerekiyor" / "Additional usage is required"'
+);
+
+const profileCurrentSource = fs.readFileSync(path.resolve('src/pages/Profile.jsx'), 'utf8');
+assert.ok(
+  profileCurrentSource.includes('Ücretsiz haklarınızla deneyebilir, ek kullanım için bizimle iletişime geçebilirsiniz.') &&
+  profileCurrentSource.includes('You can try it with your free credits, or contact us for additional usage.'),
+  'Profile.jsx must contain new wording "Ücretsiz haklarınızla deneyebilir, ek kullanım için bizimle iletişime geçebilirsiniz."'
+);
+
+const ttsCurrentSource = fs.readFileSync(path.resolve('src/pages/TTS.jsx'), 'utf8');
+assert.ok(
+  ttsCurrentSource.includes('Yetersiz karakter hakkı. Ek kullanım için bizimle iletişime geçebilirsiniz.') &&
+  ttsCurrentSource.includes('Insufficient character quota. Contact us for additional usage.'),
+  'TTS.jsx must contain new wording "Yetersiz karakter hakkı. Ek kullanım için bizimle iletişime geçebilirsiniz."'
+);
+console.log('✓ Required replacement wording in ASR, Profile, and TTS verified');
+
 console.log('All pricing removal checks passed successfully!');

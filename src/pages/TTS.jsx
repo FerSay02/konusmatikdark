@@ -1463,7 +1463,7 @@ export default function TTS({ prefill, onNavigate, appLanguage }) {
               {ttsRemainingCredits !== null && voiceEnrollmentCreditCost !== null && (
                 <div className="tts-voice-modal-footnote">
                   {ttsRemainingCredits < voiceEnrollmentCreditCost
-                    ? t('Yetersiz karakter hakkı. Paketleri inceleyebilirsiniz.', 'Insufficient character quota. You can review packages.')
+                    ? t('Yetersiz karakter hakkı. Ek kullanım için bizimle iletişime geçebilirsiniz.', 'Insufficient character quota. Contact us for additional usage.')
                     : t('Ses oluşturma işlemi işlemeye alındığında sesiniz listede görünür.', 'Your voice will appear in the list once processing starts.')}
                 </div>
               )}

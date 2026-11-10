@@ -493,7 +493,7 @@ export default function Profile({ currentUser, onUserUpdated, onNavigate, appLan
           ) : (
             <div className="profile-no-package">
               <strong>{t('Aktif ücretli paket bulunmuyor.', 'No active paid package found.')}</strong>
-              <p>{t('Ücretsiz haklarınızla deneyebilir veya ihtiyacınıza uygun bir paket satın alabilirsiniz.', 'You can try it with your free credits or purchase a package that fits your needs.')}</p>
+              <p>{t('Ücretsiz haklarınızla deneyebilir, ek kullanım için bizimle iletişime geçebilirsiniz.', 'You can try it with your free credits, or contact us for additional usage.')}</p>
             </div>
           )}
         </section>
