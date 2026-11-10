@@ -10,6 +10,7 @@ const sections = {
 };
 // Unapproved legal drafts remain reachable but are not submitted for indexing.
 const appPaths = ['/', '/seslendirme', '/desifre', '/kurumsal', '/api-dokumantasyon', '/iletisim'];
+export const removedAppPaths = ['/fiyatlar', '/checkout'];
 const privateAppPaths = ['/giris', '/profile', '/admin', '/payment/success', '/payment/fail'];
 const legalPaths = new Set(['/gizlilik-politikasi', '/kullanim-kosullari', '/kvkk-aydinlatma-metni', '/cerez-politikasi']);
 const contentPaths = new Set(['/rehber', '/cozumler', ...seoPages.map((page) => `/${page.section}/${page.slug}`)]);
@@ -110,6 +111,18 @@ export function generateSeoPages(outDir) {
   fs.writeFileSync(path.join(outDir, 'sitemap.xml'), sitemapXml(), 'utf8');
 }
 
+export function redirectRemovedAppPath(req, res, next) {
+  const pathname = new URL(req.url, 'http://localhost').pathname;
+  const normalized = pathname.replace(/\/$/, '') || '/';
+  if (removedAppPaths.includes(normalized)) {
+    res.statusCode = 301;
+    res.setHeader('Location', '/');
+    res.end();
+    return;
+  }
+  next();
+}
+
 export function seoContentPlugin() {
   const rejectUnknownSeoPath = (req, res, next) => {
     const pathname = new URL(req.url, 'http://localhost').pathname;
@@ -142,6 +155,7 @@ export function seoContentPlugin() {
   return {
     name: 'konusmatik-seo-content',
     configureServer(server) {
+      server.middlewares.use(redirectRemovedAppPath);
       server.middlewares.use(redirectCanonical);
       server.middlewares.use(rejectUnknownSeoPath);
       server.middlewares.use(rejectUnknownDocumentPath);
@@ -154,6 +168,7 @@ export function seoContentPlugin() {
       });
     },
     configurePreviewServer(server) {
+      server.middlewares.use(redirectRemovedAppPath);
       server.middlewares.use(redirectCanonical);
       server.middlewares.use(rejectUnknownSeoPath);
       server.middlewares.use(rejectUnknownDocumentPath);

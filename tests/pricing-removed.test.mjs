@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { removedAppPaths, redirectRemovedAppPath } from '../scripts/seo-content.mjs';
 
 console.log('--- Testing Pricing & Checkout Removal ---');
 
@@ -196,5 +197,85 @@ assert.ok(
   'TTS.jsx must contain new wording "Yetersiz karakter hakkı. Ek kullanım için bizimle iletişime geçebilirsiniz."'
 );
 console.log('✓ Required replacement wording in ASR, Profile, and TTS verified');
+
+// 10. Vite dev/preview server removedAppPaths and redirect middleware
+assert.ok(Array.isArray(removedAppPaths), 'scripts/seo-content.mjs must export removedAppPaths array');
+assert.deepStrictEqual(removedAppPaths, ['/fiyatlar', '/checkout'], 'removedAppPaths must equal ["/fiyatlar", "/checkout"]');
+assert.strictEqual(typeof redirectRemovedAppPath, 'function', 'scripts/seo-content.mjs must export redirectRemovedAppPath function');
+
+function createFakeRes() {
+  const headers = {};
+  let ended = false;
+  return {
+    statusCode: null,
+    setHeader(key, value) {
+      headers[key.toLowerCase()] = value;
+      headers[key] = value;
+    },
+    getHeader(key) {
+      return headers[key.toLowerCase()];
+    },
+    end() {
+      ended = true;
+    },
+    get headers() {
+      return headers;
+    },
+    get ended() {
+      return ended;
+    },
+  };
+}
+
+const redirectTestPaths = [
+  '/fiyatlar',
+  '/fiyatlar/',
+  '/checkout',
+  '/checkout/',
+  '/fiyatlar?x=1',
+  '/checkout?x=1',
+  '/fiyatlar/?x=1',
+  '/checkout/?x=1',
+];
+
+for (const testPath of redirectTestPaths) {
+  const req = { url: testPath };
+  const res = createFakeRes();
+  let nextCalled = false;
+  const next = () => {
+    nextCalled = true;
+  };
+
+  redirectRemovedAppPath(req, res, next);
+
+  assert.strictEqual(res.statusCode, 301, `${testPath} must return 301`);
+  assert.strictEqual(res.getHeader('location'), '/', `${testPath} must set Location to /`);
+  assert.strictEqual(res.ended, true, `${testPath} must end the response`);
+  assert.strictEqual(nextCalled, false, `${testPath} must not call next()`);
+}
+
+const passThroughPaths = ['/', '/seslendirme'];
+for (const testPath of passThroughPaths) {
+  const req = { url: testPath };
+  const res = createFakeRes();
+  let nextCalled = false;
+  const next = () => {
+    nextCalled = true;
+  };
+
+  redirectRemovedAppPath(req, res, next);
+
+  assert.strictEqual(nextCalled, true, `${testPath} must call next()`);
+  assert.strictEqual(res.statusCode, null, `${testPath} must not set statusCode`);
+  assert.strictEqual(res.getHeader('location'), undefined, `${testPath} must not set Location header`);
+  assert.strictEqual(res.ended, false, `${testPath} must not end the response`);
+}
+console.log('✓ Vite dev/preview server removedAppPaths and redirect middleware checks passed');
+
+// 11. verify-live-deployment.mjs source checks
+const verifyDeploymentSource = fs.readFileSync(path.resolve('scripts/verify-live-deployment.mjs'), 'utf8');
+assert.ok(verifyDeploymentSource.includes('/fiyatlar'), 'verify-live-deployment.mjs must mention /fiyatlar');
+assert.ok(verifyDeploymentSource.includes('/checkout'), 'verify-live-deployment.mjs must mention /checkout');
+console.log('✓ scripts/verify-live-deployment.mjs source checks passed');
 
 console.log('All pricing removal checks passed successfully!');
