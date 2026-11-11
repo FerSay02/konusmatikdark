@@ -407,6 +407,48 @@ html[data-theme='light'] .api-v2-page .api-endpoint-console-wrap h4 :where(span,
   color: #000000 !important;
 }
 
+html[data-theme='light'] .api-v2-page .api-doc-callout {
+  background: #f7f3ff !important;
+  border-color: #dcd0ed !important;
+  border-left: 3px solid #6c3ce9 !important;
+  color: #2b2050 !important;
+}
+html[data-theme='light'] .api-v2-page .api-doc-callout--warning {
+  background: #fdf2f8 !important;
+  border-color: #fbcfe8 !important;
+  border-left: 3px solid #db2777 !important;
+}
+html[data-theme='light'] .api-v2-page .api-doc-callout-icon {
+  color: #6c3ce9 !important;
+}
+html[data-theme='light'] .api-v2-page .api-doc-callout--warning .api-doc-callout-icon {
+  color: #db2777 !important;
+}
+html[data-theme='light'] .api-v2-page .api-doc-callout-title {
+  color: #201635 !important;
+}
+html[data-theme='light'] .api-v2-page .api-doc-callout-body {
+  color: #40345b !important;
+}
+html[data-theme='light'] .api-v2-page .api-doc-callout-link {
+  color: #6c3ce9 !important;
+}
+html[data-theme='light'] .api-v2-page .api-doc-callout-link:hover {
+  color: #4c1d95 !important;
+}
+html[data-theme='light'] .api-v2-page .api-v2-guide-card {
+  background: #ffffff !important;
+  border-color: #e2d8ef !important;
+  box-shadow: 0 14px 34px rgba(54, 29, 91, .08) !important;
+}
+html[data-theme='light'] .api-v2-page .api-v2-guide-card h3 {
+  color: #4c1d95 !important;
+}
+html[data-theme='light'] .api-v2-page .api-v2-guide-card p,
+html[data-theme='light'] .api-v2-page .api-v2-guide-card li {
+  color: #40345b !important;
+}
+
 /* Enterprise/API CTA surfaces: solid pink brand panel with black copy. */
 html[data-theme='light'] :where(.corporate-page-shell .corp-cta-card, .api-v2-page .api-cta-banner) {
   background: #fce9f4 !important;

@@ -6,7 +6,6 @@ import { readStoredLanguage } from '../lib/language';
 import StudioHero from '../components/StudioHero';
 import { apiHeroContent, apiSteps } from '../data/studioContent';
 import {
-  API_BASE_NATIVE_REALTIME_WS,
   API_BASE_REALTIME_WS,
   API_BASE_REST,
   asrCodeExamples,
@@ -17,7 +16,9 @@ import {
   asrSupportedFormats,
   asrVerboseWordsCodeExamples,
   capacityTableData,
+  corporateAsrJobParameters,
   corporateAsrPollingExample,
+  corporateTtsJobParameters,
   corporateTtsPollingExample,
   errorStatusTable,
   modelsCodeExamples,
@@ -25,10 +26,9 @@ import {
   modelsRetrieveCodeExamples,
   nativeRealtimeCodeExamples,
   nativeRealtimeEventTable,
-  nativeRealtimeSpecs,
-  openAiRealtimeCodeExamples,
+  nativeRealtimeParameters,
+  openAiRealtimeParameters,
   quickStartSteps,
-  realtimeAudioSpec,
   realtimeClientCommitExamples,
   realtimeCodeExamples,
   realtimeComparisonTable,
@@ -37,8 +37,8 @@ import {
   retryWithBackoffExample,
   sdkSetupExamples,
   streamingTtsCodeExamples,
+  streamingTtsParameters,
   streamingTtsResponseHeaders,
-  streamingTtsSpecs,
   ttsCodeExamples,
   ttsParameters,
   ttsSpeedCodeExamples,
@@ -182,7 +182,6 @@ function ParametersTable({ parameters, language, t }) {
             <th>{t('Parametre', 'Parameter')}</th>
             <th>{t('Tür', 'Type')}</th>
             <th>{t('Zorunlu', 'Required')}</th>
-            <th>{t('Varsayılan', 'Default')}</th>
             <th>{t('Açıklama', 'Description')}</th>
           </tr>
         </thead>
@@ -192,7 +191,6 @@ function ParametersTable({ parameters, language, t }) {
               <td><code>{parameter.name}</code></td>
               <td><code>{parameter.type}</code></td>
               <td><span className={`api-required-badge ${parameter.required ? 'yes' : 'no'}`}>{parameter.required ? t('Evet', 'Yes') : t('Hayır', 'No')}</span></td>
-              <td><code>{parameter.defaultVal}</code></td>
               <td>{language === 'en' ? parameter.descEn : parameter.desc}</td>
             </tr>
           ))}
@@ -202,19 +200,26 @@ function ParametersTable({ parameters, language, t }) {
   );
 }
 
-function MiniSpecGrid({ items, language }) {
+function DocCallout({ variant = 'note', title, children, guideLink, guideText }) {
   return (
-    <dl className="api-v2-spec-grid">
-      {items.map((item) => (
-        <div key={`${item.title || item.label}-${item.value}`}>
-          <dt>{language === 'en' ? item.titleEn || item.labelEn : item.title || item.label}</dt>
-          <dd>
-            <strong>{language === 'en' ? item.valueEn || item.value : item.value}</strong>
-            {item.detail && <p>{language === 'en' ? item.detailEn : item.detail}</p>}
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <div className={`api-doc-callout api-doc-callout--${variant}`}>
+      <div className="api-doc-callout-icon" aria-hidden="true">
+        {variant === 'warning' ? (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+        )}
+      </div>
+      <div className="api-doc-callout-content">
+        {title && <strong className="api-doc-callout-title">{title}</strong>}
+        <span className="api-doc-callout-body">{children}</span>
+        {guideLink && (
+          <a href={guideLink} className="api-doc-callout-link">
+            {guideText || 'Ayrıntılar →'}
+          </a>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -348,11 +353,12 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
         ['corporate-asr', 'Konuşmatik Asenkron ASR'],
         ['corporate-webhooks', t('Webhook Bildirimleri', 'Webhook Notifications')],
         ['corporate-tts', 'Konuşmatik Asenkron TTS'],
-        ['realtime-api', t('Konuşmatik Asenkron Realtime ASR', 'Konuşmatik Async Realtime ASR')],
+        ['realtime-api', t('Yerel Realtime ASR (WebSocket)', 'Native Realtime ASR (WebSocket)')],
       ],
     },
     {
       items: [
+        ['guides', t('Kılavuzlar', 'Guides')],
         ['capacity', t('Limitler', 'Limits')],
         ['errors', t('Hatalar', 'Errors')],
       ],
@@ -528,37 +534,46 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
               eyebrow="Doğal Ses Sentezi"
               title={t('OpenAI SDK ile Konuşmatik TTS', 'Konuşmatik TTS with OpenAI SDK')}
               description={t(
-                'Konuşmatik TTS, Türkçe metinleri doğal ve akıcı biçimde seslendirir (48 kHz, 16-bit, mono). Sesin tamamı oluşturulduktan sonra seçilen formatta ses verisi döner. Varsayılan format kayıpsız WAV dosyasıdır; OpenAI varsayılanı mp3 iken Konuşmatik varsayılanı wav\'dır.',
-                'Konuşmatik TTS converts Turkish text into natural, fluent speech (48 kHz, 16-bit, mono). After the entire audio output has been generated, it is returned in the chosen format. The default format is lossless WAV; Konuşmatik defaults to wav, whereas OpenAI defaults to mp3.',
+                'Konuşmatik TTS, Türkçe metinleri doğal ve akıcı biçimde seslendirir (48 kHz, 16-bit, mono). Sesin tamamı oluşturulduktan sonra seçilen formatta ses verisi döner.',
+                'Konuşmatik TTS converts Turkish text into natural, fluent speech (48 kHz, 16-bit, mono). After the entire audio output has been generated, it is returned in the chosen format.',
               )}
             />
             <div className="api-endpoint-card">
-              <EndpointHeader method="POST" path="/audio/speech" description={t('Varsayılan format audio/wav olup 48 kHz / 16-bit / mono çıktı üretir (OpenAI varsayılanı mp3 iken Konuşmatik varsayılanı wav\'dır).', 'Default format is audio/wav with 48 kHz / 16-bit / mono output (Konuşmatik default is wav, while OpenAI default is mp3).')} />
+              <EndpointHeader method="POST" path="/audio/speech" description={t('Metinleri doğal ve akıcı Türkçe seslendirir (48 kHz / 16-bit / mono WAV, MP3, Opus, AAC veya FLAC).', 'Synthesizes Turkish text into natural speech (48 kHz / 16-bit / mono WAV, MP3, Opus, AAC, or FLAC).')} />
 
               <div className="api-v2-subsection">
-                <h3>{t('Doğal Türkçe Sesler', 'Native Turkish Voices')}</h3>
-                <div className="api-v2-voice-grid">
-                  {ttsVoicesData.map((voice) => (
-                    <article key={voice.id} className="api-v2-voice-card">
-                      <div className="api-v2-voice-head">
-                        <h4>{voice.name}</h4>
-                      </div>
-                      <div className="api-v2-voice-meta">
-                        <span>{local(voice, 'gender')}</span>
-                        <span>{local(voice, 'style')}</span>
-                      </div>
-                      <p>{local(voice, 'desc')}</p>
-                    </article>
-                  ))}
+                <h3>{t('Parametreler', 'Parameters')}</h3>
+                <ParametersTable parameters={ttsParameters} language={language} t={t} />
+              </div>
+
+              <div className="api-v2-subsection">
+                <h3>{t('Sesler', 'Voices')}</h3>
+                <div className="api-v2-table-wrap">
+                  <table className="api-v2-table">
+                    <thead>
+                      <tr>
+                        <th>{t('Ses Adı', 'Voice')}</th>
+                        <th>{t('Cinsiyet', 'Gender')}</th>
+                        <th>{t('Tarz', 'Style')}</th>
+                        <th>{t('Açıklama & OpenAI Eşlemesi', 'Description & OpenAI Aliases')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ttsVoicesData.map((voice) => (
+                        <tr key={voice.id}>
+                          <td><code>{voice.id}</code> ({voice.name})</td>
+                          <td>{local(voice, 'gender')}</td>
+                          <td>{local(voice, 'style')}</td>
+                          <td>{local(voice, 'desc')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
               <div className="api-v2-subsection">
-                <h3>{t('Desteklenen Ses Formatları', 'Supported Audio Formats')}</h3>
-                <p>{t(
-                  'Konuşmatik varsayılan ses formatı wav olup 48 kHz / 16-bit / mono kalitesinde kayıpsız ses döner. OpenAI varsayılanı mp3 formatıdır; mp3 almak için response_format="mp3" parametresi açıkça gönderilmelidir.',
-                  'Konuşmatik default audio format is wav (48 kHz / 16-bit / mono lossless). OpenAI default is mp3; specify response_format="mp3" explicitly to obtain mp3 output.'
-                )}</p>
+                <h3>{t('Yanıt (Desteklenen Formatlar)', 'Response (Supported Formats)')}</h3>
                 <div className="api-v2-table-wrap">
                   <table className="api-v2-table">
                     <thead>
@@ -581,17 +596,6 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
                     </tbody>
                   </table>
                 </div>
-                <p style={{ marginTop: '8px' }}>
-                  <small>{t(
-                    'Format dönüştürme kapasitesi dolduğunda 503 transcode_capacity ve Retry-After dönebilir (bu durumda faturalandırma yapılmaz). TTS kapasitesi dolduğunda ise 429 tts_capacity_saturated ve Retry-After döner.',
-                    'When format transcode capacity saturates, a 503 transcode_capacity with Retry-After is returned (no billing occurs). When TTS capacity is full, 429 tts_capacity_saturated with Retry-After is returned.'
-                  )}</small>
-                </p>
-              </div>
-
-              <div className="api-v2-subsection">
-                <h3>{t('İstek Parametreleri', 'Request Parameters')}</h3>
-                <ParametersTable parameters={ttsParameters} language={language} t={t} />
               </div>
 
               <div className="api-endpoint-console-wrap">
@@ -603,6 +607,10 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
                 <h4>{t('MP3 Formatı ve Hız (speed) Örneği', 'MP3 Format & Speed Example')}</h4>
                 <CodeConsole examples={ttsSpeedCodeExamples} language={language} defaultLanguage="python" />
               </div>
+
+              <DocCallout variant="note" title={t('Not', 'Note')} guideLink="#guide-audio-formats" guideText={t('Ses formatları kılavuzu →', 'Audio formats guide →')}>
+                {t('Konuşmatik varsayılan çıktı formatı wav olup 48 kHz / 16-bit / mono kalitesindedir (OpenAI varsayılanı mp3\'tür). MP3 için response_format="mp3" belirtilmelidir.', 'Konuşmatik default output format is wav (48 kHz / 16-bit / mono); OpenAI default is mp3. Set response_format="mp3" explicitly for mp3.')}
+              </DocCallout>
             </div>
           </section>
 
@@ -611,8 +619,8 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
             <SectionIntro
               title={t('OpenAI SDK ile Konuşmatik Streaming TTS', 'Konuşmatik Streaming TTS with OpenAI SDK')}
               description={t(
-                'Konuşmatik Streaming TTS, sesin tamamının oluşturulmasını beklemeden üretilen ses verisini istemciye aktarmaya başlar. Bu yapı özellikle gerçek zamanlı ses oynatma, sesli asistanlar ve düşük gecikmeli uygulamalar için uygundur.',
-                'Konuşmatik Streaming TTS starts transferring generated audio data to the client without waiting for the entire audio output to be completed. It is designed for real-time playback, voice assistants, and low-latency applications.',
+                'Konuşmatik Streaming TTS, sesin tamamının oluşturulmasını beklemeden üretilen ses verisini istemciye aktarmaya başlar.',
+                'Konuşmatik Streaming TTS starts transferring generated audio data to the client without waiting for the entire audio output to be completed.',
               )}
             />
 
@@ -620,18 +628,16 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
               <EndpointHeader
                 method="POST"
                 path="/audio/speech"
-                description={t('PCM ses verisini parça parça aktarır.', 'Streams PCM audio data incrementally.')}
+                description={t('Sesin tamamlanmasını beklemeden ham PCM ses verisini parça parça istemciye aktarır.', 'Streams raw PCM audio chunks incrementally without waiting for complete generation.')}
               />
 
-              <MiniSpecGrid items={streamingTtsSpecs} language={language} />
-
-              <div className="api-endpoint-console-wrap">
-                <h4>{t('Python SDK Örneği', 'Python SDK Example')}</h4>
-                <CodeConsole examples={streamingTtsCodeExamples} language={language} defaultLanguage="python" />
+              <div className="api-v2-subsection">
+                <h3>{t('Parametreler', 'Parameters')}</h3>
+                <ParametersTable parameters={streamingTtsParameters} language={language} t={t} />
               </div>
 
-              <div className="api-endpoint-console-wrap">
-                <h4>Response Headers</h4>
+              <div className="api-v2-subsection">
+                <h3>{t('Yanıt Başlıkları', 'Response Headers')}</h3>
                 <div className="api-console">
                   <div className="api-console-head">
                     <span className="api-console-label">HTTP Headers</span>
@@ -641,13 +647,14 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
                 </div>
               </div>
 
-              <div className="api-endpoint-details">
-                <h3>{t('Streaming veri sözleşmesi', 'Streaming data contract')}</h3>
-                <p>{t(
-                  'Ses verileri stream üzerinden parça parça iletilir. Chunk boyutları sabit değildir ve istemci uygulamaları chunk sınırlarına bağlı bir mantık oluşturmamalıdır. Gelen PCM verileri sırasıyla oynatılabilir, kaydedilebilir veya farklı bir ses formatında işlenebilir.',
-                  'Audio data is delivered incrementally through the stream. Chunk sizes are not fixed, and client applications must not build logic that depends on chunk boundaries. Incoming PCM data can be played in sequence, saved, or processed into another audio format.',
-                )}</p>
+              <div className="api-endpoint-console-wrap">
+                <h4>{t('Python SDK Örneği', 'Python SDK Example')}</h4>
+                <CodeConsole examples={streamingTtsCodeExamples} language={language} defaultLanguage="python" />
               </div>
+
+              <DocCallout variant="note" title={t('Not', 'Note')} guideLink="#guide-audio-formats" guideText={t('Ses formatları kılavuzu →', 'Audio formats guide →')}>
+                {t('Streaming isteklerinde response_format="pcm" zorunludur ve speed parametresi uygulanmaz. Chunk boyutları değişken olabilir.', 'Streaming requests require response_format="pcm" and speed parameter is not applied. Chunk sizes may vary.')}
+              </DocCallout>
             </div>
           </section>
 
@@ -656,38 +663,24 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
             <SectionIntro
               eyebrow="Konuşma Tanıma"
               title={t('OpenAI SDK ile Konuşmatik ASR', 'Konuşmatik ASR with OpenAI SDK')}
-              description={t('100 MB boyuta ve 3 saate kadar ses dosyalarını yüksek doğrulukla Türkçe metne dönüştürün. Sınırların aşılması durumunda HTTP 413 file_too_large hatası döner.', 'Transcribe audio files up to 100 MB and 3 hours into accurate Turkish text. Exceeding limits returns HTTP 413 file_too_large.')}
+              description={t('100 MB boyuta ve 3 saate kadar ses dosyalarını yüksek doğrulukla Türkçe metne dönüştürün.', 'Transcribe audio files up to 100 MB and 3 hours into accurate Turkish text.')}
             />
             <div className="api-endpoint-card">
-              <EndpointHeader method="POST" path="/audio/transcriptions" description={t('İstek gövdesi multipart/form-data olarak gönderilmelidir. Sınırlar: Maksimum 100 MB ve 3 saat (10.800 saniye); daha büyük dosyalar 413 file_too_large döner.', 'Send request as multipart/form-data. Limits: Max 100 MB and 3 hours (10,800s); larger files return 413 file_too_large.')} />
-
-              <div className="api-v2-format-row">
-                <strong>{t('Desteklenen formatlar', 'Supported formats')}</strong>
-                <div className="api-v2-format-list">
-                  {asrSupportedFormats.map((format) => <span key={format}>{format}</span>)}
-                </div>
-              </div>
+              <EndpointHeader method="POST" path="/audio/transcriptions" description={t('Ses veya video dosyasını multipart/form-data ile yükleyerek metne dönüştürür (Maks. 100 MB, 3 saat).', 'Transcribes audio/video files via multipart/form-data into text (Max 100 MB, 3 hours).')} />
 
               <div className="api-v2-subsection">
-                <h3>{local(asrSpeedTip, 'title')}</h3>
-                <p>{local(asrSpeedTip, 'desc')}</p>
-                <div className="api-console">
-                  <div className="api-console-head">
-                    <span className="api-console-label">FFmpeg</span>
-                    <CopyButton textToCopy={asrSpeedTip.command} language={language} />
-                  </div>
-                  <pre data-no-translate="true"><code data-no-translate="true">{asrSpeedTip.command}</code></pre>
-                </div>
-              </div>
-
-              <div className="api-v2-subsection">
-                <h3>{local(asrLongFilesNote, 'title')}</h3>
-                <p>{local(asrLongFilesNote, 'desc')}</p>
-              </div>
-
-              <div className="api-v2-subsection">
-                <h3>{t('İstek Parametreleri', 'Request Parameters')}</h3>
+                <h3>{t('Parametreler', 'Parameters')}</h3>
                 <ParametersTable parameters={asrParameters} language={language} t={t} />
+              </div>
+
+              <div className="api-v2-subsection">
+                <h3>{t('Yanıt (Desteklenen Formatlar)', 'Response (Supported Formats)')}</h3>
+                <div className="api-v2-format-row">
+                  <strong>{t('Desteklenen Çıktı Formatları', 'Supported Output Formats')}</strong>
+                  <div className="api-v2-format-list">
+                    {asrSupportedFormats.map((format) => <span key={format}>{format}</span>)}
+                  </div>
+                </div>
               </div>
 
               <div className="api-endpoint-console-wrap">
@@ -704,6 +697,10 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
                 <h4>{t('Altyazı Çıktısı (SRT)', 'Subtitle Output (SRT)')}</h4>
                 <CodeConsole examples={asrSrtCodeExamples} language={language} defaultLanguage="python" />
               </div>
+
+              <DocCallout variant="note" title={t('İpucu', 'Tip')} guideLink="#guide-long-files" guideText={t('Uzun dosyalar kılavuzu →', 'Long files guide →')}>
+                {t('Dosyayı yüklemeden önce 16 kHz mono formatına dönüştürmek süreyi %47 kısaltır. Cloudflare 100 saniye sınırı için kurumsal asenkron API önerilir.', 'Converting audio to 16 kHz mono pre-upload accelerates processing by 47%. For Cloudflare 100s limit, use corporate async API.')}
+              </DocCallout>
             </div>
           </section>
 
@@ -714,34 +711,36 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
               description={t('AsyncOpenAI istemcisiyle mikrofonunuzdan PCM16 ses gönderin ve canlı deşifre olaylarını doğrudan dinleyin (Yalnızca konusmatik-asr-v1 modeli desteklenir).', 'Stream PCM16 microphone audio with the AsyncOpenAI client and receive live transcription events directly (Only konusmatik-asr-v1 is supported).')}
             />
             <div className="api-endpoint-card">
-              <EndpointHeader method="WSS" path="/realtime" description={t('OpenAI Python SDK uyumlu gerçek zamanlı deşifre bağlantısı (model=konusmatik-asr-v1).', 'OpenAI Python SDK-compatible realtime transcription connection (model=konusmatik-asr-v1).')} />
+              <EndpointHeader method="WSS" path="/realtime" description={t('OpenAI Python SDK uyumlu gerçek zamanlı WebSocket deşifre bağlantısı (model=konusmatik-asr-v1).', 'OpenAI Python SDK-compatible realtime WebSocket transcription connection (model=konusmatik-asr-v1).')} />
+
               <div className="api-v2-subsection">
-                <h3>{t('Sunucu VAD ve Cümle Birleştirme', 'Server VAD & Utterance Merging')}</h3>
-                <p>{t(
-                  'Sunucu tabanlı VAD (turn_detection) varsayılan olarak açıktır: turn_detection: {"type":"server_vad","silence_duration_ms":750,"prefix_padding_ms":300}. Parametre aralıkları: silence_duration_ms 200–3000 (varsayılan 750), prefix_padding_ms 0–1000 (varsayılan 300); threshold kabul edilir ancak uygulanmaz. Kısa duraklamalarda tek bir konuşma cümlesi birden fazla completed olayına bölünebilir (ölçümlerde ortalama ~1.3 completed). Önerilen yaklaşım: completed metinlerini toplayın ve son parçadan sonra 0.5–0.7 saniye yeni bir completed gelmezse cümleyi tamamlandı kabul edin. Alternatif olarak silence_duration_ms değerini 1000–1200 ms aralığına yükseltebilir veya turn_detection: null ile istemci kontrollü commit kullanabilirsiniz.',
-                  'Server-side VAD (turn_detection) is active by default: turn_detection: {"type":"server_vad","silence_duration_ms":750,"prefix_padding_ms":300}. Parameter ranges: silence_duration_ms 200–3000 (default 750), prefix_padding_ms 0–1000 (default 300); threshold is accepted but not applied. A single utterance may arrive as several completed events (averaging ~1.3 per utterance). Recommended merge strategy: collect completed texts; if no new completed arrives for 0.5–0.7 s after the last one, treat the utterance as finished. Alternatively, increase silence_duration_ms to 1000–1200 ms, or use client-controlled commit with turn_detection: null.'
-                )}</p>
-                <p>{t(
-                  'İstemci kontrollü bitirme (turn_detection: null): session.update (veya transcription_session.update) ile turn_detection: null gönderildiğinde sunucu söz sırasını kendiliğinden bitirmez ve hiçbir speech_started veya speech_stopped olayı gönderilmez; tüm ses motora iletilir. Cümle bitiminde input_audio_buffer.commit gönderildiğinde input_audio_buffer.committed ve tek bir completed döner. Bağlantı açık kalır ve sonraki ses yeni bir öğe olarak işlenir. Boş tamponda commit çağrısı yapılırsa input_audio_buffer_commit_empty hatası döner.',
-                  'Client-controlled ending (turn_detection: null): when turn_detection: null is passed via session.update (or transcription_session.update), the server never ends a turn by itself and no speech_started or speech_stopped events are sent; all audio goes to the engine. At the end of an utterance, send input_audio_buffer.commit to receive input_audio_buffer.committed and one completed event. The connection stays open, and the next audio is treated as a new item. Committing on an empty buffer triggers input_audio_buffer_commit_empty.'
-                )}</p>
-                <div className="api-endpoint-console-wrap">
-                  <h4>{t('İstemci kontrollü commit örneği', 'Client-controlled commit example')}</h4>
-                  <CodeConsole examples={realtimeClientCommitExamples} language={language} defaultLanguage="python" />
+                <h3>{t('Parametreler (session.update)', 'Parameters (session.update)')}</h3>
+                <ParametersTable parameters={openAiRealtimeParameters} language={language} t={t} />
+              </div>
+
+              <div className="api-v2-subsection">
+                <h3>{t('Olaylar', 'Events')}</h3>
+                <div className="api-v2-table-wrap">
+                  <table className="api-v2-table api-v2-events-table">
+                    <thead><tr><th>{t('Yön', 'Direction')}</th><th>{t('Olay (Event)', 'Event')}</th><th>{t('Açıklama', 'Description')}</th></tr></thead>
+                    <tbody>{realtimeEventTable.map((row) => <tr key={`${row.dir}-${row.event}`}><td>{local(row, 'dir')}</td><td><code>{row.event}</code></td><td>{local(row, 'desc')}</td></tr>)}</tbody>
+                  </table>
                 </div>
-                <p>{t(
-                  'Hata Olayı (Error Event) Yapısı: {"type":"error","error":{"type","code","message","param"}}. Örnek hata kodları: invalid_value (param = tam alan yolu), invalid_base64, input_audio_buffer_commit_empty, model_mismatch, realtime_engine_unsupported, quota_exceeded, idle_timeout.',
-                  'Error Event Structure: {"type":"error","error":{"type","code","message","param"}}. Example error codes: invalid_value (with param showing the exact field path), invalid_base64, input_audio_buffer_commit_empty, model_mismatch, realtime_engine_unsupported, quota_exceeded, idle_timeout.'
-                )}</p>
-                <p>{t(
-                  'Giriş ses formatı: session.audio.input.format = {"type": "audio/pcm", "rate": 16000}. 16 kHz formatında gönderilen sesler yeniden örneklenmeden doğrudan işlenir ve süre faturalandırılır. 16000, 24000 (varsayılan), 44100 ve 48000 Hz hızları desteklenir.',
-                  'Input audio format: session.audio.input.format = {"type": "audio/pcm", "rate": 16000}. 16 kHz audio is processed directly without resampling and billed by actual duration. 16000, 24000 (default), 44100, and 48000 Hz are supported.'
-                )}</p>
               </div>
+
               <div className="api-endpoint-console-wrap">
-                <h4>{t('Python Örneği', 'Python Example')}</h4>
-                <CodeConsole examples={openAiRealtimeCodeExamples} language={language} defaultLanguage="python" />
+                <h4>{t('Python SDK Örneği (Server VAD)', 'Python SDK Example (Server VAD)')}</h4>
+                <CodeConsole examples={realtimeCodeExamples} language={language} defaultLanguage="python" />
               </div>
+
+              <div className="api-endpoint-console-wrap">
+                <h4>{t('İstemci kontrollü commit örneği', 'Client-controlled commit example')}</h4>
+                <CodeConsole examples={realtimeClientCommitExamples} language={language} defaultLanguage="python" />
+              </div>
+
+              <DocCallout variant="warning" title={t('Önemli', 'Important')} guideLink="#guide-realtime-turns" guideText={t('Söz sırası ve VAD kılavuzu →', 'Realtime turns & VAD guide →')}>
+                {t('Bu uç noktada yalnızca konusmatik-asr-v1 desteklenir. Cümle birleştirme ve turn_detection: null ayrıntıları için kılavuza bakın.', 'Only konusmatik-asr-v1 is supported on this endpoint. See the guide for utterance merging and turn_detection: null details.')}
+              </DocCallout>
             </div>
           </section>
 
@@ -800,9 +799,13 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
               />
               <div className="api-endpoint-card">
                 <div className="api-v2-corporate-routes">
-                  <EndpointHeader id="corporate-create-job" method="POST" path="/corporate/asr/jobs" description={t('Yeni bir ASR işi kuyruğa ekler ve hemen job_id döndürür.', 'Enqueues a new ASR job and returns job_id immediately.')} />
-                  <EndpointHeader id="corporate-polling" method="GET" path="/corporate/asr/jobs/{id}" description={t('İş durumunu sorgular (pending, processing, completed, failed).', 'Polls job status.')} />
-                  <EndpointHeader id="corporate-result" method="GET" path="/corporate/asr/jobs/{id}/result" description={t('Tamamlanan işin transkripsiyon metnini döndürür.', 'Retrieves final transcribed text.')} />
+                  <EndpointHeader id="corporate-create-job" method="POST" path="/corporate/asr/jobs" description={t('Yeni bir asenkron ASR işi kuyruğa ekler ve hemen job_id döndürür.', 'Enqueues an async ASR job and returns job_id immediately.')} />
+                  <EndpointHeader id="corporate-polling" method="GET" path="/corporate/asr/jobs/{id}" description={t('İş durumunu sorgular (pending, processing, completed, failed).', 'Polls job status (pending, processing, completed, failed).')} />
+                  <EndpointHeader id="corporate-result" method="GET" path="/corporate/asr/jobs/{id}/result" description={t('Tamamlanan işin transkripsiyon metnini, zaman damgalarını (segment/word) ve altyazılarını (srt/vtt) döndürür.', 'Retrieves final transcription text, timestamps (segment/word), and subtitle outputs (srt/vtt).')} />
+                </div>
+                <div className="api-v2-subsection">
+                  <h3>{t('Parametreler', 'Parameters')}</h3>
+                  <ParametersTable parameters={corporateAsrJobParameters} language={language} t={t} />
                 </div>
                 <div className="api-endpoint-console-wrap">
                   <h4>{t('İş Oluşturma, Polling ve Sonuç Alma', 'Create Job, Polling, and Result')}</h4>
@@ -810,14 +813,12 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
                 </div>
                 <div className="api-v2-subsection">
                   <h3>{t('URL ile ASR İşi (Dosya Yüklemeden)', 'ASR Job from URL (No Upload)')}</h3>
-                  <p>{t('Ses veya video dosyasını yüklemek yerine HTTPS adresini verin; Konuşmatik dosyayı sunucu tarafında indirir ve kuyruğa alır. Yanıt HTTP 202 Accepted döner.', 'Provide an HTTPS address instead of uploading; Konuşmatik downloads the file server-side and queues it. Responds with HTTP 202 Accepted.')}</p>
-                  <EndpointHeader id="corporate-asr-url" method="POST" path="/corporate/asr/jobs/url" description={t("Uzak bir URL'den asenkron ASR işi oluşturur. /corporate/asr/jobs uç noktası da JSON gövdede audio_url kabul eder.", 'Creates an async ASR job from a remote URL. /corporate/asr/jobs also accepts audio_url in a JSON body.')} />
+                  <EndpointHeader id="corporate-asr-url" method="POST" path="/corporate/asr/jobs/url" description={t("Dosyayı sunucu tarafında indirip kuyruğa alarak asenkron ASR işi oluşturur (HTTP 202 Accepted).", 'Downloads the file server-side and queues an async ASR job (HTTP 202 Accepted).')} />
                   <ParametersTable parameters={corporateAsrUrlParameters} language={language} t={t} />
                   <CodeConsole examples={corporateAsrUrlExample} language={language} defaultLanguage="python" />
                 </div>
                 <div className="api-v2-subsection">
                   <h3>{t('Zaman Damgaları ve Sonuç Alanları', 'Timestamps & Result Fields')}</h3>
-                  <p>{t('İş oluştururken veya sonuç alırken timestamp_granularities[] ile segment ve/veya word seçin. Sonuç ayrıca srt ve vtt altyazı çıktıları içerir.', 'Choose segment and/or word with timestamp_granularities[] when creating a job or fetching the result. The result also includes srt and vtt subtitle outputs.')}</p>
                   <EndpointHeader method="GET" path="/corporate/asr/jobs/{id}/download" description={t('Sonuç dosyası için süreli indirme bağlantısı döndürür (url, expires_in_seconds).', 'Returns a time-limited download link for the result file (url, expires_in_seconds).')} />
                   <ParametersTable parameters={corporateAsrResultFields} language={language} t={t} />
                 </div>
@@ -826,6 +827,9 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
                   <EndpointHeader id="corporate-asr-sync" method="POST" path="/corporate/asr/jobs/sync" description={t('Kısa dosyalar için kuyruk beklemeden sonucu aynı istekte döndürür (HTTP 201).', 'For short files, returns the result in the same request without polling (HTTP 201).')} />
                   <CodeConsole examples={corporateAsrSyncExample} language={language} defaultLanguage="python" />
                 </div>
+                <DocCallout variant="note" title={t('Not', 'Note')} guideLink="#guide-long-files" guideText={t('Uzun dosyalar kılavuzu →', 'Long files guide →')}>
+                  {t('Senkron HTTP istekleri Cloudflare 100 saniye sınırına tabidir; uzun kayıtlar için asenkron iş kuyruğu kullanın.', 'Synchronous requests are subject to Cloudflare 100s timeout. Use asynchronous job queue for long recordings.')}
+                </DocCallout>
               </div>
             </div>
 
@@ -891,6 +895,10 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
                     </table>
                   </div>
                 </div>
+
+                <DocCallout variant="warning" title={t('Önemli', 'Important')}>
+                  {t('Uç nokta HTTPS olmalı, yanıt 10 saniye içinde dönmeli ve imzalar sabit zamanlı karşılaştırmayla doğrulanmalıdır.', 'Endpoint must be HTTPS, respond within 10 seconds, and signatures verified with constant-time comparison.')}
+                </DocCallout>
               </div>
             </div>
 
@@ -900,20 +908,27 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
                 headingLevel="h3"
                 title="Konuşmatik Asenkron TTS"
                 description={t(
-                  'Konuşmatik Asenkron TTS, ses sentezi isteğini kuyruğa alır ve sesin oluşturulmasını beklemeden istemciye bir job_id döner. İşlem arka planda tamamlandıktan sonra durum job_id ile takip edilebilir ve üretilen ses tek bir kayıpsız WAV dosyası olarak indirilebilir. Bu yapı özellikle yüksek hacimli, toplu veya uzun süren ses üretim işleri için uygundur.',
-                  'Konuşmatik Async TTS queues the speech synthesis request and returns a job_id without waiting for the audio to be generated. After processing completes in the background, the job can be tracked using its job_id and the generated audio can be downloaded as a single lossless WAV file. It is designed for high-volume, batch, or long-running speech generation workloads.',
+                  'Yüksek hacimli ve toplu seslendirme işleri için kuyruk tabanlı asenkron TTS.',
+                  'Queue-based asynchronous TTS for high-volume and batch speech generation workloads.',
                 )}
               />
               <div className="api-endpoint-card">
                 <div className="api-v2-corporate-routes">
-                  <EndpointHeader method="POST" path="/corporate/tts/jobs" description={t('Toplu TTS sentez işi oluşturur.', 'Creates an asynchronous TTS job.')} />
-                  <EndpointHeader method="GET" path="/corporate/tts/jobs/{id}" description={t('İş durumunu sorgular.', 'Polls job status.')} />
-                  <EndpointHeader method="GET" path="/corporate/tts/jobs/{id}/stream" description={t('Üretilen WAV ses akışını indirir.', 'Streams the synthesized WAV audio.')} />
+                  <EndpointHeader method="POST" path="/corporate/tts/jobs" description={t('Toplu asenkron TTS sentez işi oluşturur ve job_id döndürür.', 'Creates an asynchronous TTS job and returns job_id.')} />
+                  <EndpointHeader method="GET" path="/corporate/tts/jobs/{id}" description={t('TTS iş durumunu sorgular (pending, processing, completed, failed).', 'Polls TTS job status (pending, processing, completed, failed).')} />
+                  <EndpointHeader method="GET" path="/corporate/tts/jobs/{id}/stream" description={t('Üretilen kayıpsız WAV ses akışını indirir.', 'Streams the synthesized lossless WAV audio.')} />
+                </div>
+                <div className="api-v2-subsection">
+                  <h3>{t('Parametreler', 'Parameters')}</h3>
+                  <ParametersTable parameters={corporateTtsJobParameters} language={language} t={t} />
                 </div>
                 <div className="api-endpoint-console-wrap">
                   <h4>{t('İş Oluşturma, Polling ve WAV İndirme', 'Create Job, Polling, and WAV Download')}</h4>
                   <CodeConsole examples={corporateTtsPollingExample} language={language} defaultLanguage="python" />
                 </div>
+                <DocCallout variant="note" title={t('Not', 'Note')} guideLink="#guide-audio-formats" guideText={t('Ses formatları kılavuzu →', 'Audio formats guide →')}>
+                  {t('İşlem arka planda tamamlandıktan sonra üretilen ses tek bir kayıpsız WAV dosyası olarak indirilebilir.', 'After background completion, synthesized audio can be downloaded as a single lossless WAV file.')}
+                </DocCallout>
               </div>
             </div>
 
@@ -922,107 +937,152 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
               <SectionIntro
                 headingLevel="h3"
                 eyebrow="Canlı Akış (WebSocket)"
-                title={t('Konuşmatik Asenkron Realtime ASR', 'Konuşmatik Async Realtime ASR')}
-                description={t('Konuşmatik, canlı deşifre için iki farklı WebSocket uç noktası sunar: OpenAI SDK uyumlu /realtime ve doğrudan binary PCM akışı alan yerel /realtime/transcriptions.', 'Konuşmatik provides two WebSocket endpoints for live transcription: OpenAI SDK-compatible /realtime and native binary PCM /realtime/transcriptions.')}
+                title={t('Yerel Realtime ASR (WebSocket)', 'Native Realtime ASR (WebSocket)')}
+                description={t('Doğrudan binary PCM akışı alan yerel /realtime/transcriptions uç noktası.', 'Native binary PCM /realtime/transcriptions live transcription endpoint.')}
               />
 
               <div className="api-endpoint-card">
+                <EndpointHeader method="WSS" path="/realtime/transcriptions" description={t('16 kHz 16-bit mono binary PCM akışı için yerel WebSocket canlı deşifre bağlantısı.', 'Native WebSocket connection for 16 kHz 16-bit mono binary PCM live transcription.')} />
+
                 <div className="api-v2-subsection">
-                  <h3>{t('İki Realtime Uç Noktasının Karşılaştırması', 'Comparison of the Two Realtime Endpoints')}</h3>
-                  <div className="api-v2-table-wrap">
-                    <table className="api-v2-table">
-                      <thead>
-                        <tr>
-                          <th>{t('Özellik', 'Feature')}</th>
-                          <th>{t('OpenAI Uyumlu Realtime', 'OpenAI-Compatible Realtime')}</th>
-                          <th>{t('Yerel Realtime (Native)', 'Native Realtime')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {realtimeComparisonTable.map((row) => (
-                          <tr key={row.feature}>
-                            <td><strong>{language === 'en' ? row.featureEn : row.feature}</strong></td>
-                            <td><code>{row.openai}</code></td>
-                            <td><code>{row.native}</code></td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <h3>{t('Parametreler (session.start)', 'Parameters (session.start)')}</h3>
+                  <ParametersTable parameters={nativeRealtimeParameters} language={language} t={t} />
                 </div>
 
                 <div className="api-v2-subsection">
-                  <h3>{t('1. OpenAI Uyumlu Realtime Uç Noktası', '1. OpenAI-Compatible Realtime Endpoint')}</h3>
-                  <EndpointHeader method="WSS" path="/realtime" description={API_BASE_REALTIME_WS} />
-                  <MiniSpecGrid items={realtimeAudioSpec} language={language} />
-                  <div className="api-v2-table-wrap" style={{ marginTop: '16px' }}>
-                    <table className="api-v2-table api-v2-events-table">
-                      <thead><tr><th>{t('Yön', 'Direction')}</th><th>{t('Olay (Event)', 'Event')}</th><th>{t('Açıklama', 'Description')}</th></tr></thead>
-                      <tbody>{realtimeEventTable.map((row) => <tr key={`${row.dir}-${row.event}`}><td>{local(row, 'dir')}</td><td><code>{row.event}</code></td><td>{local(row, 'desc')}</td></tr>)}</tbody>
-                    </table>
-                  </div>
-                  <div className="api-endpoint-console-wrap">
-                    <h4>{t('Sunucu VAD ve Cümle Birleştirme Örneği', 'Server VAD & Utterance Merging Example')}</h4>
-                    <CodeConsole examples={realtimeCodeExamples} language={language} defaultLanguage="python" />
-                  </div>
-                </div>
-
-                <div className="api-v2-subsection" style={{ marginTop: '32px' }}>
-                  <h3>{t('2. Yerel Realtime Uç Noktası (Native WebSocket)', '2. Native Realtime Endpoint (Native WebSocket)')}</h3>
-                  <EndpointHeader method="WSS" path="/realtime/transcriptions" description={API_BASE_NATIVE_REALTIME_WS} />
-                  <MiniSpecGrid items={nativeRealtimeSpecs} language={language} />
-                  <div className="api-endpoint-details" style={{ marginTop: '16px' }}>
-                    <h4>{t('Yerel Oturum Akışı & session.start', 'Native Session Flow & session.start')}</h4>
-                    <p>{t(
-                      '1. Bağlantı kurun (Authorization: Bearer <API_KEY> başlığı ile). 2. session.start JSON mesajını gönderin (model, language: "tr", encoding: "pcm_s16le", sample_rate: 16000, timestamp_granularities: ["segment","word"]). 3. session.ready yanıtı geldikten sonra sesi 16 kHz 16-bit mono binary PCM frame\'leri (örn. 100 ms = 3200 bayt) halinde iletin. 4. Sunucudan transcript.partial ve transcript.final (segments, words) olayları gelir. 5. Oturumu sonlandırmak için session.stop gönderin; son transcript.final, session.stats ve session.closed döner.',
-                      '1. Connect with Authorization: Bearer header. 2. Send session.start JSON message (model, language: "tr", encoding: "pcm_s16le", sample_rate: 16000, timestamp_granularities: ["segment","word"]). 3. After session.ready, stream 16 kHz 16-bit mono binary PCM frames (e.g. 100 ms = 3200 bytes). 4. Receive transcript.partial and transcript.final (segments, words). 5. Send session.stop to receive final transcript.final, session.stats, and session.closed.'
-                    )}</p>
-                    <p>{t(
-                      'İstemci VAD İpucu: Cümle bitimi tespiti için en az 1000 ms sessizlik süresi önerilir (600 ms cümle içi duraklamalarda erken kesilmelere sebep olabilir).',
-                      'Client VAD Tip: A silence timeout of 1000 ms or longer is recommended (600 ms cuts sentences at natural pauses).'
-                    )}</p>
-                    <p>{t(
-                      'Kapasite ve Süre Sınırları: konusmatik-asr-v2 için en fazla 3 eşzamanlı oturum (servis genelinde) desteklenir. 60 saniye boyunca ses iletilmediğinde oturum otomatik sonlandırılır (idle_timeout).',
-                      'Capacity & Idle Limits: konusmatik-asr-v2 allows at most 3 concurrent sessions (service-wide). The session closes after 60 seconds without audio (idle_timeout).'
-                    )}</p>
-                  </div>
+                  <h3>{t('Olaylar', 'Events')}</h3>
                   <div className="api-v2-table-wrap">
                     <table className="api-v2-table api-v2-events-table">
                       <thead><tr><th>{t('Yön', 'Direction')}</th><th>{t('Olay (Event)', 'Event')}</th><th>{t('Açıklama', 'Description')}</th></tr></thead>
                       <tbody>{nativeRealtimeEventTable.map((row) => <tr key={`${row.dir}-${row.event}`}><td>{local(row, 'dir')}</td><td><code>{row.event}</code></td><td>{local(row, 'desc')}</td></tr>)}</tbody>
                     </table>
                   </div>
-                  <div className="api-endpoint-console-wrap">
-                    <h4>{t('Yerel uç nokta Python örneği', 'Native endpoint Python example')}</h4>
-                    <CodeConsole examples={nativeRealtimeCodeExamples} language={language} defaultLanguage="python" />
-                  </div>
+                  <div style={{ marginTop: '8px' }}><a href="#realtime-errors" className="api-doc-callout-link">{t('Realtime hata kodları listesi →', 'Realtime error codes list →')}</a></div>
                 </div>
 
-                <div className="api-v2-subsection" style={{ marginTop: '32px' }}>
-                  <h3>{t('Realtime Hata Kodları', 'Realtime Error Codes')}</h3>
-                  <div className="api-v2-table-wrap">
-                    <table className="api-v2-table">
-                      <thead>
-                        <tr>
-                          <th>{t('Hata Kodu', 'Error Code')}</th>
-                          <th>{t('Açıklama / Anlam', 'Meaning / Description')}</th>
-                          <th>{t('Bağlantı Durumu', 'Connection Status')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {realtimeErrorCodesTable.map((row) => (
-                          <tr key={row.code}>
-                            <td><code>{row.code}</code></td>
-                            <td>{language === 'en' ? row.meaningEn : row.meaning}</td>
-                            <td>{language === 'en' ? row.connEn : row.conn}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                <div className="api-endpoint-console-wrap">
+                  <h4>{t('Yerel Uç Nokta Python Örneği', 'Native Endpoint Python Example')}</h4>
+                  <CodeConsole examples={nativeRealtimeCodeExamples} language={language} defaultLanguage="python" />
                 </div>
+
+                <DocCallout variant="warning" title={t('Önemli', 'Important')} guideLink="#guide-realtime-turns" guideText={t('Söz sırası ve VAD kılavuzu →', 'Realtime turns & VAD guide →')}>
+                  {t('konusmatik-asr-v2 için servis genelinde en fazla 3 eşzamanlı oturum desteklenir. 60 saniye ses gelmediğinde oturum otomatik kapanır (idle_timeout).', 'Allows at most 3 concurrent sessions (service-wide) for konusmatik-asr-v2. Closes after 60s without audio (idle_timeout).')}
+                </DocCallout>
               </div>
             </div>
+          </section>
+
+          {/* KILAVUZLAR */}
+          <section id="guides" className="api-section">
+            <SectionIntro
+              eyebrow={t('Teknik Kılavuzlar', 'Technical Guides')}
+              title={t('Kılavuzlar', 'Guides')}
+              description={t('Ses formatları, uzun dosyalar ve gerçek zamanlı söz sırası yönetimi hakkında teknik ayrıntılar.', 'Technical details on audio formats, long file handling, and realtime turn management.')}
+            />
+
+            <article id="guide-audio-formats" className="api-v2-guide-card">
+              <h3>{t('Ses Formatları ve Akış Mimarisi', 'Audio Formats & Streaming Architecture')}</h3>
+              <p>{t(
+                'Konuşmatik varsayılan ses formatı wav olup 48 kHz / 16-bit / mono kalitesinde kayıpsız ses döner. OpenAI varsayılanı mp3 formatıdır; mp3 almak için response_format="mp3" parametresi açıkça gönderilmelidir. Desteklenen tüm formatlar ve MIME türleri: wav (audio/wav), mp3 (audio/mpeg), opus (audio/ogg), aac (audio/aac), flac (audio/flac) ve pcm (audio/pcm - yalnızca streaming).',
+                'Konuşmatik default audio format is wav (48 kHz / 16-bit / mono lossless). OpenAI default is mp3; specify response_format="mp3" explicitly to obtain mp3 output. Supported formats and MIME types: wav (audio/wav), mp3 (audio/mpeg), opus (audio/ogg), aac (audio/aac), flac (audio/flac), and pcm (audio/pcm - streaming only).'
+              )}</p>
+              <div className="api-v2-table-wrap" style={{ margin: '16px 0' }}>
+                <table className="api-v2-table">
+                  <thead>
+                    <tr>
+                      <th>{t('Format', 'Format')}</th>
+                      <th>{t('İçerik Türü (MIME)', 'Content-Type')}</th>
+                      <th>{t('Varsayılan / Kullanım', 'Default / Usage')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><code>wav</code></td><td><code>audio/wav</code></td><td>{t('Varsayılan format (48 kHz / 16-bit / mono)', 'Default format (48 kHz / 16-bit / mono)')}</td></tr>
+                    <tr><td><code>mp3</code></td><td><code>audio/mpeg</code></td><td>{t('Sıkıştırılmış ses (OpenAI varsayılanı)', 'Compressed audio (OpenAI default)')}</td></tr>
+                    <tr><td><code>opus</code></td><td><code>audio/ogg</code></td><td>{t('Opus codec, Ogg kapsayıcısında', 'Opus codec in an Ogg container')}</td></tr>
+                    <tr><td><code>aac</code></td><td><code>audio/aac</code></td><td>{t('AAC (Advanced Audio Coding)', 'AAC (Advanced Audio Coding)')}</td></tr>
+                    <tr><td><code>flac</code></td><td><code>audio/flac</code></td><td>{t('Kayıpsız sıkıştırılmış ses', 'Lossless compressed audio')}</td></tr>
+                    <tr><td><code>pcm</code></td><td><code>audio/pcm</code></td><td>{t('Streaming PCM (speed uygulanmaz)', 'Streaming PCM (speed not applied)')}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>{t(
+                'Konuşma hızı çarpanı (speed: 0.25–4.0, varsayılan 1.0) wav, mp3, opus, aac ve flac formatlarında uygulanır; pcm streaming akışında uygulanmaz (normal hızda akar). PCM streaming yanıt başlıkları Content-Type: audio/pcm, X-Audio-Sample-Rate: 48000, X-Audio-Channels: 1, X-Audio-Format: pcm_s16le içerir. Format dönüştürme kapasitesi dolduğunda 503 transcode_capacity ve Retry-After dönebilir (bu durumda faturalandırma yapılmaz). TTS kapasitesi dolduğunda ise 429 tts_capacity_saturated ve Retry-After döner.',
+                'Speed multiplier (speed: 0.25–4.0, default 1.0) applies to wav, mp3, opus, aac, and flac; not applied for pcm streaming (flows at normal speed). PCM streaming response headers include Content-Type: audio/pcm, X-Audio-Sample-Rate: 48000, X-Audio-Channels: 1, X-Audio-Format: pcm_s16le. When transcode capacity saturates, 503 transcode_capacity with Retry-After is returned (no billing occurs). When TTS capacity is full, 429 tts_capacity_saturated with Retry-After is returned.'
+              )}</p>
+            </article>
+
+            <article id="guide-long-files" className="api-v2-guide-card">
+              <h3>{t('Uzun Dosyalar ve Hızlı İşleme', 'Long Files & Fast Processing')}</h3>
+              <p>{t(
+                'Hız İpucu (16 kHz Mono Dönüştürme): Ses dosyasını yüklemeden önce 16 kHz mono formatına dönüştürmek işlem süresini belirgin biçimde kısaltır (uzun kayıtlarda %47 hızlanma ölçülmüştür):',
+                'Speed Tip (16 kHz Mono Pre-conversion): Converting audio to 16 kHz mono before upload noticeably shortens processing time (a 47% speedup was measured on long recordings):'
+              )}</p>
+              <div className="api-console" style={{ margin: '12px 0' }}>
+                <div className="api-console-head">
+                  <span className="api-console-label">FFmpeg</span>
+                  <CopyButton textToCopy={asrSpeedTip.command} language={language} />
+                </div>
+                <pre data-no-translate="true"><code data-no-translate="true">{asrSpeedTip.command}</code></pre>
+              </div>
+              <p>{t(
+                'Dosya ve Süre Sınırları: Senkron ASR için maksimum dosya boyutu 100 MB ve maksimum süre 3 saat (10.800 saniye). Sınırlar aşıldığında HTTP 413 file_too_large hatası döner.',
+                'File & Duration Limits: For synchronous ASR, maximum file size is 100 MB and maximum duration is 3 hours (10,800s). Exceeding limits returns HTTP 413 file_too_large.'
+              )}</p>
+              <p>{local(asrLongFilesNote, 'desc')}</p>
+              <p>{t(
+                'Asenkron ASR işlerinde dosya yüklemek yerine HTTPS audio_url gönderilebilir (HTTP 202 Accepted). Sonuç alırken timestamp_granularities[] ile segment ve/veya word seçildiğinde çıktı metinle birlikte srt ve vtt altyazılarını da içerir.',
+                'In async ASR jobs, an HTTPS audio_url can be sent instead of uploading (HTTP 202 Accepted). When retrieving results with timestamp_granularities[] (segment and/or word), the output includes text along with srt and vtt subtitles.'
+              )}</p>
+            </article>
+
+            <article id="guide-realtime-turns" className="api-v2-guide-card">
+              <h3>{t('Gerçek Zamanlı Söz Sırası ve VAD Yönetimi', 'Realtime Turn & VAD Management')}</h3>
+              <p>{t(
+                'Konuşmatik canlı deşifre için iki WebSocket uç noktası sunar: OpenAI SDK uyumlu /realtime (yalnızca konusmatik-asr-v1) ve yerel binary PCM akışı alan /realtime/transcriptions (v1 ve v2).',
+                'Konuşmatik provides two WebSocket endpoints for live transcription: OpenAI SDK-compatible /realtime (only konusmatik-asr-v1) and native binary PCM /realtime/transcriptions (v1 and v2).'
+              )}</p>
+              <div className="api-v2-table-wrap" style={{ margin: '16px 0' }}>
+                <table className="api-v2-table">
+                  <thead>
+                    <tr>
+                      <th>{t('Özellik', 'Feature')}</th>
+                      <th>{t('OpenAI Uyumlu Realtime', 'OpenAI-Compatible Realtime')}</th>
+                      <th>{t('Yerel Realtime (Native)', 'Native Realtime')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {realtimeComparisonTable.map((row) => (
+                      <tr key={row.feature}>
+                        <td><strong>{language === 'en' ? row.featureEn : row.feature}</strong></td>
+                        <td><code>{row.openai}</code></td>
+                        <td><code>{row.native}</code></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <h4>{t('Yerel Realtime Oturum Akışı', 'Native Realtime Session Sequence')}</h4>
+              <ol className="api-v2-sequence-list">
+                <li>{t('Authorization: Bearer başlığı ile WebSocket bağlantısı kurulur.', 'Establish WebSocket connection with Authorization: Bearer header.')}</li>
+                <li>{t('İstemci oturum parametrelerini içeren session.start mesajını gönderir.', 'Client sends session.start with session parameters.')}</li>
+                <li>{t('Sunucu oturumun hazır olduğunu session.ready ile doğrular.', 'Server confirms session readiness with session.ready.')}</li>
+                <li>{t('İstemci 16 kHz 16-bit mono binary PCM ses çerçeveleri iletir (ara sonuçlar transcript.partial ile döner).', 'Client streams 16 kHz 16-bit mono binary PCM frames (deltas returned via transcript.partial).')}</li>
+                <li>{t('İstemci oturumu sonlandırmak için session.stop mesajı gönderir.', 'Client sends session.stop to conclude the session.')}</li>
+                <li>{t('Sunucu nihai transcript.final, oturum özeti session.stats ve kapanış session.closed olaylarını iletir.', 'Server returns final transcript.final, session.stats summary, and session.closed.')}</li>
+              </ol>
+              <p>{t(
+                'Sunucu VAD ve Cümle Birleştirme: turn_detection: {"type":"server_vad","silence_duration_ms":750,"prefix_padding_ms":300}. Parametre aralıkları: silence_duration_ms 200–3000 (varsayılan 750), prefix_padding_ms 0–1000 (varsayılan 300); threshold kabul edilir ancak uygulanmaz. Kısa duraklamalarda tek bir konuşma cümlesi birden fazla completed olayına bölünebilir (ölçümlerde ortalama ~1.3 completed). Önerilen yaklaşım: completed metinlerini toplayın ve son parçadan sonra 0.5–0.7 saniye yeni bir completed gelmezse cümleyi tamamlandı kabul edin. Alternatif olarak silence_duration_ms değerini 1000–1200 ms aralığına yükseltebilirsiniz.',
+                'Server-side VAD & Utterance Merging: turn_detection: {"type":"server_vad","silence_duration_ms":750,"prefix_padding_ms":300}. Parameter ranges: silence_duration_ms 200–3000 (default 750), prefix_padding_ms 0–1000 (default 300); threshold is accepted but not applied. A single utterance may arrive as several completed events (averaging ~1.3 per utterance). Recommended merge strategy: collect completed texts; if no new completed arrives for 0.5–0.7 s after the last one, treat the utterance as finished. Alternatively, increase silence_duration_ms to 1000–1200 ms.'
+              )}</p>
+              <p>{t(
+                'İstemci kontrollü bitirme (turn_detection: null): session.update (veya transcription_session.update) ile turn_detection: null gönderildiğinde sunucu söz sırasını kendiliğinden bitirmez ve hiçbir speech_started veya speech_stopped olayı gönderilmez; tüm ses motora iletilir. Cümle bitiminde input_audio_buffer.commit gönderildiğinde input_audio_buffer.committed ve tek bir completed döner. Bağlantı açık kalır ve sonraki ses yeni bir öğe olarak işlenir. Boş tamponda commit çağrısı yapılırsa input_audio_buffer_commit_empty hatası döner.',
+                'Client-controlled ending (turn_detection: null): when turn_detection: null is passed via session.update (or transcription_session.update), the server never ends a turn by itself and no speech_started or speech_stopped events are sent; all audio goes to the engine. At the end of an utterance, send input_audio_buffer.commit to receive input_audio_buffer.committed and one completed event. The connection stays open, and the next audio is treated as a new item. Committing on an empty buffer triggers input_audio_buffer_commit_empty.'
+              )}</p>
+              <p>{t(
+                'Giriş ses formatı: session.audio.input.format = {"type": "audio/pcm", "rate": 16000}. 16 kHz formatında gönderilen sesler yeniden örneklenmeden doğrudan işlenir. 16000, 24000 (varsayılan), 44100 ve 48000 Hz hızları desteklenir. Yerel uç noktada (/realtime/transcriptions) istemci VAD için en az 1000 ms sessizlik süresi önerilir (600 ms cümle içi duraklamalarda erken kesilmelere sebep olabilir).',
+                'Input audio format: session.audio.input.format = {"type": "audio/pcm", "rate": 16000}. 16 kHz audio is processed directly without resampling. 16000, 24000 (default), 44100, and 48000 Hz are supported. On the native endpoint (/realtime/transcriptions), client VAD silence timeout of 1000 ms or longer is recommended (600 ms cuts sentences at natural pauses).'
+              )}</p>
+            </article>
           </section>
 
           {/* 8. KAPASİTE VE LİMİTLER */}
@@ -1089,14 +1149,38 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
               <div className="api-endpoint-details">
                 <h3>{t('Standart OpenAI Hata Yanıt Yapısı', 'Standard OpenAI Error Object')}</h3>
                 <p>{t(
-                  'Tüm OpenAI uyumlu uç noktalar standart OpenAI hata objesini döndürür: {"error": {"message": "...", "type": "...", "param": "...", "code": "..."}}.',
-                  'All OpenAI-compatible endpoints return the standard OpenAI error format: {"error": {"message": "...", "type": "...", "param": "...", "code": "..."}}.'
+                  'Tüm OpenAI uyumlu uç noktalar standart OpenAI hata objesini döndürür: {"error": {"message": "...", "type": "...", "param": "...", "code": "..."}}. WebSocket bağlantılarında ise {"type":"error","error":{"type","code","message","param"}} hata yapısı döner. Örnek hata kodları: invalid_value (param = tam alan yolu / exact field path), invalid_base64, input_audio_buffer_commit_empty, model_mismatch, realtime_engine_unsupported, quota_exceeded, idle_timeout.',
+                  'All OpenAI-compatible endpoints return the standard OpenAI error format: {"error": {"message": "...", "type": "...", "param": "...", "code": "..."}}. WebSocket streams return {"type":"error","error":{"type","code","message","param"}}. Example codes: invalid_value (param = exact field path), invalid_base64, input_audio_buffer_commit_empty, model_mismatch, realtime_engine_unsupported, quota_exceeded, idle_timeout.'
                 )}</p>
                 <h3 style={{ marginTop: '16px' }}>{t('Retry-After Başlığı ile Yeniden Deneme', 'Client Retry with Retry-After Header')}</h3>
                 <p>{t('Kapasite aşımlarında (asr_capacity_saturated, tts_capacity_saturated) veya servis meşguliyetinde (503 transcode_capacity) sunucunun belirttiği Retry-After süresi kadar bekleyerek yeniden deneyin:', 'When capacity saturates (asr_capacity_saturated, tts_capacity_saturated) or format transcoding is full (503 transcode_capacity), wait for the seconds specified in the Retry-After header:')}</p>
               </div>
               <div className="api-endpoint-console-wrap">
                 <CodeConsole examples={retryWithBackoffExample} language={language} defaultLanguage="python" />
+              </div>
+            </div>
+
+            <div id="realtime-errors" className="api-v2-subsection" style={{ marginTop: '24px' }}>
+              <h3>{t('Realtime Hata Kodları', 'Realtime Error Codes')}</h3>
+              <div className="api-v2-table-wrap">
+                <table className="api-v2-table">
+                  <thead>
+                    <tr>
+                      <th>{t('Hata Kodu', 'Error Code')}</th>
+                      <th>{t('Açıklama / Anlam', 'Meaning / Description')}</th>
+                      <th>{t('Bağlantı Durumu', 'Connection Status')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {realtimeErrorCodesTable.map((row) => (
+                      <tr key={row.code}>
+                        <td><code>{row.code}</code></td>
+                        <td>{language === 'en' ? row.meaningEn : row.meaning}</td>
+                        <td>{language === 'en' ? row.connEn : row.conn}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
 

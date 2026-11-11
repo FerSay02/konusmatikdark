@@ -241,10 +241,12 @@ assert.ok(
   !apiDocsSource.includes('hesap başına en fazla 3'),
   'ApiDocs.jsx must not say "hesap başına en fazla 3"'
 );
-assert.ok(
-  !JSON.stringify(apiDocs.nativeRealtimeSpecs).includes('hesap başına'),
-  'nativeRealtimeSpecs must not say "hesap başına"'
-);
+if (apiDocs.nativeRealtimeSpecs) {
+  assert.ok(
+    !JSON.stringify(apiDocs.nativeRealtimeSpecs).includes('hesap başına'),
+    'nativeRealtimeSpecs must not say "hesap başına"'
+  );
+}
 console.log('✓ Service-wide concurrency limit documented without per-account phrasing');
 
 // 9. Plain string ASR_V1_ID in docExamples.js
@@ -263,5 +265,269 @@ assert.strictEqual(
   'upstream_unavailable connEn must be "closed (1011) / open (OpenAI-compatible, null mode)"'
 );
 console.log('✓ upstream_unavailable connection column correctly documented');
+
+// 11. Guides section and guide anchors
+assert.ok(
+  apiDocsSource.includes('id="guides"') || apiDocsSource.includes("id='guides'"),
+  'Guides section with id="guides" must exist'
+);
+assert.ok(
+  apiDocsSource.includes('id="guide-audio-formats"') || apiDocsSource.includes("id='guide-audio-formats'"),
+  'Guide anchor guide-audio-formats must exist'
+);
+assert.ok(
+  apiDocsSource.includes('id="guide-long-files"') || apiDocsSource.includes("id='guide-long-files'"),
+  'Guide anchor guide-long-files must exist'
+);
+assert.ok(
+  apiDocsSource.includes('id="guide-realtime-turns"') || apiDocsSource.includes("id='guide-realtime-turns'"),
+  'Guide anchor guide-realtime-turns must exist'
+);
+
+// realtime-errors inside errors section
+const errorsSectionMatch = apiDocsSource.match(/<section[^>]*id=["']errors["'][\s\S]*?<\/section>/);
+assert.ok(errorsSectionMatch, 'Section with id="errors" must exist');
+assert.ok(
+  errorsSectionMatch[0].includes('realtime-errors'),
+  'realtime-errors anchor must exist inside the errors section'
+);
+console.log('✓ Guides section, anchors and realtime-errors documented');
+
+// 12. /realtime reference appears only once as an EndpointHeader with path "/realtime"
+const endpointHeaderMatches = apiDocsSource.match(/<EndpointHeader[\s\S]*?\/>/g) || [];
+const realtimeEndpointHeaders = endpointHeaderMatches.filter((tag) => /path=["']\/realtime["']/.test(tag));
+assert.strictEqual(
+  realtimeEndpointHeaders.length,
+  1,
+  `EndpointHeader with path="/realtime" must appear exactly once (found ${realtimeEndpointHeaders.length})`
+);
+console.log('✓ /realtime appears only once as an EndpointHeader');
+
+// 13. Nav label for realtime-api no longer contains Asenkron / Async
+const navGroupSource = apiDocsSource.match(/navGroups\s*=\s*\[[\s\S]*?\];/)?.[0] || '';
+assert.ok(navGroupSource, 'navGroups array must be found in ApiDocs.jsx');
+const realtimeApiNavEntry = navGroupSource.match(/\['realtime-api'[^\]]*\]/)?.[0] || '';
+assert.ok(realtimeApiNavEntry, 'nav item for realtime-api must exist');
+assert.ok(
+  !realtimeApiNavEntry.includes('Asenkron') && !realtimeApiNavEntry.includes('Async'),
+  'realtime-api nav label must not contain "Asenkron" or "Async"'
+);
+
+// Also guides in nav
+assert.ok(
+  navGroupSource.includes("'guides'") || navGroupSource.includes('"guides"'),
+  'guides must be added to navigation'
+);
+console.log('✓ Navigation labels updated correctly');
+
+// 14. No EndpointHeader description longer than 160 characters (TR and EN)
+for (const headerTag of endpointHeaderMatches) {
+  const descAttr = headerTag.match(/description=\{t\(\s*('(?:\\.|[^'])*?'|"(?:\\.|[^"])*?")\s*,\s*('(?:\\.|[^'])*?'|"(?:\\.|[^"])*?")\s*\)\}/);
+  if (descAttr) {
+    const trStr = (0, eval)(descAttr[1]);
+    const enStr = (0, eval)(descAttr[2]);
+    assert.ok(
+      trStr.length <= 160,
+      `EndpointHeader TR description exceeds 160 characters (${trStr.length}): "${trStr}"`
+    );
+    assert.ok(
+      enStr.length <= 160,
+      `EndpointHeader EN description exceeds 160 characters (${enStr.length}): "${enStr}"`
+    );
+  } else {
+    const plainDesc = headerTag.match(/description=(?:\{["'](.*?)["']\}|["'](.*?)["'])/);
+    if (plainDesc) {
+      const descVal = plainDesc[1] || plainDesc[2] || '';
+      assert.ok(
+        descVal.length <= 160,
+        `EndpointHeader description exceeds 160 characters (${descVal.length}): "${descVal}"`
+      );
+    }
+  }
+}
+console.log('✓ EndpointHeader descriptions are all <= 160 characters');
+
+// 15. DocCallout used at most once per endpoint block
+assert.ok(apiDocsSource.includes('DocCallout'), 'DocCallout component must be used');
+const endpointIds = [
+  'tts-api',
+  'streaming-tts',
+  'asr-api',
+  'openai-realtime',
+  'models',
+  'corporate-asr',
+  'corporate-webhooks',
+  'corporate-tts',
+  'realtime-api',
+];
+for (const epId of endpointIds) {
+  const epRegex = new RegExp(`id=["']${epId}["'][\\s\\S]*?(?=(?:id=["'](?:${endpointIds.join('|')}|guides|capacity|errors)["'])|<\\/main>)`);
+  const epBlock = apiDocsSource.match(epRegex)?.[0] || '';
+  const calloutCount = (epBlock.match(/<DocCallout/g) || []).length;
+  assert.ok(
+    calloutCount <= 1,
+    `Endpoint block "${epId}" has more than 1 DocCallout (${calloutCount})`
+  );
+}
+console.log('✓ DocCallout used at most once per endpoint block');
+
+// 16. Round 2: #openai-realtime block renders realtimeCodeExamples & realtimeClientCommitExamples, not openAiRealtimeCodeExamples
+const openAiRealtimeBlock = apiDocsSource.match(/id=["']openai-realtime["'][\s\S]*?(?=(?:id=["'](?:models|corporate-api|guides|capacity|errors)["'])|<\/main>)/)?.[0] || '';
+assert.ok(
+  openAiRealtimeBlock.includes('examples={realtimeCodeExamples}'),
+  '#openai-realtime block must render realtimeCodeExamples'
+);
+assert.ok(
+  openAiRealtimeBlock.includes('examples={realtimeClientCommitExamples}'),
+  '#openai-realtime block must render realtimeClientCommitExamples'
+);
+assert.ok(
+  !openAiRealtimeBlock.includes('openAiRealtimeCodeExamples'),
+  '#openai-realtime block must not render openAiRealtimeCodeExamples'
+);
+console.log('✓ #openai-realtime renders realtimeCodeExamples and realtimeClientCommitExamples');
+
+// 17. Round 2: Voices reference is inside #tts-api and not in #guide-audio-formats
+const ttsApiBlock = apiDocsSource.match(/id=["']tts-api["'][\s\S]*?(?=(?:id=["'](?:streaming-tts|asr-api|guides)["'])|<\/main>)/)?.[0] || '';
+const guideAudioFormatsBlock = apiDocsSource.match(/id=["']guide-audio-formats["'][\s\S]*?(?=(?:id=["'](?:guide-long-files|guide-realtime-turns)["'])|<\/section>)/)?.[0] || '';
+assert.ok(
+  ttsApiBlock.includes('ttsVoicesData'),
+  '#tts-api block must render ttsVoicesData'
+);
+assert.ok(
+  !guideAudioFormatsBlock.includes('ttsVoicesData'),
+  '#guide-audio-formats must not contain ttsVoicesData'
+);
+console.log('✓ TTS voice cards moved back to #tts-api');
+
+// 18. Round 2: guide-audio-formats lists all format -> MIME type mappings
+assert.ok(guideAudioFormatsBlock.includes('audio/wav'), 'guide-audio-formats must list audio/wav');
+assert.ok(guideAudioFormatsBlock.includes('audio/mpeg'), 'guide-audio-formats must list audio/mpeg');
+assert.ok(guideAudioFormatsBlock.includes('audio/ogg'), 'guide-audio-formats must list audio/ogg');
+assert.ok(guideAudioFormatsBlock.includes('audio/aac'), 'guide-audio-formats must list audio/aac');
+assert.ok(guideAudioFormatsBlock.includes('audio/flac'), 'guide-audio-formats must list audio/flac');
+assert.ok(guideAudioFormatsBlock.includes('audio/pcm'), 'guide-audio-formats must list audio/pcm');
+console.log('✓ guide-audio-formats lists all format MIME types');
+
+// 19. Round 2: GET /corporate/asr/jobs/{id}/download mentions url and expires_in_seconds
+const downloadEndpointMatch = apiDocsSource.match(/<EndpointHeader[^>]*path=["']\/corporate\/asr\/jobs\/\{id\}\/download["'][^>]*\/>/)?.[0] || '';
+assert.ok(
+  downloadEndpointMatch.includes('expires_in_seconds') && downloadEndpointMatch.includes('url'),
+  'GET /corporate/asr/jobs/{id}/download EndpointHeader must mention url and expires_in_seconds'
+);
+console.log('✓ /corporate/asr/jobs/{id}/download specifies url and expires_in_seconds');
+
+// 20. Round 2: No free-standing <p> prose inside endpoint card blocks
+const standardEndpointIds = [
+  'tts-api',
+  'streaming-tts',
+  'asr-api',
+  'openai-realtime',
+  'corporate-asr',
+  'corporate-tts',
+  'realtime-api',
+];
+for (const epId of standardEndpointIds) {
+  const epRegex = new RegExp(`id=["']${epId}["'][\\s\\S]*?(?=(?:id=["'](?:${endpointIds.join('|')}|guides|capacity|errors)["'])|<\\/main>)`);
+  const epBlock = apiDocsSource.match(epRegex)?.[0] || '';
+  const cardMatch = epBlock.match(/<div className="api-endpoint-card">([\s\S]*?)<\/div>\s*<\/(?:div|section)>/);
+  assert.ok(cardMatch, `Card match for ${epId} must exist`);
+  const cardBody = cardMatch[1];
+  assert.ok(
+    !/<p[\s>]/.test(cardBody),
+    `Endpoint block "${epId}" must not contain <p> tags inside api-endpoint-card`
+  );
+}
+console.log('✓ No free-standing <p> prose directly inside endpoint blocks');
+
+// 21. Round 2: Native realtime connection / session sequence stated compactly
+assert.ok(
+  apiDocsSource.includes('session.start') &&
+  apiDocsSource.includes('session.ready') &&
+  apiDocsSource.includes('session.stop') &&
+  apiDocsSource.includes('transcript.final') &&
+  apiDocsSource.includes('session.stats') &&
+  apiDocsSource.includes('session.closed'),
+  'Native realtime session lifecycle must be documented'
+);
+console.log('✓ Native realtime session lifecycle sequence documented');
+
+// 22. Round 2: No mixed language in TR cells
+const thresholdParam = apiDocs.openAiRealtimeParameters?.find((p) => p.name === 'turn_detection.threshold');
+assert.ok(thresholdParam, 'turn_detection.threshold parameter must exist');
+assert.ok(
+  !thresholdParam.desc.includes('(accepted but not applied)'),
+  'turn_detection.threshold TR desc must not contain English text "(accepted but not applied)"'
+);
+assert.strictEqual(
+  thresholdParam.descEn,
+  'accepted but not applied.',
+  'turn_detection.threshold descEn must be English'
+);
+console.log('✓ No mixed language in TR cells');
+
+// 23. Round 2: Unused exports removed
+assert.strictEqual(
+  apiDocs.openAiRealtimeCodeExamples,
+  undefined,
+  'openAiRealtimeCodeExamples export should be removed'
+);
+assert.strictEqual(
+  apiDocs.nativeRealtimeSpecs,
+  undefined,
+  'nativeRealtimeSpecs export should be removed'
+);
+assert.strictEqual(
+  apiDocs.realtimeAudioSpec,
+  undefined,
+  'realtimeAudioSpec export should be removed'
+);
+console.log('✓ Unused exports removed');
+
+// 24. Round 3: Format descriptions for batch formats (opus, aac, flac) must not imply streaming or latency
+const batchFormats = ['opus', 'aac', 'flac'];
+const forbiddenTerms = ['akış', 'stream', 'gecikme', 'latency'];
+
+// 24a. src/data/apiDocsV2.js (ttsSupportedFormatsTable)
+for (const fmt of batchFormats) {
+  const row = apiDocs.ttsSupportedFormatsTable?.find((r) => r.format === fmt);
+  assert.ok(row, `ttsSupportedFormatsTable must contain ${fmt}`);
+  const combinedDataDesc = `${row.desc} ${row.descEn}`.toLowerCase();
+  for (const term of forbiddenTerms) {
+    assert.ok(
+      !combinedDataDesc.includes(term.toLowerCase()),
+      `ttsSupportedFormatsTable description for ${fmt} must not contain "${term}" (found: "${row.desc}" / "${row.descEn}")`
+    );
+  }
+}
+
+// 24b. src/pages/ApiDocs.jsx (guide-audio-formats table)
+for (const fmt of batchFormats) {
+  const rowRegex = new RegExp(`<tr><td><code>${fmt}</code></td><td><code>[^<]+</code></td><td>([\\s\\S]*?)</td></tr>`);
+  const match = guideAudioFormatsBlock.match(rowRegex);
+  assert.ok(match, `guide-audio-formats table must have a row for ${fmt}`);
+  const tableRowText = match[1].toLowerCase();
+  for (const term of forbiddenTerms) {
+    assert.ok(
+      !tableRowText.includes(term.toLowerCase()),
+      `guide-audio-formats table description for ${fmt} must not contain "${term}" (found: "${match[1]}")`
+    );
+  }
+}
+
+// 24c. Check exact wording
+const opusRow = apiDocs.ttsSupportedFormatsTable?.find((r) => r.format === 'opus');
+assert.strictEqual(opusRow?.desc, 'Opus codec, Ogg kapsayıcısında', 'opus TR desc must match');
+assert.strictEqual(opusRow?.descEn, 'Opus codec in an Ogg container', 'opus EN desc must match');
+
+const aacRow = apiDocs.ttsSupportedFormatsTable?.find((r) => r.format === 'aac');
+assert.strictEqual(aacRow?.desc, 'AAC (Advanced Audio Coding)', 'aac TR desc must match');
+assert.strictEqual(aacRow?.descEn, 'AAC (Advanced Audio Coding)', 'aac EN desc must match');
+
+const flacRow = apiDocs.ttsSupportedFormatsTable?.find((r) => r.format === 'flac');
+assert.strictEqual(flacRow?.desc, 'Kayıpsız sıkıştırılmış ses', 'flac TR desc must match');
+assert.strictEqual(flacRow?.descEn, 'Lossless compressed audio', 'flac EN desc must match');
+
+console.log('✓ Batch audio formats (opus, aac, flac) descriptions contain no streaming/latency wording');
 
 console.log('All API docs content tests passed successfully!');
