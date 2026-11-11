@@ -167,20 +167,28 @@ export const ttsVoicesData = [
 ];
 
 export const ttsParameters = [
-  { name: 'model', type: 'string', required: true, defaultVal: 'konusmatik-tts', desc: 'Üretim TTS model adı: konusmatik-tts', descEn: 'Production TTS model ID: konusmatik-tts' },
+  { name: 'model', type: 'string', required: true, defaultVal: 'konusmatik-tts', desc: 'Üretim TTS model adı: konusmatik-tts (varsayılan: konusmatik-tts).', descEn: 'Production TTS model ID: konusmatik-tts (default: konusmatik-tts).' },
   { name: 'input', type: 'string', required: true, defaultVal: '-', desc: 'Seslendirilecek metin (Maksimum 10.000 karakter).', descEn: 'Text to synthesize (Maximum 10,000 characters).' },
-  { name: 'voice', type: 'string', required: true, defaultVal: 'sila', desc: 'Ses seçimi: sila (Kadın), deniz (Kadın), taha (Erkek). OpenAI eşlemeleri: alloy, nova, shimmer -> sila; echo, onyx, fable -> deniz; woman/kadin -> sila; man/erkek -> taha.', descEn: 'Voice selection: sila (Female), deniz (Female), taha (Male). Mapped aliases: alloy, nova, shimmer -> sila; echo, onyx, fable -> deniz; woman/kadin -> sila; man/erkek -> taha.' },
+  { name: 'voice', type: 'string', required: true, defaultVal: 'sila', desc: 'Ses seçimi: sila (Kadın), deniz (Kadın), taha (Erkek). Varsayılan: sila. OpenAI eşlemeleri: alloy, nova, shimmer -> sila; echo, onyx, fable -> deniz; woman/kadin -> sila; man/erkek -> taha.', descEn: 'Voice selection: sila (Female), deniz (Female), taha (Male). Default: sila. Mapped aliases: alloy, nova, shimmer -> sila; echo, onyx, fable -> deniz; woman/kadin -> sila; man/erkek -> taha.' },
   { name: 'response_format', type: 'string', required: false, defaultVal: 'wav', desc: 'Desteklenen formatlar: wav (varsayılan), mp3, opus (Ogg kapsayıcısında), aac, flac, pcm (yalnızca streaming). Dikkat: OpenAI varsayılanı mp3 iken Konuşmatik varsayılanı wav formatıdır; mp3 için açıkça response_format="mp3" belirtilmelidir.', descEn: 'Supported formats: wav (default), mp3, opus (in Ogg), aac, flac, pcm (streaming only). Note: Konuşmatik default is wav (OpenAI default is mp3); specify response_format="mp3" explicitly if mp3 is desired.' },
-  { name: 'speed', type: 'number', required: false, defaultVal: '1.0', desc: 'Konuşma hızı çarpanı (0.25 - 4.0). wav, mp3, opus, aac ve flac formatlarında uygulanır; pcm streaming akışında uygulanmaz.', descEn: 'Speech speed multiplier (0.25 - 4.0). Applied for wav, mp3, opus, aac, flac; not applied for pcm streaming.' },
+  { name: 'speed', type: 'number', required: false, defaultVal: '1.0', desc: 'Konuşma hızı çarpanı (0.25–4.0, varsayılan 1.0). wav, mp3, opus, aac ve flac formatlarında uygulanır; pcm streaming akışında uygulanmaz.', descEn: 'Speech speed multiplier (0.25–4.0, default 1.0). Applied for wav, mp3, opus, aac, flac; not applied for pcm streaming.' },
   { name: 'instructions', type: 'string', required: false, defaultVal: '-', desc: 'Genişletilmiş talimat alanı; parametre kabul edilir ancak işleme uygulanmaz.', descEn: 'Extended instructions parameter; accepted, but not applied.' },
+];
+
+export const streamingTtsParameters = [
+  { name: 'model', type: 'string', required: true, defaultVal: 'konusmatik-tts', desc: 'Üretim TTS model adı: konusmatik-tts (varsayılan: konusmatik-tts).', descEn: 'Production TTS model ID: konusmatik-tts (default: konusmatik-tts).' },
+  { name: 'input', type: 'string', required: true, defaultVal: '-', desc: 'Seslendirilecek metin (Maksimum 10.000 karakter).', descEn: 'Text to synthesize (Maximum 10,000 characters).' },
+  { name: 'voice', type: 'string', required: true, defaultVal: 'sila', desc: 'Ses seçimi: sila (Kadın), deniz (Kadın), taha (Erkek). Varsayılan: sila.', descEn: 'Voice selection: sila (Female), deniz (Female), taha (Male). Default: sila.' },
+  { name: 'response_format', type: 'string', required: true, defaultVal: 'pcm', desc: 'Zorunlu olarak "pcm" olmalıdır. 48 kHz / 16-bit / mono (PCM16LE) ham ses akışı üretir.', descEn: 'Must be set to "pcm". Produces raw 48 kHz / 16-bit / mono (PCM16LE) audio stream.' },
+  { name: 'speed', type: 'number', required: false, defaultVal: '1.0', desc: '0.25–4.0 (varsayılan 1.0). pcm streaming akışında uygulanmaz; ses normal hızda üretilir.', descEn: '0.25–4.0 (default 1.0). Not applied on pcm streaming; audio is produced at normal speed.' },
 ];
 
 export const ttsSupportedFormatsTable = [
   { format: 'wav', mime: 'audio/wav', isDefault: true, desc: 'Varsayılan format. 48 kHz / 16-bit / mono kayıpsız ses çıktısı. OpenAI varsayılanı mp3 iken Konuşmatik varsayılanı wav formatıdır.', descEn: 'Default format. 48 kHz / 16-bit / mono lossless audio. Konuşmatik default is wav (OpenAI default is mp3).' },
   { format: 'mp3', mime: 'audio/mpeg', isDefault: false, desc: 'Sıkıştırılmış MP3 ses akışı. OpenAI varsayılanıdır; Konuşmatik için açıkça istenmelidir.', descEn: 'Compressed MP3 audio. OpenAI default; must be explicitly requested in Konuşmatik.' },
-  { format: 'opus', mime: 'audio/ogg', isDefault: false, desc: 'Ogg kapsayıcısı içinde düşük gecikmeli Opus ses akışı.', descEn: 'Low-latency Opus audio in an Ogg container.' },
-  { format: 'aac', mime: 'audio/aac', isDefault: false, desc: 'Gelişmiş ses kodlaması (AAC) akışı.', descEn: 'Advanced Audio Coding (AAC) stream.' },
-  { format: 'flac', mime: 'audio/flac', isDefault: false, desc: 'Kayıpsız sıkıştırılmış FLAC ses akışı.', descEn: 'Lossless compressed FLAC audio stream.' },
+  { format: 'opus', mime: 'audio/ogg', isDefault: false, desc: 'Opus codec, Ogg kapsayıcısında', descEn: 'Opus codec in an Ogg container' },
+  { format: 'aac', mime: 'audio/aac', isDefault: false, desc: 'AAC (Advanced Audio Coding)', descEn: 'AAC (Advanced Audio Coding)' },
+  { format: 'flac', mime: 'audio/flac', isDefault: false, desc: 'Kayıpsız sıkıştırılmış ses', descEn: 'Lossless compressed audio' },
   { format: 'pcm', mime: 'audio/pcm', isDefault: false, desc: 'Ham 16-bit little-endian PCM ses verisi (48 kHz mono). Yalnızca streaming ile kullanılır; speed parametresi uygulanmaz.', descEn: 'Raw 16-bit little-endian PCM (48 kHz mono). Only used with streaming; speed parameter is not applied.' },
 ];
 
@@ -245,13 +253,13 @@ X-Audio-Format: pcm_s16le
 X-Request-ID: <request_id>`;
 
 export const asrParameters = [
-  { name: 'file', type: 'file', required: true, defaultVal: '-', desc: 'Ses veya video dosyası (Maksimum 100 MB, Maksimum 3 saat / 10.800s. Daha büyük dosyalar HTTP 413 file_too_large hatası döner).', descEn: 'Audio or video file (Max 100 MB, Max 3 hours / 10,800s. Larger files return HTTP 413 file_too_large).' },
-  { name: 'model', type: 'string', required: true, defaultVal: 'konusmatik-asr-v2', desc: `Üretim ASR model kimliği: ${ASR_V1_ID} veya konusmatik-asr-v2. Her iki model de aynı şemayı döndürür.`, descEn: `Production ASR model ID: ${ASR_V1_ID} or konusmatik-asr-v2. Both return the same schema.` },
+  { name: 'file', type: 'file', required: true, defaultVal: '-', desc: 'Ses veya video dosyası (Maksimum 100 MB, Maksimum 3 saat / 10.800s. Daha büyük dosyalar HTTP 413 file_too_large hatası döner). Formatlar: WAV, MP3, M4A, WEBM, OGG, FLAC.', descEn: 'Audio or video file (Max 100 MB, Max 3 hours / 10,800s. Larger files return HTTP 413 file_too_large). Formats: WAV, MP3, M4A, WEBM, OGG, FLAC.' },
+  { name: 'model', type: 'string', required: true, defaultVal: 'konusmatik-asr-v2', desc: `Üretim ASR model kimliği: ${ASR_V1_ID} veya konusmatik-asr-v2 (varsayılan: konusmatik-asr-v2). Her iki model de aynı şemayı döndürür.`, descEn: `Production ASR model ID: ${ASR_V1_ID} or konusmatik-asr-v2 (default: konusmatik-asr-v2). Both return the same schema.` },
   { name: 'language', type: 'string', required: false, defaultVal: 'tr', desc: 'Ses dili (Varsayılan: tr). Konuşmatik Türkçe için optimize edilmiştir; diğer dil kodları reddedilmez ve Türkçe olarak işlenir (warn politikası; yerel WebSocket uç noktasında katı politika durumunda unsupported_language).', descEn: 'Audio language (Default: tr). Other language codes are not rejected and transcribed as Turkish (warn policy; unsupported_language under strict native policy).' },
   { name: 'response_format', type: 'string', required: false, defaultVal: 'json', desc: 'Çıktı formatı: json (varsayılan), text, verbose_json, srt, vtt.', descEn: 'Output format: json (default), text, verbose_json, srt, vtt.' },
   { name: 'timestamp_granularities[]', type: 'array', required: false, defaultVal: '-', desc: 'Zaman damgası kırılımı: ["segment"], ["word"] veya her ikisi. verbose_json ile birlikte uygulanır; json formatında yoksayılır.', descEn: 'Timestamp granularities: ["segment"], ["word"], or both. Applies with verbose_json; ignored with json.' },
   { name: 'prompt', type: 'string', required: false, defaultVal: '-', desc: 'İsteğe bağlı istem metni; parametre kabul edilir ancak çıkarıma uygulanmaz.', descEn: 'Optional prompt text; accepted, but not applied.' },
-  { name: 'temperature', type: 'number', required: false, defaultVal: '0', desc: 'Örnekleme sıcaklığı; parametre kabul edilir ancak çıkarıma uygulanmaz.', descEn: 'Sampling temperature; accepted, but not applied.' },
+  { name: 'temperature', type: 'number', required: false, defaultVal: '0', desc: 'Örnekleme sıcaklığı (varsayılan: 0); parametre kabul edilir ancak çıkarıma uygulanmaz.', descEn: 'Sampling temperature (default: 0); accepted, but not applied.' },
 ];
 
 export const asrSupportedFormats = ['WAV', 'MP3', 'M4A', 'WEBM', 'OGG', 'FLAC'];
@@ -518,12 +526,14 @@ curl "${API_BASE_REST}/corporate/tts/jobs/JOB_ID_BURAYA/stream" \\
   --output kurumsal_ses.wav`,
 };
 
-export const realtimeAudioSpec = [
-  { label: 'Format & Kodlama', labelEn: 'Encoding', value: 'PCM16 Little-Endian', valueEn: 'PCM16 Little-Endian' },
-  { label: 'Örnekleme Hızı', labelEn: 'Sample Rate', value: '24 kHz (16 kHz, 44.1 kHz, 48 kHz seçilebilir; 16 kHz yeniden örneklenmeden işlenir)', valueEn: '24 kHz (16 kHz, 44.1 kHz, 48 kHz selectable; 16 kHz processed without resampling)' },
-  { label: 'Kanal', labelEn: 'Channels', value: '1 (Mono)', valueEn: '1 (Mono)' },
-  { label: 'Aktarım', labelEn: 'Transport', value: 'WebSocket Base64 JSON Chunk', valueEn: 'WebSocket Base64 JSON chunks' },
-  { label: 'VAD (Ses Algılama)', labelEn: 'Voice Activity Detection', value: 'Server VAD (turn_detection: silence_duration_ms 200–3000 varsayılan 750, prefix_padding_ms 0–1000 varsayılan 300; threshold kabul edilir ancak uygulanmaz) veya İstemci Commit (turn_detection: null)', valueEn: 'Server VAD (turn_detection: silence_duration_ms 200–3000 default 750, prefix_padding_ms 0–1000 default 300; threshold accepted but not applied) or Client Commit (turn_detection: null)' },
+export const openAiRealtimeParameters = [
+  { name: 'model', type: 'string', required: true, defaultVal: ASR_V1_ID, desc: `Yalnızca ${ASR_V1_ID} desteklenir (v2 seçilirse realtime_engine_unsupported). URL sorgusunda ?model=${ASR_V1_ID} olarak verilir.`, descEn: `Only ${ASR_V1_ID} is supported (v2 returns realtime_engine_unsupported). Passed as ?model=${ASR_V1_ID} in query URL.` },
+  { name: 'input_audio_format', type: 'string', required: false, defaultVal: 'pcm16', desc: 'pcm16 (varsayılan). Base64 PCM16 little-endian ses parçaları.', descEn: 'pcm16 (default). Base64 PCM16 little-endian audio chunks.' },
+  { name: 'audio.input.format.rate', type: 'integer', required: false, defaultVal: '24000', desc: '16000 veya 24000 (varsayılan). 16000, 24000, 44100 ve 48000 Hz hızları desteklenir; 16 kHz formatında gönderilen sesler yeniden örneklenmeden doğrudan işlenir.', descEn: '16000 or 24000 (default). 16000, 24000, 44100, and 48000 Hz supported; 16 kHz audio is processed directly without resampling.' },
+  { name: 'turn_detection', type: 'object | null', required: false, defaultVal: 'server_vad', desc: 'server_vad (varsayılan) veya istemci kontrollü commit için null.', descEn: 'server_vad (default) or null for client commit.' },
+  { name: 'turn_detection.silence_duration_ms', type: 'integer', required: false, defaultVal: '750', desc: '200–3000, varsayılan 750. Sessizlik algılama süresi (ms).', descEn: '200–3000, default 750. Silence detection duration in ms.' },
+  { name: 'turn_detection.prefix_padding_ms', type: 'integer', required: false, defaultVal: '300', desc: '0–1000, varsayılan 300. Cümle başına eklenecek ses önbelleği (ms).', descEn: '0–1000, default 300. Pre-speech audio padding in ms.' },
+  { name: 'turn_detection.threshold', type: 'number', required: false, defaultVal: '0.5', desc: 'kabul edilir ancak uygulanmaz.', descEn: 'accepted but not applied.' },
 ];
 
 export const realtimeEventTable = [
@@ -539,90 +549,6 @@ export const realtimeEventTable = [
   { dir: 'Server -> Client', dirEn: 'Server -> Client', event: 'conversation.item.input_audio_transcription.completed', desc: 'Server VAD sessizlik tespit ettiğinde veya commit sonrasında nihai cümleyi döner.', descEn: 'Returns the completed sentence after server-side VAD detects silence or after commit.' },
   { dir: 'Server -> Client', dirEn: 'Server -> Client', event: 'error', desc: '{"type":"error","error":{"type","code","message","param"}} hata yapısı. Örnek kodlar: invalid_value (param = tam alan yolu), invalid_base64, input_audio_buffer_commit_empty, model_mismatch, realtime_engine_unsupported, quota_exceeded, idle_timeout.', descEn: '{"type":"error","error":{"type","code","message","param"}} error event shape. Example codes: invalid_value (param = exact field path), invalid_base64, input_audio_buffer_commit_empty, model_mismatch, realtime_engine_unsupported, quota_exceeded, idle_timeout.' },
 ];
-
-export const openAiRealtimeCodeExamples = {
-  python: `import asyncio
-import base64
-import os
-
-import sounddevice as sd
-from openai import AsyncOpenAI
-
-SAMPLE_RATE = 24000
-CHANNELS = 1
-BLOCK_SIZE = 2400  # 100 ms
-
-
-async def main():
-    client = AsyncOpenAI(
-        api_key=os.environ["KONUSMATIK_API_KEY"],
-        base_url="${API_BASE_REST}",
-    )
-
-    audio_queue = asyncio.Queue()
-    loop = asyncio.get_running_loop()
-
-    def audio_callback(indata, frames, time, status):
-        if status:
-            print(status)
-
-        loop.call_soon_threadsafe(
-            audio_queue.put_nowait,
-            bytes(indata),
-        )
-
-    async with client.realtime.connect(
-        model="${ASR_V1_ID}",
-    ) as connection:
-        await connection.session.update(
-            session={
-                "input_audio_format": "pcm16",
-                "turn_detection": {
-                    "type": "server_vad",
-                    "silence_duration_ms": 750,
-                    "prefix_padding_ms": 300,
-                },
-            }
-        )
-
-        async def send_audio():
-            while True:
-                pcm_chunk = await audio_queue.get()
-                audio_b64 = base64.b64encode(pcm_chunk).decode("ascii")
-
-                await connection.input_audio_buffer.append(
-                    audio=audio_b64,
-                )
-
-        async def receive_events():
-            async for event in connection:
-                if event.type == "conversation.item.input_audio_transcription.delta":
-                    print(event.delta, end="", flush=True)
-
-                elif event.type == "conversation.item.input_audio_transcription.completed":
-                    print(f"\\nFinal: {event.transcript}")
-
-                elif event.type == "error":
-                    print(f"\\nHata: {event}")
-
-        with sd.RawInputStream(
-            samplerate=SAMPLE_RATE,
-            channels=CHANNELS,
-            dtype="int16",
-            blocksize=BLOCK_SIZE,
-            callback=audio_callback,
-        ):
-            print("Dinleniyor... Ctrl+C ile çıkabilirsiniz.")
-
-            await asyncio.gather(
-                send_audio(),
-                receive_events(),
-            )
-
-
-if __name__ == "__main__":
-    asyncio.run(main())`,
-};
 
 export const realtimeCodeExamples = {
   python: realtimeServerVad,
@@ -670,12 +596,25 @@ export const nativeRealtimeCodeExamples = {
   python: nativeRealtime,
 };
 
-export const nativeRealtimeSpecs = [
-  { label: 'Uç Nokta', labelEn: 'Endpoint', value: API_BASE_NATIVE_REALTIME_WS },
-  { label: 'Girdi Formatı', labelEn: 'Input Format', value: 'Binary PCM16 LE, 16 kHz Mono (örn. 100 ms = 3200 bayt / çerçeve)', valueEn: 'Binary PCM16 LE, 16 kHz Mono (e.g. 100 ms = 3200 bytes / frame)' },
-  { label: 'Desteklenen Modeller', labelEn: 'Models', value: `${ASR_V1_ID}, konusmatik-asr-v2` },
-  { label: 'Eşzamanlı Oturum Sınırı', labelEn: 'Concurrency Limit', value: 'konusmatik-asr-v2 için en fazla 3 eşzamanlı oturum (servis genelinde)', valueEn: 'At most 3 concurrent sessions (service-wide) for konusmatik-asr-v2' },
-  { label: 'Hareketsizlik Zaman Aşımı', labelEn: 'Idle Timeout', value: '60 saniye ses gelmediğinde otomatik kapanır (idle_timeout)', valueEn: 'Closes after 60 seconds without audio (idle_timeout)' },
+export const nativeRealtimeParameters = [
+  { name: 'model', type: 'string', required: true, defaultVal: 'konusmatik-asr-v2', desc: `Üretim ASR model kimliği: ${ASR_V1_ID} veya konusmatik-asr-v2 (varsayılan: konusmatik-asr-v2). konusmatik-asr-v2 için en fazla 3 eşzamanlı oturum (servis genelinde) desteklenir.`, descEn: `Production ASR model ID: ${ASR_V1_ID} or konusmatik-asr-v2 (default: konusmatik-asr-v2). Allows at most 3 concurrent sessions (service-wide) for konusmatik-asr-v2.` },
+  { name: 'language', type: 'string', required: false, defaultVal: 'tr', desc: 'Ses dili: tr (varsayılan). Türkçe harici dil kodu durumunda unsupported_language hatası döner.', descEn: 'Audio language: tr (default). Non-Turkish language code returns unsupported_language.' },
+  { name: 'encoding', type: 'string', required: true, defaultVal: 'pcm_s16le', desc: 'pcm_s16le (16-bit little-endian binary PCM).', descEn: 'pcm_s16le (16-bit little-endian binary PCM).' },
+  { name: 'sample_rate', type: 'integer', required: true, defaultVal: '16000', desc: '16000 (16 kHz mono). Örn. 100 ms = 3200 bayt / binary çerçeve.', descEn: '16000 (16 kHz mono). E.g. 100 ms = 3200 bytes / binary frame.' },
+  { name: 'timestamp_granularities', type: 'array', required: false, defaultVal: '-', desc: '["segment"], ["word"] veya her ikisi. transcript.final içinde kelime/segment zaman damgalarını döner.', descEn: '["segment"], ["word"], or both. Returns word/segment timestamps in transcript.final.' },
+];
+
+export const corporateAsrJobParameters = [
+  { name: 'file', type: 'file', required: true, defaultVal: '-', desc: 'Ses veya video dosyası (multipart/form-data). Alternatif olarak audio_url kullanılabilir.', descEn: 'Audio or video file (multipart/form-data). Alternatively use audio_url.' },
+  { name: 'language', type: 'string', required: false, defaultVal: 'tr', desc: 'Ses dili (varsayılan: tr).', descEn: 'Audio language (default: tr).' },
+  { name: 'webhook_id', type: 'string', required: false, defaultVal: '-', desc: 'İş tamamlandığında bildirim gönderilecek kayıtlı webhook kimliği.', descEn: 'Registered webhook ID to notify on job completion.' },
+  { name: 'timestamp_granularities[]', type: 'array', required: false, defaultVal: '-', desc: '["segment"], ["word"] veya her ikisi.', descEn: '["segment"], ["word"], or both.' },
+];
+
+export const corporateTtsJobParameters = [
+  { name: 'text', type: 'string', required: true, defaultVal: '-', desc: 'Seslendirilecek metin (JSON gövde).', descEn: 'Text to synthesize (JSON body).' },
+  { name: 'voice', type: 'string', required: false, defaultVal: 'deniz', desc: 'Ses seçimi: sila, deniz (varsayılan), taha.', descEn: 'Voice selection: sila, deniz (default), taha.' },
+  { name: 'synthesis_options', type: 'object', required: false, defaultVal: '{"format":"wav","speed":1.0}', desc: 'Sentezleme seçenekleri. Çıktı formatı wav, speed: 0.25–4.0.', descEn: 'Synthesis options. Output format wav, speed: 0.25–4.0.' },
 ];
 
 export const nativeRealtimeEventTable = [
