@@ -56,7 +56,7 @@ const offices = [
     title: 'Ar-Ge Ofisi',
     titleEn: 'R&D Office',
     address:
-      'ASBU SOSYOKENT Teknoloji Geliştirme Bölgesi, Hacı Bayram Mah. Mahmut Atalay Sk. L Blok No: 6 İç Kapı No: 205 Altındağ / Ankara',
+      'ASBU SOSYOKENT Teknoloji Geliştirme Bölgesi, Hacı Bayram Mah. Mahmut Atalay Sk. L Blok No: 6 İç Kapı No: Z09 Altındağ / Ankara',
     mapTitle: 'DEEPZEKA Ar-Ge Ofisi Harita',
     mapTitleEn: 'DEEPZEKA R&D Office Map',
     mapUrl: officeMapUrls.rdOffice,
