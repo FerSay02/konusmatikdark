@@ -16,6 +16,9 @@ const EXAMPLE_FILES = {
   errorsRetry: 'errors_retry.py',
   modelsList: 'models_list.py',
   modelsRetrieve: 'models_retrieve.py',
+  nativeRealtime: 'native_realtime.py',
+  realtimeClientCommit: 'realtime_client_commit.py',
+  realtimeServerVad: 'realtime_server_vad.py',
   sttJson: 'stt_json.py',
   sttSrt: 'stt_srt.py',
   sttVerboseWords: 'stt_verbose_words.py',
@@ -64,6 +67,22 @@ for (const [lang, code] of Object.entries(apiDocs.realtimeCodeExamples || {})) {
   );
 }
 
+for (const [lang, code] of Object.entries(apiDocs.realtimeClientCommitExamples || {})) {
+  assert.ok(
+    !code.includes('konusmatik-asr-v2'),
+    `realtimeClientCommitExamples.${lang} must not contain konusmatik-asr-v2`
+  );
+  assert.ok(
+    code.includes('konusmatik-asr-v1'),
+    `realtimeClientCommitExamples.${lang} must contain konusmatik-asr-v1`
+  );
+}
+
+assert.ok(
+  apiDocs.nativeRealtimeCodeExamples?.python?.includes('konusmatik-asr-v2'),
+  'nativeRealtimeCodeExamples.python must contain konusmatik-asr-v2'
+);
+
 // 2b. Realtime event table / descriptions for OpenAI-compatible endpoint
 const openAiRealtimeDesc = JSON.stringify(apiDocs.realtimeEventTable || {});
 assert.ok(
@@ -101,6 +120,11 @@ assert.strictEqual(apiDocs.asrCodeExamples?.python, docExamples.sttJson, 'asrCod
 assert.strictEqual(apiDocs.asrVerboseWordsCodeExamples?.python, docExamples.sttVerboseWords, 'asrVerboseWordsCodeExamples.python must use docExamples.sttVerboseWords');
 assert.strictEqual(apiDocs.asrSrtCodeExamples?.python, docExamples.sttSrt, 'asrSrtCodeExamples.python must use docExamples.sttSrt');
 assert.strictEqual(apiDocs.retryWithBackoffExample?.python, docExamples.errorsRetry, 'retryWithBackoffExample.python must use docExamples.errorsRetry');
+assert.strictEqual(apiDocs.realtimeCodeExamples?.python, docExamples.realtimeServerVad, 'realtimeCodeExamples.python must use docExamples.realtimeServerVad');
+assert.ok(apiDocs.realtimeClientCommitExamples, 'realtimeClientCommitExamples must be exported');
+assert.strictEqual(apiDocs.realtimeClientCommitExamples?.python, docExamples.realtimeClientCommit, 'realtimeClientCommitExamples.python must use docExamples.realtimeClientCommit');
+assert.ok(apiDocs.nativeRealtimeCodeExamples, 'nativeRealtimeCodeExamples must be exported');
+assert.strictEqual(apiDocs.nativeRealtimeCodeExamples?.python, docExamples.nativeRealtime, 'nativeRealtimeCodeExamples.python must use docExamples.nativeRealtime');
 
 console.log('✓ Model IDs correctly set (v1/v2 ASR models, konusmatik-tts)');
 
@@ -119,6 +143,14 @@ assert.ok(
 assert.ok(
   apiDocsSource.includes('session.start'),
   'ApiDocs.jsx must describe session.start for native realtime'
+);
+assert.ok(
+  apiDocsSource.includes('realtimeClientCommitExamples'),
+  'ApiDocs.jsx must use realtimeClientCommitExamples'
+);
+assert.ok(
+  apiDocsSource.includes('nativeRealtimeCodeExamples'),
+  'ApiDocs.jsx must use nativeRealtimeCodeExamples'
 );
 
 // 3b. TTS format list exists (wav, mp3, opus, aac, flac, pcm) and note that wav is default
@@ -218,7 +250,8 @@ console.log('✓ Service-wide concurrency limit documented without per-account p
 // 9. Plain string ASR_V1_ID in docExamples.js
 const docExamplesSource = readFileSync(resolve(__dirname, '../src/data/docExamples.js'), 'utf8');
 assert.strictEqual(docExamples.ASR_V1_ID, 'konusmatik-asr-v1', 'ASR_V1_ID must be konusmatik-asr-v1');
-assert.ok(!docExamplesSource.includes('.join('), 'docExamples.js should use plain string for ASR_V1_ID instead of .join()');
+const asrV1Decl = docExamplesSource.match(/export const ASR_V1_ID\s*=[^;\n]+/)?.[0] || '';
+assert.ok(!asrV1Decl.includes('.join('), 'docExamples.js should use plain string for ASR_V1_ID instead of .join()');
 console.log('✓ docExamples.js uses plain string for ASR_V1_ID');
 
 // 10. upstream_unavailable connection column

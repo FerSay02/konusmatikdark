@@ -23,11 +23,13 @@ import {
   modelsCodeExamples,
   modelsData,
   modelsRetrieveCodeExamples,
+  nativeRealtimeCodeExamples,
   nativeRealtimeEventTable,
   nativeRealtimeSpecs,
   openAiRealtimeCodeExamples,
   quickStartSteps,
   realtimeAudioSpec,
+  realtimeClientCommitExamples,
   realtimeCodeExamples,
   realtimeComparisonTable,
   realtimeErrorCodesTable,
@@ -723,6 +725,10 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
                   'İstemci kontrollü bitirme (turn_detection: null): session.update (veya transcription_session.update) ile turn_detection: null gönderildiğinde sunucu söz sırasını kendiliğinden bitirmez ve hiçbir speech_started veya speech_stopped olayı gönderilmez; tüm ses motora iletilir. Cümle bitiminde input_audio_buffer.commit gönderildiğinde input_audio_buffer.committed ve tek bir completed döner. Bağlantı açık kalır ve sonraki ses yeni bir öğe olarak işlenir. Boş tamponda commit çağrısı yapılırsa input_audio_buffer_commit_empty hatası döner.',
                   'Client-controlled ending (turn_detection: null): when turn_detection: null is passed via session.update (or transcription_session.update), the server never ends a turn by itself and no speech_started or speech_stopped events are sent; all audio goes to the engine. At the end of an utterance, send input_audio_buffer.commit to receive input_audio_buffer.committed and one completed event. The connection stays open, and the next audio is treated as a new item. Committing on an empty buffer triggers input_audio_buffer_commit_empty.'
                 )}</p>
+                <div className="api-endpoint-console-wrap">
+                  <h4>{t('İstemci kontrollü commit örneği', 'Client-controlled commit example')}</h4>
+                  <CodeConsole examples={realtimeClientCommitExamples} language={language} defaultLanguage="python" />
+                </div>
                 <p>{t(
                   'Hata Olayı (Error Event) Yapısı: {"type":"error","error":{"type","code","message","param"}}. Örnek hata kodları: invalid_value (param = tam alan yolu), invalid_base64, input_audio_buffer_commit_empty, model_mismatch, realtime_engine_unsupported, quota_exceeded, idle_timeout.',
                   'Error Event Structure: {"type":"error","error":{"type","code","message","param"}}. Example error codes: invalid_value (with param showing the exact field path), invalid_base64, input_audio_buffer_commit_empty, model_mismatch, realtime_engine_unsupported, quota_exceeded, idle_timeout.'
@@ -956,7 +962,7 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
                     </table>
                   </div>
                   <div className="api-endpoint-console-wrap">
-                    <h4>{t('Canlı Akış Python & cURL Örneği', 'Live Streaming Python & cURL Example')}</h4>
+                    <h4>{t('Sunucu VAD ve Cümle Birleştirme Örneği', 'Server VAD & Utterance Merging Example')}</h4>
                     <CodeConsole examples={realtimeCodeExamples} language={language} defaultLanguage="python" />
                   </div>
                 </div>
@@ -985,6 +991,10 @@ export default function ApiDocs({ onNavigate, appLanguage }) {
                       <thead><tr><th>{t('Yön', 'Direction')}</th><th>{t('Olay (Event)', 'Event')}</th><th>{t('Açıklama', 'Description')}</th></tr></thead>
                       <tbody>{nativeRealtimeEventTable.map((row) => <tr key={`${row.dir}-${row.event}`}><td>{local(row, 'dir')}</td><td><code>{row.event}</code></td><td>{local(row, 'desc')}</td></tr>)}</tbody>
                     </table>
+                  </div>
+                  <div className="api-endpoint-console-wrap">
+                    <h4>{t('Yerel uç nokta Python örneği', 'Native endpoint Python example')}</h4>
+                    <CodeConsole examples={nativeRealtimeCodeExamples} language={language} defaultLanguage="python" />
                   </div>
                 </div>
 

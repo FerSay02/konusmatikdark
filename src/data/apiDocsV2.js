@@ -3,6 +3,9 @@ import {
   errorsRetry,
   modelsList,
   modelsRetrieve,
+  nativeRealtime,
+  realtimeClientCommit,
+  realtimeServerVad,
   sttJson,
   sttSrt,
   sttVerboseWords,
@@ -622,110 +625,9 @@ if __name__ == "__main__":
 };
 
 export const realtimeCodeExamples = {
-  python: `import asyncio
-import base64
-import json
-import os
-import sys
-import sounddevice as sd
-import websockets
-
-API_KEY = os.environ.get("KONUSMATIK_API_KEY")
-if not API_KEY:
-    print("HATA: 'KONUSMATIK_API_KEY' ortam değişkeni bulunamadı.")
-    print("PowerShell'de ayarlamak için: $env:KONUSMATIK_API_KEY = 'API_ANAHTARINIZ'")
-    sys.exit(1)
-
-WS_URL = "${API_BASE_REALTIME_WS}"
-SAMPLE_RATE = 24000  # Konuşmatik Realtime PCM16 varsayılan örnekleme hızı (24 kHz)
-CHANNELS = 1          # Mono
-BLOCK_SIZE = 2400     # Her 100ms için 2400 örnek (4800 byte)
-
-async def main():
-    headers = {"Authorization": f"Bearer {API_KEY}"}
-    audio_queue = asyncio.Queue()
-    loop = asyncio.get_running_loop()
-
-    # Mikrofon geri çağırma fonksiyonu (ayrı ses thread'inden çalışır)
-    def audio_callback(indata, frames, time_info, status):
-        if status:
-            print(f"[Ses Uyarısı]: {status}", file=sys.stderr)
-        loop.call_soon_threadsafe(audio_queue.put_nowait, bytes(indata))
-
-    print("Konuşmatik Realtime API'ye bağlanılıyor...")
-    async with websockets.connect(WS_URL, additional_headers=headers) as ws:
-        # 1. Oturum Yapılandırması
-        await ws.send(json.dumps({
-            "type": "session.update",
-            "session": {
-                "model": "${ASR_V1_ID}",
-                "input_audio_format": "pcm16",
-                "language": "tr",
-                "turn_detection": {"type": "server_vad", "silence_duration_ms": 750, "prefix_padding_ms": 300}
-            }
-        }))
-
-        # 2. Mikrofondan Ses Gönderme Görevi
-        async def send_audio():
-            try:
-                while True:
-                    data = await audio_queue.get()
-                    audio_b64 = base64.b64encode(data).decode("ascii")
-                    await ws.send(json.dumps({
-                        "type": "input_audio_buffer.append",
-                        "audio": audio_b64
-                    }))
-            except asyncio.CancelledError:
-                pass
-
-        # 3. Sunucudan Gelen Yanıtları Dinleme Görevi
-        async def receive_events():
-            try:
-                async for message in ws:
-                    event = json.loads(message)
-                    event_type = event.get("type", "")
-
-                    if event_type == "session.updated":
-                        print("Mikrofon aktif! Konuşmaya başlayabilirsiniz (Çıkmak için Ctrl+C)...")
-                        print("------------------------------------------------------------------")
-                    elif event_type == "conversation.item.input_audio_transcription.delta":
-                        print(event.get("delta", ""), end="", flush=True)
-                    elif event_type == "conversation.item.input_audio_transcription.completed":
-                        transcript = event.get("transcript", "")
-                        print(f"\\n[Nihai Cümle]: {transcript}\\n")
-                    elif event_type == "error":
-                        print(f"\\n[Sunucu Hatası]: {event.get('error', event)}")
-            except asyncio.CancelledError:
-                pass
-
-        # Mikrofon akışını başlat (sounddevice)
-        stream = sd.RawInputStream(
-            samplerate=SAMPLE_RATE,
-            channels=CHANNELS,
-            dtype="int16",
-            blocksize=BLOCK_SIZE,
-            callback=audio_callback
-        )
-
-        with stream:
-            send_task = asyncio.create_task(send_audio())
-            receive_task = asyncio.create_task(receive_events())
-            try:
-                # İki görevi aynı anda çalıştır
-                await asyncio.gather(send_task, receive_task)
-            except asyncio.CancelledError:
-                pass
-            finally:
-                send_task.cancel()
-                receive_task.cancel()
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("\\n\\nProgram kullanıcı tarafından durduruldu.")`,
+  python: realtimeServerVad,
   curl: `# WebSocket bağlantısı ve kimlik doğrulama kontrolü
-# Canlı PCM16 mikrofon akışı için yukarıdaki Python örneğini kullanın.
+# Ses iletimi için yukarıdaki Python örneğini kullanın.
 curl --http1.1 --include --no-buffer \\
   -H "Authorization: Bearer $KONUSMATIK_API_KEY" \\
   -H "Connection: Upgrade" \\
@@ -758,6 +660,14 @@ ws.on("message", (data) => {
     console.log("\\nTam Cümle:", event.transcript);
   }
 });`,
+};
+
+export const realtimeClientCommitExamples = {
+  python: realtimeClientCommit,
+};
+
+export const nativeRealtimeCodeExamples = {
+  python: nativeRealtime,
 };
 
 export const nativeRealtimeSpecs = [
