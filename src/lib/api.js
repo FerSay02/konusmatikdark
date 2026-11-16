@@ -221,6 +221,16 @@ export async function getASRDownloadInfo(jobId, format = 'txt') {
   });
 }
 
+export function asrMediaPath(jobId, variant) {
+  return `/api/v1/asr/jobs/${encodeURIComponent(jobId)}/media?variant=${encodeURIComponent(variant)}`;
+}
+
+export async function getASRMedia(jobId, variant) {
+  return apiJson(asrMediaPath(jobId, variant), {
+    skipAuthExpiredEvent: true,
+  });
+}
+
 export async function downloadFileFromUrl(url, filename) {
   try {
     const res = await fetch(url, { credentials: 'include' });
@@ -305,6 +315,7 @@ export function adaptASRResult(raw) {
     srt: raw.srt || null,
     vtt: raw.vtt || null,
     error: raw.error || raw.error_message || null,
+    noise_reduction: raw.noise_reduction ?? null,
   };
 }
 

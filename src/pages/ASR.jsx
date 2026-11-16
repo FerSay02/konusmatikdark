@@ -11,6 +11,7 @@ import {
   adaptASRResult,
   DEFAULT_ASR_CAPABILITIES,
   API_BASE_URL,
+  getASRMedia,
 } from '../lib/api';
 import { readStoredLanguage, restoreTurkishUiText } from '../lib/language';
 import {
@@ -27,6 +28,23 @@ import {
 import StudioHero from '../components/StudioHero';
 import StarBorder from '../components/StarBorder';
 import { asrHeroContent, asrSteps, asrFeatures } from '../data/studioContent';
+import {
+  isNoiseReductionAvailable,
+  noiseReductionBlockedReason,
+  appendNoiseReductionFields,
+  shouldFallbackToSync,
+  consentText,
+  pickPlaybackSource,
+  mediaErrorKind,
+  noiseReductionDbLabel,
+  noiseReductionView,
+  initialPlaybackVariant,
+  variantAfterMediaError,
+  shouldFetchMedia,
+  shouldRefetchResultOnReopen,
+  shouldApplyPrefillResult,
+  isMediaUnplayable,
+} from '../lib/noiseReduction';
 
 function formatFileSize(bytes) {
   if (!bytes) return '0 B';
@@ -104,7 +122,9 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
   const [fileName, setFileName] = useState(initialFile?.name || prefill?.fileName || '');
   const [fileSize, setFileSize] = useState(initialFile?.size || 0);
   const [mediaType, setMediaType] = useState(
-    initialFile ? (isVideoFile(initialFile.name, initialFile.type) ? 'video' : 'audio') : 'audio'
+    initialFile
+      ? (isVideoFile(initialFile.name, initialFile.type) ? 'video' : 'audio')
+      : (prefill?.media_type || 'audio')
   );
   const [mediaDuration, setMediaDuration] = useState(null);
   const [mediaObjectUrl, setMediaObjectUrl] = useState(null);
@@ -127,6 +147,39 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
   // File Upload Timestamp Granularity Preferences (default: off)
   const [enableTimestamps, setEnableTimestamps] = useState(false);
   const [enableWordTimestamps, setEnableWordTimestamps] = useState(false);
+
+  // Noise Reduction State
+  const [noiseReductionEnabled, setNoiseReductionEnabled] = useState(false);
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  const consentAgreeBtnRef = useRef(null);
+  const noiseReductionToggleRef = useRef(null);
+  const prevShowConsentModalRef = useRef(false);
+
+  // Playback & Noise Reduction Variant State
+  const [playbackVariant, setPlaybackVariant] = useState(() => {
+    return initialPlaybackVariant(
+      noiseReductionView({ noise_reduction: prefill?.noise_reduction })
+    );
+  });
+  const [mediaUrls, setMediaUrls] = useState({ original: null, denoised: null });
+  const mediaUrlsRef = useRef(mediaUrls);
+
+  useEffect(() => {
+    mediaUrlsRef.current = mediaUrls;
+  }, [mediaUrls]);
+  const [mediaLoadError, setMediaLoadError] = useState(null); // null | 'expired' | 'missing' | 'other'
+  const [showSwitch, setShowSwitch] = useState(true);
+  const [noiseReductionOutcome, setNoiseReductionOutcome] = useState(() => {
+    return prefill?.noise_reduction || null;
+  });
+  const pendingRestoreRef = useRef(null);
+  const refetchedVariantsRef = useRef({ original: false, denoised: false });
+  const fetchedMediaRef = useRef(new Set());
+
+  useEffect(() => {
+    refetchedVariantsRef.current = { original: false, denoised: false };
+    fetchedMediaRef.current.clear();
+  }, [jobId]);
 
   // Realtime WebSocket ASR State
   const [isRealtimeActive, setIsRealtimeActive] = useState(false);
@@ -177,15 +230,55 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
     };
   }, []);
 
-  // Handle escape on modal
+  // Handle escape on modals
   useEffect(() => {
-    if (!showPackagePopup) return;
+    if (!showPackagePopup && !showConsentModal) return;
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape') setShowPackagePopup(false);
+      if (event.key === 'Escape') {
+        if (showPackagePopup) setShowPackagePopup(false);
+        if (showConsentModal) setShowConsentModal(false);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showPackagePopup]);
+  }, [showPackagePopup, showConsentModal]);
+
+  useEffect(() => {
+    if (showConsentModal) {
+      consentAgreeBtnRef.current?.focus();
+    }
+  }, [showConsentModal]);
+
+  useEffect(() => {
+    if (prevShowConsentModalRef.current && !showConsentModal) {
+      noiseReductionToggleRef.current?.focus();
+    }
+    prevShowConsentModalRef.current = showConsentModal;
+  }, [showConsentModal]);
+
+  const isNoiseReductionBlocked = noiseReductionBlockedReason(capabilities, mediaDuration) === 'duration';
+  const isNoiseReductionDisabled = isNoiseReductionBlocked || isLoading;
+
+  useEffect(() => {
+    if (isNoiseReductionBlocked && noiseReductionEnabled) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setNoiseReductionEnabled(false);
+    }
+  }, [isNoiseReductionBlocked, noiseReductionEnabled]);
+
+  const isNoiseReductionApplied = noiseReductionView({ noise_reduction: noiseReductionOutcome }) === 'applied';
+  const isNoiseReductionFailed = noiseReductionView({ noise_reduction: noiseReductionOutcome }) === 'failed';
+
+  const dbLabel = useMemo(
+    () => noiseReductionDbLabel(noiseReductionOutcome, isEnglish),
+    [noiseReductionOutcome, isEnglish]
+  );
+
+  const activeMediaSource = pickPlaybackSource({
+    variant: playbackVariant,
+    localObjectUrl: mediaObjectUrl,
+    mediaUrls,
+  });
 
   // Derived accepted formats
   const acceptAttribute = useMemo(() => {
@@ -225,6 +318,15 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
       pollIntervalRef.current = null;
     }
 
+    setPlaybackVariant('original');
+    setMediaUrls({ original: null, denoised: null });
+    mediaUrlsRef.current = { original: null, denoised: null };
+    setMediaLoadError(null);
+    setShowSwitch(true);
+    setNoiseReductionOutcome(null);
+    refetchedVariantsRef.current = { original: false, denoised: false };
+    fetchedMediaRef.current.clear();
+
     if (file.size > maxUploadBytes) {
       setSelectedFile(null);
       setFileName('');
@@ -233,6 +335,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
       setTranscriptText('');
       setSegments([]);
       setWords([]);
+      setNoiseReductionEnabled(false);
       setErrorText(
         t(
           `Dosya boyutu en fazla ${formatFileSize(maxUploadBytes)} olabilir.`,
@@ -249,6 +352,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
     const isAllowedMime = (capabilities.allowed_content_types || []).includes(file.type);
 
     if (!isAudio && !isVideo && !isAllowedMime) {
+      setNoiseReductionEnabled(false);
       setErrorText(
         t(
           `Desteklenmeyen dosya formati (${fileExt || file.type || 'bilinmeyen'}). Lutfen desteklenen bir ses veya video dosyasi yukleyin.`,
@@ -276,6 +380,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
     setErrorText('');
     setIsPlaying(false);
     setCurrentTime(0);
+    setNoiseReductionEnabled(false);
 
     // Try creating object URL for native playback preview & duration probing
     try {
@@ -364,6 +469,67 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
         el.play().then(() => setIsPlaying(true)).catch(() => {});
       }
     }
+  };
+
+  const switchVariant = (newVariant) => {
+    if (newVariant === playbackVariant) return;
+    const el = mediaRef.current;
+    if (!pendingRestoreRef.current) {
+      const wasPlaying = Boolean(el && !el.paused);
+      const savedTime = el ? el.currentTime : currentTime;
+      pendingRestoreRef.current = { time: savedTime, play: wasPlaying };
+    }
+    setPlaybackVariant(newVariant);
+  };
+
+  const handleLoadedMetadata = () => {
+    const el = mediaRef.current;
+    if (!el) return;
+    if (el.duration && Number.isFinite(el.duration)) {
+      setMediaDuration(el.duration);
+    }
+    if (pendingRestoreRef.current) {
+      const { time, play } = pendingRestoreRef.current;
+      pendingRestoreRef.current = null;
+      if (typeof time === 'number' && Number.isFinite(time)) {
+        el.currentTime = Math.min(time, el.duration || time);
+        setCurrentTime(el.currentTime);
+      }
+      if (play) {
+        el.play().then(() => setIsPlaying(true)).catch(() => {});
+      }
+    }
+    refetchedVariantsRef.current = { original: false, denoised: false };
+  };
+
+  const handleMediaError = async () => {
+    const currentSource = activeMediaSource;
+    const isRemote = Boolean(currentSource && !currentSource.startsWith('blob:'));
+    const variant = playbackVariant;
+    const activeJob = jobId || prefill?.jobId;
+
+    if (isRemote && activeJob && !refetchedVariantsRef.current[variant]) {
+      refetchedVariantsRef.current[variant] = true;
+      try {
+        const media = await getASRMedia(activeJob, variant);
+        if (media?.url) {
+          const el = mediaRef.current;
+          const wasPlaying = Boolean(el && !el.paused);
+          const savedTime = el ? el.currentTime : currentTime;
+          pendingRestoreRef.current = { time: savedTime, play: wasPlaying };
+          mediaUrlsRef.current = { ...mediaUrlsRef.current, [variant]: media.url };
+          setMediaUrls((prev) => ({ ...prev, [variant]: media.url }));
+          return;
+        }
+      } catch (err) {
+        const kind = mediaErrorKind(err?.status);
+        if (kind === 'expired') {
+          setMediaLoadError('expired');
+          return;
+        }
+      }
+    }
+    setPlaybackUnsupported(true);
   };
 
   // Copy to clipboard
@@ -457,6 +623,146 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
     }
   };
 
+  const applyNoiseReductionParts = async (adapted, targetJobId, hasLocalBlob, isActive = () => true) => {
+    if (!adapted || !isActive()) return;
+    const finalJobId = adapted.job_id || targetJobId;
+
+    setNoiseReductionOutcome(adapted.noise_reduction || null);
+    const view = noiseReductionView(adapted);
+    setPlaybackVariant(initialPlaybackVariant(view));
+    setShowSwitch(true);
+
+    if (finalJobId) {
+      let denoisedFailed = false;
+      let denoisedUrl = mediaUrlsRef.current?.denoised || mediaUrls.denoised || null;
+
+      const denoisedKey = `${finalJobId}:denoised`;
+      if (
+        shouldFetchMedia({ view, variant: 'denoised', hasLocalBlob }) &&
+        !fetchedMediaRef.current.has(denoisedKey)
+      ) {
+        fetchedMediaRef.current.add(denoisedKey);
+        try {
+          const denoisedMedia = await getASRMedia(finalJobId, 'denoised');
+          if (!isActive()) return;
+          if (denoisedMedia?.url) {
+            denoisedUrl = denoisedMedia.url;
+            mediaUrlsRef.current = { ...mediaUrlsRef.current, denoised: denoisedMedia.url };
+            setMediaUrls((prev) => ({ ...prev, denoised: denoisedMedia.url }));
+          }
+        } catch (err) {
+          if (!isActive()) return;
+          const kind = mediaErrorKind(err?.status);
+          if (kind === 'expired') {
+            setMediaLoadError('expired');
+            return;
+          }
+          denoisedFailed = true;
+          const outcome = variantAfterMediaError('denoised', kind);
+          setPlaybackVariant(outcome.variant);
+          setShowSwitch(outcome.showSwitch);
+        }
+      }
+
+      const origKey = `${finalJobId}:original`;
+      if (
+        shouldFetchMedia({ view, variant: 'original', hasLocalBlob }) &&
+        !fetchedMediaRef.current.has(origKey)
+      ) {
+        fetchedMediaRef.current.add(origKey);
+        try {
+          const origMedia = await getASRMedia(finalJobId, 'original');
+          if (!isActive()) return;
+          if (origMedia?.url) {
+            mediaUrlsRef.current = { ...mediaUrlsRef.current, original: origMedia.url };
+            setMediaUrls((prev) => ({ ...prev, original: origMedia.url }));
+          }
+        } catch (err) {
+          if (!isActive()) return;
+          const kind = mediaErrorKind(err?.status);
+          const isOtherFailed = isMediaUnplayable({
+            hasLocalBlob,
+            denoisedUrl,
+            denoisedFailed,
+            originalFailed: true,
+          });
+          const outcome = variantAfterMediaError('original', kind, { otherFailed: isOtherFailed });
+          if (outcome.expired) {
+            setMediaLoadError('expired');
+          } else if (outcome.unplayable) {
+            setPlaybackVariant(null);
+            setShowSwitch(false);
+            setMediaLoadError(kind || 'other');
+          } else {
+            setPlaybackVariant(outcome.variant);
+            setShowSwitch(outcome.showSwitch);
+          }
+        }
+      }
+    }
+  };
+
+  const applyJobResult = async (adapted, targetJobId, hasLocalBlob, isActive = () => true) => {
+    if (!adapted || !isActive()) return;
+    const finalJobId = adapted.job_id || targetJobId;
+    setJobId(finalJobId);
+    setJobStatus('completed');
+    setIsLoading(false);
+    setTranscriptText(adapted.text || '');
+    setSegments(adapted.segments || []);
+    setWords(adapted.words || []);
+    if (adapted.duration_seconds && !mediaDuration) {
+      setMediaDuration(adapted.duration_seconds);
+    }
+    if (adapted.media_type) {
+      setMediaType(adapted.media_type);
+    }
+    if (adapted.original_filename && !fileName) {
+      setFileName(adapted.original_filename);
+    }
+    setViewMode(adapted.segments && adapted.segments.length > 0 ? 'segments' : 'text');
+    setShowWordTimestamps(enableWordTimestamps);
+
+    await applyNoiseReductionParts(adapted, finalJobId, hasLocalBlob, isActive);
+  };
+
+  useEffect(() => {
+    if (!prefill?.jobId) return;
+    let active = true;
+    const effectJobId = prefill.jobId;
+    const isActive = () => active && prefill?.jobId === effectJobId;
+
+    const loadPrefillJob = async () => {
+      const adaptedPrefill = adaptASRResult(prefill);
+      if (adaptedPrefill && shouldApplyPrefillResult(adaptedPrefill)) {
+        await applyJobResult(adaptedPrefill, prefill.jobId, Boolean(mediaObjectUrl), isActive);
+      }
+
+      if (!isActive()) return;
+
+      if (shouldRefetchResultOnReopen(prefill)) {
+        try {
+          const res = await apiJson(`/api/v1/asr/jobs/${encodeURIComponent(prefill.jobId)}/result`, {
+            skipAuthExpiredEvent: true,
+          });
+          if (!isActive()) return;
+          const adapted = adaptASRResult(res);
+          if (adapted && noiseReductionView(adapted) === 'applied') {
+            await applyNoiseReductionParts(adapted, prefill.jobId, Boolean(mediaObjectUrl), isActive);
+          }
+        } catch {
+          // A failure of this fetch is ignored.
+        }
+      }
+    };
+
+    loadPrefillJob();
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefill?.jobId]);
+
   // Polling helper for async ASR jobs
   const startPollingJob = (id) => {
     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
@@ -467,21 +773,12 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
         if (job.status === 'completed') {
           clearInterval(pollIntervalRef.current);
           pollIntervalRef.current = null;
-          setJobStatus('completed');
-          setIsLoading(false);
 
           // Fetch full result payload (segments, words, srt, vtt)
           const result = await apiJson(`/api/v1/asr/jobs/${id}/result`, { skipAuthExpiredEvent: true });
           const adapted = adaptASRResult(result);
           if (adapted) {
-            setTranscriptText(adapted.text);
-            setSegments(adapted.segments);
-            setWords(adapted.words);
-            if (adapted.duration_seconds && !mediaDuration) {
-              setMediaDuration(adapted.duration_seconds);
-            }
-            setViewMode(adapted.segments && adapted.segments.length > 0 ? 'segments' : 'text');
-        setShowWordTimestamps(enableWordTimestamps);
+            await applyJobResult(adapted, id, Boolean(mediaObjectUrl));
           }
         } else if (job.status === 'failed') {
           clearInterval(pollIntervalRef.current);
@@ -694,6 +991,8 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
       );
     }
 
+    appendNoiseReductionFields(formData, noiseReductionEnabled);
+
     try {
       // 1. First attempt: Async Job Creation (/api/v1/asr/jobs) with XHR upload progress
       let created = null;
@@ -705,7 +1004,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
         });
       } catch (asyncErr) {
         // If async endpoint returns 503 (e.g. celery worker unavailable in dev), try sync endpoint fallback
-        if (asyncErr.status === 503) {
+        if (shouldFallbackToSync(asyncErr, noiseReductionEnabled)) {
           usedSync = true;
           created = await uploadASRMediaWithProgress('/api/v1/asr/jobs/sync', formData, {
             onProgress: (percent) => setUploadProgress(percent),
@@ -720,17 +1019,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
       if (usedSync || created?.status === 'completed' || created?.text) {
         // Sync response returned result directly
         const adapted = adaptASRResult(created);
-        setJobId(adapted.job_id);
-        setJobStatus('completed');
-        setIsLoading(false);
-        setTranscriptText(adapted.text);
-        setSegments(adapted.segments);
-        setWords(adapted.words);
-        if (adapted.duration_seconds && !mediaDuration) {
-          setMediaDuration(adapted.duration_seconds);
-        }
-        setViewMode(adapted.segments && adapted.segments.length > 0 ? 'segments' : 'text');
-        setShowWordTimestamps(enableWordTimestamps);
+        await applyJobResult(adapted, adapted?.job_id || created?.id, Boolean(mediaObjectUrl));
       } else {
         // Async job created, start polling
         const id = created.id || created.job_id;
@@ -912,8 +1201,41 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                 )}
               </div>
 
+              {/* Noise Reduction Failure Banner (renders even when no player is shown) */}
+              {isNoiseReductionFailed && (
+                <div className="asr-unsupported-banner" role="status" style={{ marginBottom: '1.5rem' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                  <div>
+                    {t(
+                      'Gürültü giderme uygulanamadı; transkript orijinal sesten üretildi.',
+                      'Noise removal could not be applied; the transcript was produced from the original audio.'
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Media Player (Audio & Video) */}
-              {mediaObjectUrl && (
+              {mediaLoadError === 'expired' ? (
+                <div className="studio-section">
+                  <div className="asr-unsupported-banner" role="status">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <div>
+                      {t(
+                        'Bu işleme ait dosyaların saklama süresi dolmuştur.',
+                        'The files for this job have passed their retention period.'
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : activeMediaSource ? (
                 <div className="studio-section">
                   <div className="studio-section-header">
                     <h3>
@@ -922,6 +1244,56 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                         : t('Ses Oynatici & Onizleme', 'Audio Player & Preview')}
                     </h3>
                   </div>
+
+                  {isNoiseReductionApplied && showSwitch && mediaUrls.denoised && (mediaObjectUrl || mediaUrls.original) && (
+                    <div className="asr-variant-switch-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                      <div role="radiogroup" aria-label={t('Ses varyantı', 'Audio variant')} className="asr-variant-switch" style={{ display: 'inline-flex', background: 'var(--surface-color-subtle, rgba(255, 255, 255, 0.05))', borderRadius: '8px', padding: '3px', gap: '4px' }}>
+                        <button
+                          type="button"
+                          role="radio"
+                          aria-checked={playbackVariant === 'original'}
+                          className={`asr-variant-btn ${playbackVariant === 'original' ? 'active' : ''}`}
+                          onClick={() => switchVariant('original')}
+                          style={{
+                            padding: '6px 14px',
+                            borderRadius: '6px',
+                            border: 'none',
+                            background: playbackVariant === 'original' ? 'var(--primary-color, #3b82f6)' : 'transparent',
+                            color: playbackVariant === 'original' ? '#fff' : 'inherit',
+                            cursor: 'pointer',
+                            fontSize: '0.875rem',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {t('Orijinal', 'Original')}
+                        </button>
+                        <button
+                          type="button"
+                          role="radio"
+                          aria-checked={playbackVariant === 'denoised'}
+                          className={`asr-variant-btn ${playbackVariant === 'denoised' ? 'active' : ''}`}
+                          onClick={() => switchVariant('denoised')}
+                          style={{
+                            padding: '6px 14px',
+                            borderRadius: '6px',
+                            border: 'none',
+                            background: playbackVariant === 'denoised' ? 'var(--primary-color, #3b82f6)' : 'transparent',
+                            color: playbackVariant === 'denoised' ? '#fff' : 'inherit',
+                            cursor: 'pointer',
+                            fontSize: '0.875rem',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {t('Gürültüsü giderilmiş', 'Noise removed')}
+                        </button>
+                      </div>
+                      {dbLabel ? (
+                        <span className="asr-db-label" style={{ fontSize: '0.85rem', opacity: 0.75 }}>
+                          {dbLabel}
+                        </span>
+                      ) : null}
+                    </div>
+                  )}
 
                   {playbackUnsupported ? (
                     <div className="asr-unsupported-banner" role="alert">
@@ -944,26 +1316,22 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                         <div className="asr-video-wrapper">
                           <video
                             ref={mediaRef}
-                            src={mediaObjectUrl}
+                            src={activeMediaSource}
                             className="asr-video-element"
                             playsInline
                             onTimeUpdate={() => setCurrentTime(mediaRef.current?.currentTime || 0)}
-                            onLoadedMetadata={() => {
-                              if (mediaRef.current?.duration) setMediaDuration(mediaRef.current.duration);
-                            }}
-                            onError={() => setPlaybackUnsupported(true)}
+                            onLoadedMetadata={handleLoadedMetadata}
+                            onError={handleMediaError}
                             onEnded={() => setIsPlaying(false)}
                           />
                         </div>
                       ) : (
                         <audio
                           ref={mediaRef}
-                          src={mediaObjectUrl}
+                          src={activeMediaSource}
                           onTimeUpdate={() => setCurrentTime(mediaRef.current?.currentTime || 0)}
-                          onLoadedMetadata={() => {
-                            if (mediaRef.current?.duration) setMediaDuration(mediaRef.current.duration);
-                          }}
-                          onError={() => setPlaybackUnsupported(true)}
+                          onLoadedMetadata={handleLoadedMetadata}
+                          onError={handleMediaError}
                           onEnded={() => setIsPlaying(false)}
                         />
                       )}
@@ -1037,7 +1405,13 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                     </div>
                   )}
                 </div>
-              )}
+              ) : mediaLoadError ? (
+                <div className="studio-section">
+                  <p className="asr-media-notice" style={{ color: 'var(--text-secondary, #94a3b8)', fontSize: '0.9rem', margin: 0 }}>
+                    {t('Medya şu anda yüklenemiyor.', 'Media cannot be loaded right now.')}
+                  </p>
+                </div>
+              ) : null}
 
               {/* Job Name */}
               <div className="studio-section">
@@ -1349,6 +1723,40 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                       </small>
                     </div>
                   </label>
+                  {isNoiseReductionAvailable(capabilities) && (
+                    <label className={`asr-checkbox-row ${isNoiseReductionDisabled ? 'disabled' : ''}`}>
+                      <input
+                        ref={noiseReductionToggleRef}
+                        type="checkbox"
+                        checked={noiseReductionEnabled}
+                        disabled={isNoiseReductionDisabled}
+                        onChange={() => {
+                          if (isNoiseReductionDisabled) return;
+                          if (noiseReductionEnabled) {
+                            setNoiseReductionEnabled(false);
+                          } else {
+                            setShowConsentModal(true);
+                          }
+                        }}
+                      />
+                      <div className="asr-checkbox-text">
+                        <span className="asr-checkbox-title">
+                          {t('ClearVoice teknolojisi ile gürültü giderme', 'Noise removal with ClearVoice technology')}
+                        </span>
+                        {isNoiseReductionBlocked && (
+                          <small className="asr-checkbox-hint">
+                            {t(
+                              'Gürültü giderme en fazla {n} dakikalık dosyalarda kullanılabilir.',
+                              'Noise removal is available for files up to {n} minutes.'
+                            ).replace(
+                              '{n}',
+                              String(Math.floor((capabilities?.noise_reduction?.max_duration_seconds || 0) / 60))
+                            )}
+                          </small>
+                        )}
+                      </div>
+                    </label>
+                  )}
                 </div>
               </div>
 
@@ -1694,6 +2102,56 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
             >
               {t('İletişime Geçin', 'Contact Us')}
             </button>
+          </div>
+        </div>
+      )}
+
+      {showConsentModal && (
+        <div
+          className="tts-package-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="asr-noise-consent-title"
+          onClick={() => setShowConsentModal(false)}
+        >
+          <div className="tts-package-modal" onClick={(event) => event.stopPropagation()}>
+            <button
+              className="tts-package-close"
+              type="button"
+              aria-label={t('Kapat', 'Close')}
+              onClick={() => setShowConsentModal(false)}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+            <h3 id="asr-noise-consent-title" style={{ color: '#1a1a2e' }}>
+              {t('Gürültü giderme onayı', 'Noise removal consent')}
+            </h3>
+            <p>{consentText(capabilities, isEnglish)}</p>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+              <button
+                type="button"
+                className="profile-secondary-btn"
+                style={{ flex: 1, padding: '0.75rem 1rem' }}
+                onClick={() => setShowConsentModal(false)}
+              >
+                {t('Vazgeç', 'Cancel')}
+              </button>
+              <button
+                ref={consentAgreeBtnRef}
+                type="button"
+                className="tts-package-confirm"
+                style={{ flex: 1 }}
+                onClick={() => {
+                  setNoiseReductionEnabled(true);
+                  setShowConsentModal(false);
+                }}
+              >
+                {t('Onaylıyorum', 'I agree')}
+              </button>
+            </div>
           </div>
         </div>
       )}
