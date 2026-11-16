@@ -2126,7 +2126,9 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
-            <h3 id="asr-noise-consent-title">{t('Gürültü giderme onayı', 'Noise removal consent')}</h3>
+            <h3 id="asr-noise-consent-title" style={{ color: '#1a1a2e' }}>
+              {t('Gürültü giderme onayı', 'Noise removal consent')}
+            </h3>
             <p>{consentText(capabilities, isEnglish)}</p>
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
               <button

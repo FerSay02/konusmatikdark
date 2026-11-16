@@ -1,4 +1,7 @@
 import assert from 'node:assert';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 import {
   isNoiseReductionAvailable,
   noiseReductionBlockedReason,
@@ -22,6 +25,10 @@ import {
   getASRMedia,
   asrMediaPath,
 } from '../src/lib/api.js';
+import { restoreTurkishUiText } from '../src/lib/language.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 console.log('--- Testing ClearVoice Noise Reduction Module ---');
 
@@ -635,5 +642,42 @@ assert.strictEqual(
   'empty options -> false'
 );
 console.log('✓ isMediaUnplayable tests passed');
+
+// 19. restoreTurkishUiText for ClearVoice noise reduction strings
+const unchangedStrings = [
+  'ClearVoice teknolojisi ile gürültü giderme',
+  'Gürültü giderme onayı',
+  'Gürültüsü giderilmiş',
+  'Orijinal',
+  'Gürültü giderme uygulanamadı; transkript orijinal sesten üretildi.',
+  'Medya şu anda yüklenemiyor.',
+  'Gürültü giderme en fazla 60 dakikalık dosyalarda kullanılabilir.',
+];
+
+for (const str of unchangedStrings) {
+  assert.strictEqual(
+    restoreTurkishUiText(str),
+    str,
+    `restoreTurkishUiText should leave "${str}" unchanged`
+  );
+}
+assert.strictEqual(
+  restoreTurkishUiText('kisisel'),
+  'kişisel',
+  'restoreTurkishUiText should still convert "kisisel" to "kişisel"'
+);
+console.log('✓ restoreTurkishUiText noise reduction UI strings test passed');
+
+// 20. Consent dialog title styling
+const asrSource = readFileSync(resolve(__dirname, '../src/pages/ASR.jsx'), 'utf8');
+assert.ok(
+  asrSource.includes('id="asr-noise-consent-title"'),
+  'ASR.jsx must contain id="asr-noise-consent-title" (checks the source text only)'
+);
+assert.ok(
+  /<h3\s+id="asr-noise-consent-title"[^>]*style=\{\{[^}]*color:\s*['"]#1a1a2e['"]/.test(asrSource),
+  'asr-noise-consent-title must have inline color #1a1a2e (checks the source text only)'
+);
+console.log('✓ consent dialog title styling check passed (checks the source text only)');
 
 console.log('All ClearVoice noise reduction unit tests passed successfully!');

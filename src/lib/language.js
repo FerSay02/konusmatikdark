@@ -19,7 +19,7 @@ const turkishUiTextFixes = [
   [/Yonetim/g, 'Yönetim'], [/Kullanicilar/g, 'Kullanıcılar'], [/Kullanici/g, 'Kullanıcı'],
   [/Kullanim/g, 'Kullanım'], [/kayitlari/g, 'kayıtları'], [/Kayitlari/g, 'Kayıtları'],
   [/kayit/g, 'kayıt'], [/Kayit/g, 'Kayıt'], [/islem/g, 'işlem'], [/Islem/g, 'İşlem'],
-  [/Isler/g, 'İşler'], [/isi/g, 'işi'], [/sagligi/g, 'sağlığı'], [/Ozet/g, 'Özet'],
+  [/Isler/g, 'İşler'], [/isi/g, 'işi'], [/teknolojişi/g, 'teknolojisi'], [/sagligi/g, 'sağlığı'], [/Ozet/g, 'Özet'],
   [/Odemeler/g, 'Ödemeler'], [/Odeme/g, 'Ödeme'], [/Siparis/g, 'Sipariş'],
   [/Giris/g, 'Giriş'], [/giris/g, 'giriş'], [/don/g, 'dön'], [/erisimi/g, 'erişimi'],
   [/sayfayi/g, 'sayfayı'], [/icin/g, 'için'], [/yapmalisiniz/g, 'yapmalısınız'],
