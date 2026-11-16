@@ -22,21 +22,52 @@
 }
 
 .asr-media-badge.video {
+  background: var(--primary-light);
+  color: #c4b5fd;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.asr-media-badge.audio {
+  background: var(--secondary-light);
+  color: #fbcfe8;
+  border: 1px solid rgba(244, 114, 182, 0.3);
+}
+
+.asr-media-badge.duration {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+html[data-theme='light'] .asr-media-badge.video {
   background: #eff6ff;
   color: #2563eb;
   border: 1px solid #bfdbfe;
 }
 
-.asr-media-badge.audio {
+html[data-theme='light'] .asr-media-badge.audio {
   background: #fdf2f8;
   color: #db2777;
   border: 1px solid #fbcfe8;
 }
 
-.asr-media-badge.duration {
+html[data-theme='light'] .asr-media-badge.duration {
   background: #f3f4f6;
   color: #4b5563;
   border: 1px solid #e5e7eb;
+}
+
+/* Transcription Features card - stacked usage items for long lists */
+.tts-usage-item.asr-usage-stacked {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.tts-usage-item.asr-usage-stacked .tts-usage-value {
+  text-align: left;
+  white-space: normal;
+  line-height: 1.4;
 }
 
 /* Upload Progress Bar */

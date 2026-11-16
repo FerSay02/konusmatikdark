@@ -1,3 +1,5 @@
+import { DEFAULT_ASR_CAPABILITIES } from './api.js';
+
 export function isNoiseReductionAvailable(capabilities) {
   return Boolean(
     capabilities?.features?.noise_reduction === true &&
@@ -126,4 +128,23 @@ export function isMediaUnplayable({
   const canPlayOriginal = Boolean(hasLocalBlob) || !originalFailed;
   const canPlayDenoised = Boolean(denoisedUrl) && !denoisedFailed;
   return !canPlayOriginal && !canPlayDenoised;
+}
+
+export function formatExtensionList(exts, fallback = DEFAULT_ASR_CAPABILITIES?.audio_extensions) {
+  const list = Array.isArray(exts) && exts.length > 0
+    ? exts
+    : (Array.isArray(fallback) ? fallback : []);
+
+  return list
+    .map((ext) => {
+      if (typeof ext !== 'string') return '';
+      const clean = ext.trim().replace(/^\./, '').trim();
+      if (!clean) return '';
+      const lower = clean.toLowerCase();
+      if (lower === 'opus') return 'Opus';
+      if (lower === 'webm') return 'WebM';
+      return clean.toUpperCase();
+    })
+    .filter(Boolean)
+    .join(', ');
 }

@@ -18,6 +18,7 @@ import {
   shouldRefetchResultOnReopen,
   shouldApplyPrefillResult,
   isMediaUnplayable,
+  formatExtensionList,
 } from '../src/lib/noiseReduction.js';
 import {
   DEFAULT_ASR_CAPABILITIES,
@@ -652,6 +653,18 @@ const unchangedStrings = [
   'Gürültü giderme uygulanamadı; transkript orijinal sesten üretildi.',
   'Medya şu anda yüklenemiyor.',
   'Gürültü giderme en fazla 60 dakikalık dosyalarda kullanılabilir.',
+  'Deşifre Özellikleri',
+  'İşlem Hızı',
+  'Gerçek Zamandan Hızlı',
+  'Türkçe (TR)',
+  'Altyazı / Çıktı',
+  'Seçili Dosya',
+  'Tür',
+  'Video Dosyası',
+  'Ses Dosyası',
+  'Süre',
+  'Video Oynatıcı & Önizleme',
+  'Ses Oynatıcı & Önizleme',
 ];
 
 for (const str of unchangedStrings) {
@@ -675,9 +688,112 @@ assert.ok(
   'ASR.jsx must contain id="asr-noise-consent-title" (checks the source text only)'
 );
 assert.ok(
-  /<h3\s+id="asr-noise-consent-title"[^>]*style=\{\{[^}]*color:\s*['"]#1a1a2e['"]/.test(asrSource),
-  'asr-noise-consent-title must have inline color #1a1a2e (checks the source text only)'
+  !/<h3\s+id="asr-noise-consent-title"[^>]*style=\{\{[^}]*color/.test(asrSource),
+  'asr-noise-consent-title must not have inline color (checks the source text only)'
+);
+assert.ok(
+  !asrSource.includes('#1a1a2e'),
+  'ASR.jsx must not contain #1a1a2e (checks the source text only)'
+);
+assert.ok(
+  !asrSource.includes("t('Secili Dosya'"),
+  'ASR.jsx must not contain t(\'Secili Dosya\') (checks the source text only)'
+);
+assert.ok(
+  !asrSource.includes("t('Tur', 'Type')"),
+  'ASR.jsx must not contain t(\'Tur\', \'Type\') (checks the source text only)'
+);
+assert.ok(
+  !asrSource.includes("t('Video Dosyasi'"),
+  'ASR.jsx must not contain t(\'Video Dosyasi\') (checks the source text only)'
+);
+assert.ok(
+  !asrSource.includes("t('Ses Dosyasi'"),
+  'ASR.jsx must not contain t(\'Ses Dosyasi\') (checks the source text only)'
+);
+assert.ok(
+  !asrSource.includes("t('Sure', 'Duration')"),
+  'ASR.jsx must not contain t(\'Sure\', \'Duration\') (checks the source text only)'
+);
+assert.ok(
+  !asrSource.includes("t('Video Oynatici & Onizleme'"),
+  'ASR.jsx must not contain t(\'Video Oynatici & Onizleme\') (checks the source text only)'
+);
+assert.ok(
+  !asrSource.includes("t('Ses Oynatici & Onizleme'"),
+  'ASR.jsx must not contain t(\'Ses Oynatici & Onizleme\') (checks the source text only)'
+);
+assert.ok(
+  asrSource.includes('formatExtensionList(capabilities?.video_extensions, DEFAULT_ASR_CAPABILITIES.video_extensions)'),
+  'ASR.jsx must call formatExtensionList for video with fallback DEFAULT_ASR_CAPABILITIES.video_extensions'
 );
 console.log('✓ consent dialog title styling check passed (checks the source text only)');
+
+// 21. formatExtensionList
+const defaultFormatted = formatExtensionList(DEFAULT_ASR_CAPABILITIES.audio_extensions);
+for (const ext of DEFAULT_ASR_CAPABILITIES.audio_extensions) {
+  const clean = ext.replace(/^\./, '');
+  const expectedToken = clean.toLowerCase() === 'opus' ? 'Opus' : clean.toLowerCase() === 'webm' ? 'WebM' : clean.toUpperCase();
+  assert.ok(
+    defaultFormatted.includes(expectedToken),
+    `formatExtensionList(defaults) must include "${expectedToken}"`
+  );
+}
+assert.ok(!defaultFormatted.includes('...'), 'formatExtensionList(defaults) must not contain "..."');
+
+// Empty or missing list falls back to defaults
+assert.strictEqual(
+  formatExtensionList(),
+  defaultFormatted,
+  'formatExtensionList() should fall back to defaults'
+);
+assert.strictEqual(
+  formatExtensionList(null),
+  defaultFormatted,
+  'formatExtensionList(null) should fall back to defaults'
+);
+assert.strictEqual(
+  formatExtensionList(undefined),
+  defaultFormatted,
+  'formatExtensionList(undefined) should fall back to defaults'
+);
+assert.strictEqual(
+  formatExtensionList([]),
+  defaultFormatted,
+  'formatExtensionList([]) should fall back to defaults'
+);
+
+// Unknown extensions are upper-cased and special cases Opus / WebM are preserved
+assert.strictEqual(
+  formatExtensionList(['.xyz', 'foo', '.opus', '.webm', 'bar']),
+  'XYZ, FOO, Opus, WebM, BAR',
+  'formatExtensionList should upper-case unknown extensions and keep special-cased Opus / WebM'
+);
+
+assert.strictEqual(
+  formatExtensionList(DEFAULT_ASR_CAPABILITIES.video_extensions),
+  'MP4, MOV, MKV, WebM',
+  'formatExtensionList should format video extensions correctly'
+);
+
+// Missing video list and empty video list both fall back to video defaults when passed as fallback
+assert.strictEqual(
+  formatExtensionList(undefined, DEFAULT_ASR_CAPABILITIES.video_extensions),
+  'MP4, MOV, MKV, WebM',
+  'formatExtensionList(undefined, video_extensions) should fall back to video defaults'
+);
+assert.strictEqual(
+  formatExtensionList([], DEFAULT_ASR_CAPABILITIES.video_extensions),
+  'MP4, MOV, MKV, WebM',
+  'formatExtensionList([], video_extensions) should fall back to video defaults'
+);
+
+// Trimming whitespace and filtering empty/null elements
+assert.strictEqual(
+  formatExtensionList([' .mp3 ', '', null]),
+  'MP3',
+  'formatExtensionList([\' .mp3 \', \'\', null]) should return \'MP3\''
+);
+console.log('✓ formatExtensionList tests passed');
 
 console.log('All ClearVoice noise reduction unit tests passed successfully!');
