@@ -44,6 +44,7 @@ import {
   shouldRefetchResultOnReopen,
   shouldApplyPrefillResult,
   isMediaUnplayable,
+  formatExtensionList,
 } from '../lib/noiseReduction';
 
 function formatFileSize(bytes) {
@@ -1240,8 +1241,8 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                   <div className="studio-section-header">
                     <h3>
                       {mediaType === 'video'
-                        ? t('Video Oynatici & Onizleme', 'Video Player & Preview')
-                        : t('Ses Oynatici & Onizleme', 'Audio Player & Preview')}
+                        ? t('Video Oynatıcı & Önizleme', 'Video Player & Preview')
+                        : t('Ses Oynatıcı & Önizleme', 'Audio Player & Preview')}
                     </h3>
                   </div>
 
@@ -1608,37 +1609,37 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                     <line x1="12" y1="16" x2="12" y2="12" />
                     <line x1="12" y1="8" x2="12.01" y2="8" />
                   </svg>
-                  <span>{t('Desifre Ozellikleri', 'Transcription Features')}</span>
+                  <span>{t('Deşifre Özellikleri', 'Transcription Features')}</span>
                 </div>
                 <div className="tts-usage-stats">
                   <div className="tts-usage-item">
-                    <span className="tts-usage-label">{t('Islem Hizi', 'Processing Speed')}</span>
+                    <span className="tts-usage-label">{t('İşlem Hızı', 'Processing Speed')}</span>
                     <span className="tts-usage-value" style={{ color: '#E8356D' }}>
-                      {t('Gercek Zamandan Hizli', 'Faster Than Real Time')}
+                      {t('Gerçek Zamandan Hızlı', 'Faster Than Real Time')}
                     </span>
                   </div>
                   <div className="tts-usage-item">
                     <span className="tts-usage-label">{t('Dil', 'Language')}</span>
-                    <span className="tts-usage-value">{language === 'en' ? 'English (EN)' : 'Turkce (TR)'}</span>
+                    <span className="tts-usage-value">{language === 'en' ? 'English (EN)' : 'Türkçe (TR)'}</span>
                   </div>
                   <div className="tts-usage-item">
                     <span className="tts-usage-label">{t('Boyut Limiti', 'Size Limit')}</span>
                     <span className="tts-usage-value">{formatFileSize(maxUploadBytes)}</span>
                   </div>
-                  <div className="tts-usage-item">
+                  <div className="tts-usage-item asr-usage-stacked">
                     <span className="tts-usage-label">{t('Desteklenen Ses', 'Supported Audio')}</span>
-                    <span className="tts-usage-value" title="WAV, MP3, FLAC, M4A, AAC, OGG, Opus, AIFF, WMA">
-                      WAV, MP3, FLAC, M4A...
+                    <span className="tts-usage-value">
+                      {formatExtensionList(capabilities?.audio_extensions)}
                     </span>
                   </div>
-                  <div className="tts-usage-item">
+                  <div className="tts-usage-item asr-usage-stacked">
                     <span className="tts-usage-label">{t('Desteklenen Video', 'Supported Video')}</span>
-                    <span className="tts-usage-value" title="MP4, MOV, MKV, WebM">
-                      MP4, MOV, MKV, WebM
+                    <span className="tts-usage-value">
+                      {formatExtensionList(capabilities?.video_extensions, DEFAULT_ASR_CAPABILITIES.video_extensions)}
                     </span>
                   </div>
                   <div className="tts-usage-item">
-                    <span className="tts-usage-label">{t('Altyazi / Cikti', 'Subtitles / Export')}</span>
+                    <span className="tts-usage-label">{t('Altyazı / Çıktı', 'Subtitles / Export')}</span>
                     <span className="tts-usage-value">TXT, JSON, SRT, VTT</span>
                   </div>
                 </div>
@@ -1651,7 +1652,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                       <polyline points="14 2 14 8 20 8" />
                     </svg>
-                    <span>{t('Secili Dosya', 'Selected File')}</span>
+                    <span>{t('Seçili Dosya', 'Selected File')}</span>
                   </div>
                   <div className="tts-usage-stats">
                     <div className="tts-usage-item">
@@ -1661,14 +1662,14 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                       <span className="tts-usage-value">{formatFileSize(fileSize)}</span>
                     </div>
                     <div className="tts-usage-item">
-                      <span className="tts-usage-label">{t('Tur', 'Type')}</span>
+                      <span className="tts-usage-label">{t('Tür', 'Type')}</span>
                       <span className="tts-usage-value" style={{ textTransform: 'capitalize' }}>
-                        {mediaType === 'video' ? t('Video Dosyasi', 'Video File') : t('Ses Dosyasi', 'Audio File')}
+                        {mediaType === 'video' ? t('Video Dosyası', 'Video File') : t('Ses Dosyası', 'Audio File')}
                       </span>
                     </div>
                     {mediaDuration ? (
                       <div className="tts-usage-item">
-                        <span className="tts-usage-label">{t('Sure', 'Duration')}</span>
+                        <span className="tts-usage-label">{t('Süre', 'Duration')}</span>
                         <span className="tts-usage-value">{formatDuration(mediaDuration)}</span>
                       </div>
                     ) : null}
@@ -2126,7 +2127,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
-            <h3 id="asr-noise-consent-title" style={{ color: '#1a1a2e' }}>
+            <h3 id="asr-noise-consent-title">
               {t('Gürültü giderme onayı', 'Noise removal consent')}
             </h3>
             <p>{consentText(capabilities, isEnglish)}</p>

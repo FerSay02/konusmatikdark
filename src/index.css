@@ -5053,6 +5053,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 :root {
   --bg: #0d0714;
   --surface: #120f17;
+  --bg-card: #171021;
+  --bg-card-hover: #241436;
+  --bg-elevated: #1c102b;
   --text: #f8f5ff;
   --text-secondary: #b8afd0;
   --border: rgba(196, 181, 253, 0.18);
@@ -10327,7 +10330,7 @@ html[data-theme='light'] .pill-nav-container.konusmatik-pill-nav .pill-logo.is-a
   width: min(100%, 380px);
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: white;
+  background: var(--bg-elevated);
   padding: 1.5rem;
   text-align: center;
   box-shadow: var(--shadow-lg);
@@ -10345,7 +10348,7 @@ html[data-theme='light'] .pill-nav-container.konusmatik-pill-nav .pill-logo.is-a
   height: 34px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: white;
+  background: var(--bg-elevated);
   color: var(--text-secondary);
   cursor: pointer;
   transition: all var(--transition);
@@ -10353,8 +10356,43 @@ html[data-theme='light'] .pill-nav-container.konusmatik-pill-nav .pill-logo.is-a
 
 .tts-package-close:hover {
   color: var(--text);
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover, rgba(255, 255, 255, 0.08));
+}
+
+.tts-package-modal .profile-secondary-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.tts-package-modal .profile-secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  border-color: var(--border-hover);
+}
+
+html[data-theme='light'] .tts-package-modal {
+  background: white;
+}
+
+html[data-theme='light'] .tts-package-close {
+  background: white;
+  color: var(--text-secondary);
+}
+
+html[data-theme='light'] .tts-package-close:hover {
+  color: var(--text);
   border-color: #cbd5e1;
   background: #f8fafc;
+}
+
+html[data-theme='light'] .tts-package-modal .profile-secondary-btn {
+  border: 1px solid #d9e2f1;
+  background: #ffffff;
+  color: #4338ca;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
 }
 
 .tts-package-icon {
