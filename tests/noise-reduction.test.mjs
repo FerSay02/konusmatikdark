@@ -6,10 +6,21 @@ import {
   shouldFallbackToSync,
   noiseReductionView,
   consentText,
+  pickPlaybackSource,
+  mediaErrorKind,
+  noiseReductionDbLabel,
+  initialPlaybackVariant,
+  variantAfterMediaError,
+  shouldFetchMedia,
+  shouldRefetchResultOnReopen,
+  shouldApplyPrefillResult,
+  isMediaUnplayable,
 } from '../src/lib/noiseReduction.js';
 import {
   DEFAULT_ASR_CAPABILITIES,
   adaptASRResult,
+  getASRMedia,
+  asrMediaPath,
 } from '../src/lib/api.js';
 
 console.log('--- Testing ClearVoice Noise Reduction Module ---');
@@ -130,6 +141,499 @@ const adaptedNone = adaptASRResult({
   text: 'Without denoise',
 });
 assert.strictEqual(adaptedNone.noise_reduction, null, 'adaptASRResult without noise_reduction should be null');
-
 console.log('✓ adaptASRResult noise_reduction passthrough test passed');
+
+// 8. pickPlaybackSource
+// - original with a local blob -> the blob
+assert.strictEqual(
+  pickPlaybackSource({
+    variant: 'original',
+    localObjectUrl: 'blob:http://localhost/local-blob-1',
+    mediaUrls: { original: 'https://cdn.example.com/remote-orig.mp3' },
+  }),
+  'blob:http://localhost/local-blob-1',
+  'original with local blob should return the local blob'
+);
+
+// - original without a blob -> mediaUrls.original
+assert.strictEqual(
+  pickPlaybackSource({
+    variant: 'original',
+    localObjectUrl: null,
+    mediaUrls: { original: 'https://cdn.example.com/remote-orig.mp3' },
+  }),
+  'https://cdn.example.com/remote-orig.mp3',
+  'original without blob should return mediaUrls.original'
+);
+
+// - denoised with a blob present -> mediaUrls.denoised (never the blob)
+assert.strictEqual(
+  pickPlaybackSource({
+    variant: 'denoised',
+    localObjectUrl: 'blob:http://localhost/local-blob-1',
+    mediaUrls: { denoised: 'https://cdn.example.com/remote-denoised.mp3' },
+  }),
+  'https://cdn.example.com/remote-denoised.mp3',
+  'denoised with local blob should return mediaUrls.denoised, never the blob'
+);
+
+// - denoised missing -> null
+assert.strictEqual(
+  pickPlaybackSource({
+    variant: 'denoised',
+    localObjectUrl: 'blob:http://localhost/local-blob-1',
+    mediaUrls: { original: 'https://cdn.example.com/remote-orig.mp3' },
+  }),
+  null,
+  'denoised missing should return null'
+);
+assert.strictEqual(
+  pickPlaybackSource({
+    variant: 'denoised',
+    localObjectUrl: null,
+    mediaUrls: {},
+  }),
+  null,
+  'denoised missing in empty mediaUrls should return null'
+);
+
+// - mediaUrls undefined -> null / the blob
+assert.strictEqual(
+  pickPlaybackSource({
+    variant: 'original',
+    localObjectUrl: 'blob:http://localhost/local-blob-1',
+    mediaUrls: undefined,
+  }),
+  'blob:http://localhost/local-blob-1',
+  'original with local blob and mediaUrls undefined should return blob'
+);
+assert.strictEqual(
+  pickPlaybackSource({
+    variant: 'original',
+    localObjectUrl: null,
+    mediaUrls: undefined,
+  }),
+  null,
+  'original without blob and mediaUrls undefined should return null'
+);
+assert.strictEqual(
+  pickPlaybackSource({
+    variant: 'denoised',
+    localObjectUrl: 'blob:http://localhost/local-blob-1',
+    mediaUrls: undefined,
+  }),
+  null,
+  'denoised with mediaUrls undefined should return null'
+);
+console.log('✓ pickPlaybackSource tests passed');
+
+// 9. mediaErrorKind: 410, 404, 500, undefined
+assert.strictEqual(mediaErrorKind(410), 'expired', '410 should map to expired');
+assert.strictEqual(mediaErrorKind(404), 'missing', '404 should map to missing');
+assert.strictEqual(mediaErrorKind(500), 'other', '500 should map to other');
+assert.strictEqual(mediaErrorKind(undefined), 'other', 'undefined should map to other');
+assert.strictEqual(mediaErrorKind(null), 'other', 'null should map to other');
+assert.strictEqual(mediaErrorKind(503), 'other', '503 should map to other');
+console.log('✓ mediaErrorKind tests passed');
+
+// 10. noiseReductionDbLabel
+// - 12.345 -> "12.3" in both languages
+assert.strictEqual(
+  noiseReductionDbLabel({ noise_reduction: { noise_reduction_db: 12.345 } }, true),
+  'Noise reduced by 12.3 dB',
+  '12.345 EN label should be Noise reduced by 12.3 dB'
+);
+assert.strictEqual(
+  noiseReductionDbLabel({ noise_reduction: { noise_reduction_db: 12.345 } }, false),
+  'Gürültü 12.3 dB azaltıldı',
+  '12.345 TR label should be Gürültü 12.3 dB azaltıldı'
+);
+// - direct noise_reduction_db object property support
+assert.strictEqual(
+  noiseReductionDbLabel({ noise_reduction_db: 12.345 }, true),
+  'Noise reduced by 12.3 dB',
+  'direct noise_reduction_db 12.345 EN label'
+);
+assert.strictEqual(
+  noiseReductionDbLabel({ noise_reduction_db: 12.345 }, false),
+  'Gürültü 12.3 dB azaltıldı',
+  'direct noise_reduction_db 12.345 TR label'
+);
+// - missing -> ''
+assert.strictEqual(noiseReductionDbLabel({}, true), '', 'missing should return empty string');
+assert.strictEqual(noiseReductionDbLabel(null, false), '', 'null should return empty string');
+assert.strictEqual(noiseReductionDbLabel(undefined, true), '', 'undefined should return empty string');
+assert.strictEqual(noiseReductionDbLabel({ noise_reduction: {} }, true), '', 'missing db should return empty string');
+assert.strictEqual(noiseReductionDbLabel({ noise_reduction: { noise_reduction_db: null } }, true), '', 'null db should return empty string');
+// - 0 -> label with 0
+assert.strictEqual(
+  noiseReductionDbLabel({ noise_reduction: { noise_reduction_db: 0 } }, true),
+  'Noise reduced by 0 dB',
+  '0 EN label should be Noise reduced by 0 dB'
+);
+assert.strictEqual(
+  noiseReductionDbLabel({ noise_reduction: { noise_reduction_db: 0 } }, false),
+  'Gürültü 0 dB azaltıldı',
+  '0 TR label should be Gürültü 0 dB azaltıldı'
+);
+console.log('✓ noiseReductionDbLabel tests passed');
+
+// 11. asrMediaPath and getASRMedia
+assert.strictEqual(
+  asrMediaPath('job-42', 'original'),
+  '/api/v1/asr/jobs/job-42/media?variant=original',
+  'asrMediaPath should build correct original path'
+);
+assert.strictEqual(
+  asrMediaPath('job-42', 'denoised'),
+  '/api/v1/asr/jobs/job-42/media?variant=denoised',
+  'asrMediaPath should build correct denoised path'
+);
+assert.strictEqual(
+  asrMediaPath('job/42 with space', 'denoised'),
+  '/api/v1/asr/jobs/job%2F42%20with%20space/media?variant=denoised',
+  'asrMediaPath should encode job ID and variant'
+);
+
+// getASRMedia fetch integration
+const originalFetch = globalThis.fetch;
+try {
+  // Test 1: successful fetch
+  globalThis.fetch = async (url) => {
+    assert.strictEqual(url, '/api/v1/asr/jobs/job-100/media?variant=denoised');
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          url: 'https://cdn.example.com/audio.mp3',
+          expires_in_seconds: 3600,
+          variant: 'denoised',
+          media_type: 'audio',
+          content_type: 'audio/mpeg',
+        };
+      },
+    };
+  };
+  const mediaResult = await getASRMedia('job-100', 'denoised');
+  assert.strictEqual(mediaResult.url, 'https://cdn.example.com/audio.mp3');
+  assert.strictEqual(mediaResult.variant, 'denoised');
+
+  // Test 2: 404 propagates error.status = 404
+  globalThis.fetch = async () => ({
+    ok: false,
+    status: 404,
+    async json() {
+      return { detail: 'media_not_found' };
+    },
+  });
+  let err404 = null;
+  try {
+    await getASRMedia('job-100', 'denoised');
+  } catch (err) {
+    err404 = err;
+  }
+  assert.ok(err404, '404 should throw error');
+  assert.strictEqual(err404.status, 404, 'error.status should be 404');
+
+  // Test 3: 410 propagates error.status = 410
+  globalThis.fetch = async () => ({
+    ok: false,
+    status: 410,
+    async json() {
+      return { detail: 'file_expired' };
+    },
+  });
+  let err410 = null;
+  try {
+    await getASRMedia('job-100', 'original');
+  } catch (err) {
+    err410 = err;
+  }
+  assert.ok(err410, '410 should throw error');
+  assert.strictEqual(err410.status, 410, 'error.status should be 410');
+} finally {
+  globalThis.fetch = originalFetch;
+}
+console.log('✓ asrMediaPath and getASRMedia tests passed');
+
+// 12. initialPlaybackVariant
+assert.strictEqual(initialPlaybackVariant('applied'), 'denoised', 'applied view should initialize to denoised');
+assert.strictEqual(initialPlaybackVariant('none'), 'original', 'none view should initialize to original');
+assert.strictEqual(initialPlaybackVariant('failed'), 'original', 'failed view should initialize to original');
+assert.strictEqual(initialPlaybackVariant(null), 'original', 'null view should initialize to original');
+assert.strictEqual(initialPlaybackVariant(undefined), 'original', 'undefined view should initialize to original');
+console.log('✓ initialPlaybackVariant tests passed');
+
+// 13. variantAfterMediaError
+assert.deepStrictEqual(
+  variantAfterMediaError('denoised', 'missing'),
+  { variant: 'original', showSwitch: false, expired: false },
+  'denoised missing should fallback to original without switch'
+);
+assert.deepStrictEqual(
+  variantAfterMediaError('denoised', 'other'),
+  { variant: 'original', showSwitch: false, expired: false },
+  'denoised other should fallback to original without switch'
+);
+assert.deepStrictEqual(
+  variantAfterMediaError('denoised', 'expired'),
+  { variant: 'denoised', showSwitch: false, expired: true },
+  'denoised expired should set expired true'
+);
+assert.deepStrictEqual(
+  variantAfterMediaError('original', 'expired'),
+  { variant: 'original', showSwitch: false, expired: true },
+  'original expired should set expired true'
+);
+assert.deepStrictEqual(
+  variantAfterMediaError('original', 'missing'),
+  { variant: 'denoised', showSwitch: false, expired: false },
+  'original missing should fallback to denoised without switch'
+);
+assert.deepStrictEqual(
+  variantAfterMediaError('original', 'other'),
+  { variant: 'denoised', showSwitch: false, expired: false },
+  'original other should fallback to denoised without switch'
+);
+assert.deepStrictEqual(
+  variantAfterMediaError('original', 'missing', { otherFailed: true }),
+  { variant: null, showSwitch: false, expired: false, unplayable: true },
+  'original missing when other also failed should be unplayable'
+);
+assert.deepStrictEqual(
+  variantAfterMediaError('denoised', 'missing', { otherFailed: true }),
+  { variant: null, showSwitch: false, expired: false, unplayable: true },
+  'denoised missing when other also failed should be unplayable'
+);
+assert.deepStrictEqual(
+  variantAfterMediaError('original', 'other', { otherFailed: true }),
+  { variant: null, showSwitch: false, expired: false, unplayable: true },
+  'original other when other also failed should be unplayable'
+);
+assert.deepStrictEqual(
+  variantAfterMediaError('original', 'expired', { otherFailed: true }),
+  { variant: 'original', showSwitch: false, expired: true },
+  'expired takes precedence over otherFailed'
+);
+console.log('✓ variantAfterMediaError tests passed');
+
+// 14. shouldFetchMedia
+assert.strictEqual(
+  shouldFetchMedia({ view: 'none', variant: 'original', hasLocalBlob: false }),
+  false,
+  'plain job should not fetch original'
+);
+assert.strictEqual(
+  shouldFetchMedia({ view: 'none', variant: 'denoised', hasLocalBlob: false }),
+  false,
+  'plain job should not fetch denoised'
+);
+assert.strictEqual(
+  shouldFetchMedia({ view: 'failed', variant: 'original', hasLocalBlob: false }),
+  false,
+  'failed view should not fetch original'
+);
+assert.strictEqual(
+  shouldFetchMedia({ view: 'failed', variant: 'denoised', hasLocalBlob: false }),
+  false,
+  'failed view should not fetch denoised'
+);
+assert.strictEqual(
+  shouldFetchMedia({ view: 'applied', variant: 'denoised', hasLocalBlob: true }),
+  true,
+  'applied view should fetch denoised even with local blob'
+);
+assert.strictEqual(
+  shouldFetchMedia({ view: 'applied', variant: 'denoised', hasLocalBlob: false }),
+  true,
+  'applied view should fetch denoised without local blob'
+);
+assert.strictEqual(
+  shouldFetchMedia({ view: 'applied', variant: 'original', hasLocalBlob: true }),
+  false,
+  'applied view should not fetch original when local blob exists'
+);
+assert.strictEqual(
+  shouldFetchMedia({ view: 'applied', variant: 'original', hasLocalBlob: false }),
+  true,
+  'applied view should fetch original when local blob does not exist'
+);
+console.log('✓ shouldFetchMedia tests passed');
+
+// 15. shouldRefetchResultOnReopen
+assert.strictEqual(
+  shouldRefetchResultOnReopen({ jobId: 'job-123' }),
+  true,
+  'prefill with jobId and no noise_reduction should refetch result'
+);
+assert.strictEqual(
+  shouldRefetchResultOnReopen({ jobId: 'job-123', noise_reduction: { status: 'applied' } }),
+  false,
+  'prefill with noise_reduction applied should not refetch result'
+);
+assert.strictEqual(
+  shouldRefetchResultOnReopen({ jobId: 'job-123', noise_reduction: null }),
+  false,
+  'prefill with noise_reduction key (null) should not refetch result'
+);
+assert.strictEqual(
+  shouldRefetchResultOnReopen({ jobId: 'job-123', noise_reduction: undefined }),
+  false,
+  'prefill with noise_reduction key (undefined) should not refetch result'
+);
+assert.strictEqual(
+  shouldRefetchResultOnReopen({}),
+  false,
+  'prefill without jobId should not refetch result'
+);
+assert.strictEqual(
+  shouldRefetchResultOnReopen(null),
+  false,
+  'null prefill should not refetch result'
+);
+assert.strictEqual(
+  shouldRefetchResultOnReopen(undefined),
+  false,
+  'undefined prefill should not refetch result'
+);
+console.log('✓ shouldRefetchResultOnReopen tests passed');
+
+// 16. Blocker scenario: after a reset, pickPlaybackSource returns local blob
+assert.strictEqual(
+  pickPlaybackSource({
+    variant: initialPlaybackVariant('none'),
+    localObjectUrl: 'blob:x',
+    mediaUrls: null,
+  }),
+  'blob:x',
+  'after reset, pickPlaybackSource with initialPlaybackVariant(none) should return local blob'
+);
+console.log('✓ Blocker reset scenario test passed');
+
+// 17. shouldApplyPrefillResult
+assert.strictEqual(
+  shouldApplyPrefillResult({ noise_reduction: { status: 'applied' } }),
+  true,
+  'prefill with noise_reduction status applied should return true'
+);
+assert.strictEqual(
+  shouldApplyPrefillResult({ noise_reduction: { status: 'failed' } }),
+  false,
+  'prefill with noise_reduction status failed should return false'
+);
+assert.strictEqual(
+  shouldApplyPrefillResult({ noise_reduction: { status: 'none' } }),
+  false,
+  'prefill with noise_reduction status none should return false'
+);
+assert.strictEqual(
+  shouldApplyPrefillResult({ jobId: 'job-123', transcriptText: 'sample text' }),
+  false,
+  'plain prefill without noise_reduction should return false'
+);
+assert.strictEqual(
+  shouldApplyPrefillResult(null),
+  false,
+  'null prefill should return false'
+);
+assert.strictEqual(
+  shouldApplyPrefillResult(undefined),
+  false,
+  'undefined prefill should return false'
+);
+assert.strictEqual(
+  shouldApplyPrefillResult({}),
+  false,
+  'empty object prefill should return false'
+);
+console.log('✓ shouldApplyPrefillResult tests passed');
+
+// 18. isMediaUnplayable
+// (a) history re-open, no local blob, the denoised fetch succeeds, the original fetch fails -> false (denoised plays)
+assert.strictEqual(
+  isMediaUnplayable({
+    hasLocalBlob: false,
+    denoisedUrl: 'https://example.com/denoised.mp3',
+    denoisedFailed: false,
+    originalFailed: true,
+  }),
+  false,
+  '(a) history re-open: denoised fetch succeeds, original fails -> false (denoised plays)'
+);
+
+// (b) both failed, no blob -> true
+assert.strictEqual(
+  isMediaUnplayable({
+    hasLocalBlob: false,
+    denoisedUrl: null,
+    denoisedFailed: true,
+    originalFailed: true,
+  }),
+  true,
+  '(b) both failed, no blob -> true'
+);
+assert.strictEqual(
+  isMediaUnplayable({
+    hasLocalBlob: false,
+    denoisedUrl: 'https://example.com/denoised.mp3',
+    denoisedFailed: true,
+    originalFailed: true,
+  }),
+  true,
+  '(b) both failed, even if url is lingering but failed -> true'
+);
+
+// (c) denoised failed + local blob -> false
+assert.strictEqual(
+  isMediaUnplayable({
+    hasLocalBlob: true,
+    denoisedUrl: null,
+    denoisedFailed: true,
+    originalFailed: false,
+  }),
+  false,
+  '(c) denoised failed + local blob -> false'
+);
+assert.strictEqual(
+  isMediaUnplayable({
+    hasLocalBlob: true,
+    denoisedUrl: null,
+    denoisedFailed: true,
+    originalFailed: true,
+  }),
+  false,
+  '(c) denoised failed + local blob with originalFailed true -> false'
+);
+
+// (d) denoised already known from earlier + original failed -> false
+assert.strictEqual(
+  isMediaUnplayable({
+    hasLocalBlob: false,
+    denoisedUrl: 'https://example.com/known-denoised.mp3',
+    denoisedFailed: false,
+    originalFailed: true,
+  }),
+  false,
+  '(d) denoised already known from earlier + original failed -> false'
+);
+
+// Additional edge cases
+assert.strictEqual(
+  isMediaUnplayable({
+    hasLocalBlob: false,
+    denoisedUrl: null,
+    denoisedFailed: false,
+    originalFailed: false,
+  }),
+  false,
+  'neither failed -> false'
+);
+assert.strictEqual(
+  isMediaUnplayable({}),
+  false,
+  'empty options -> false'
+);
+console.log('✓ isMediaUnplayable tests passed');
+
 console.log('All ClearVoice noise reduction unit tests passed successfully!');
