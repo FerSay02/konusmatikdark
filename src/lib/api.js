@@ -305,6 +305,7 @@ export function adaptASRResult(raw) {
     srt: raw.srt || null,
     vtt: raw.vtt || null,
     error: raw.error || raw.error_message || null,
+    noise_reduction: raw.noise_reduction ?? null,
   };
 }
 

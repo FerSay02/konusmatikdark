@@ -27,6 +27,13 @@ import {
 import StudioHero from '../components/StudioHero';
 import StarBorder from '../components/StarBorder';
 import { asrHeroContent, asrSteps, asrFeatures } from '../data/studioContent';
+import {
+  isNoiseReductionAvailable,
+  noiseReductionBlockedReason,
+  appendNoiseReductionFields,
+  shouldFallbackToSync,
+  consentText,
+} from '../lib/noiseReduction';
 
 function formatFileSize(bytes) {
   if (!bytes) return '0 B';
@@ -128,6 +135,11 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
   const [enableTimestamps, setEnableTimestamps] = useState(false);
   const [enableWordTimestamps, setEnableWordTimestamps] = useState(false);
 
+  // Noise Reduction State
+  const [noiseReductionEnabled, setNoiseReductionEnabled] = useState(false);
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  const consentAgreeBtnRef = useRef(null);
+
   // Realtime WebSocket ASR State
   const [isRealtimeActive, setIsRealtimeActive] = useState(false);
   const [realtimeStatus, setRealtimeStatus] = useState('idle'); // idle | connecting | connected | listening | error
@@ -177,15 +189,31 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
     };
   }, []);
 
-  // Handle escape on modal
+  // Handle escape on modals
   useEffect(() => {
-    if (!showPackagePopup) return;
+    if (!showPackagePopup && !showConsentModal) return;
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape') setShowPackagePopup(false);
+      if (event.key === 'Escape') {
+        if (showPackagePopup) setShowPackagePopup(false);
+        if (showConsentModal) setShowConsentModal(false);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showPackagePopup]);
+  }, [showPackagePopup, showConsentModal]);
+
+  useEffect(() => {
+    if (showConsentModal) {
+      consentAgreeBtnRef.current?.focus();
+    }
+  }, [showConsentModal]);
+
+  const isNoiseReductionBlocked = noiseReductionBlockedReason(capabilities, mediaDuration) === 'duration';
+  const isNoiseReductionDisabled = isNoiseReductionBlocked || isLoading;
+
+  if (isNoiseReductionBlocked && noiseReductionEnabled) {
+    setNoiseReductionEnabled(false);
+  }
 
   // Derived accepted formats
   const acceptAttribute = useMemo(() => {
@@ -233,6 +261,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
       setTranscriptText('');
       setSegments([]);
       setWords([]);
+      setNoiseReductionEnabled(false);
       setErrorText(
         t(
           `Dosya boyutu en fazla ${formatFileSize(maxUploadBytes)} olabilir.`,
@@ -249,6 +278,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
     const isAllowedMime = (capabilities.allowed_content_types || []).includes(file.type);
 
     if (!isAudio && !isVideo && !isAllowedMime) {
+      setNoiseReductionEnabled(false);
       setErrorText(
         t(
           `Desteklenmeyen dosya formati (${fileExt || file.type || 'bilinmeyen'}). Lutfen desteklenen bir ses veya video dosyasi yukleyin.`,
@@ -276,6 +306,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
     setErrorText('');
     setIsPlaying(false);
     setCurrentTime(0);
+    setNoiseReductionEnabled(false);
 
     // Try creating object URL for native playback preview & duration probing
     try {
@@ -694,6 +725,8 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
       );
     }
 
+    appendNoiseReductionFields(formData, noiseReductionEnabled);
+
     try {
       // 1. First attempt: Async Job Creation (/api/v1/asr/jobs) with XHR upload progress
       let created = null;
@@ -705,7 +738,7 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
         });
       } catch (asyncErr) {
         // If async endpoint returns 503 (e.g. celery worker unavailable in dev), try sync endpoint fallback
-        if (asyncErr.status === 503) {
+        if (shouldFallbackToSync(asyncErr, noiseReductionEnabled)) {
           usedSync = true;
           created = await uploadASRMediaWithProgress('/api/v1/asr/jobs/sync', formData, {
             onProgress: (percent) => setUploadProgress(percent),
@@ -1335,11 +1368,11 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                       </small>
                     </div>
                   </label>
-                  <label className={`asr-checkbox-row ${!enableTimestamps ? 'disabled' : ''}`}>
+                  <label className={`asr-checkbox-row ${!enableTimestamps || isLoading ? 'disabled' : ''}`}>
                     <input
                       type="checkbox"
                       checked={enableWordTimestamps}
-                      disabled={!enableTimestamps}
+                      disabled={!enableTimestamps || isLoading}
                       onChange={(e) => setEnableWordTimestamps(e.target.checked)}
                     />
                     <div className="asr-checkbox-text">
@@ -1349,6 +1382,39 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
                       </small>
                     </div>
                   </label>
+                  {isNoiseReductionAvailable(capabilities) && (
+                    <label className={`asr-checkbox-row ${isNoiseReductionDisabled ? 'disabled' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={noiseReductionEnabled}
+                        disabled={isNoiseReductionDisabled}
+                        onChange={() => {
+                          if (isNoiseReductionDisabled) return;
+                          if (noiseReductionEnabled) {
+                            setNoiseReductionEnabled(false);
+                          } else {
+                            setShowConsentModal(true);
+                          }
+                        }}
+                      />
+                      <div className="asr-checkbox-text">
+                        <span className="asr-checkbox-title">
+                          {t('ClearVoice teknolojisi ile gürültü giderme', 'Noise removal with ClearVoice technology')}
+                        </span>
+                        {isNoiseReductionBlocked && (
+                          <small className="asr-checkbox-hint">
+                            {t(
+                              'Gürültü giderme en fazla {n} dakikalık dosyalarda kullanılabilir.',
+                              'Noise removal is available for files up to {n} minutes.'
+                            ).replace(
+                              '{n}',
+                              String(Math.floor((capabilities?.noise_reduction?.max_duration_seconds || 0) / 60))
+                            )}
+                          </small>
+                        )}
+                      </div>
+                    </label>
+                  )}
                 </div>
               </div>
 
@@ -1694,6 +1760,54 @@ export default function ASR({ prefill, onNavigate, appLanguage }) {
             >
               {t('İletişime Geçin', 'Contact Us')}
             </button>
+          </div>
+        </div>
+      )}
+
+      {showConsentModal && (
+        <div
+          className="tts-package-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="asr-noise-consent-title"
+          onClick={() => setShowConsentModal(false)}
+        >
+          <div className="tts-package-modal" onClick={(event) => event.stopPropagation()}>
+            <button
+              className="tts-package-close"
+              type="button"
+              aria-label={t('Kapat', 'Close')}
+              onClick={() => setShowConsentModal(false)}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+            <h3 id="asr-noise-consent-title">{t('Gürültü giderme onayı', 'Noise removal consent')}</h3>
+            <p>{consentText(capabilities, isEnglish)}</p>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+              <button
+                type="button"
+                className="profile-secondary-btn"
+                style={{ flex: 1, padding: '0.75rem 1rem' }}
+                onClick={() => setShowConsentModal(false)}
+              >
+                {t('Vazgeç', 'Cancel')}
+              </button>
+              <button
+                ref={consentAgreeBtnRef}
+                type="button"
+                className="tts-package-confirm"
+                style={{ flex: 1 }}
+                onClick={() => {
+                  setNoiseReductionEnabled(true);
+                  setShowConsentModal(false);
+                }}
+              >
+                {t('Onaylıyorum', 'I agree')}
+              </button>
+            </div>
           </div>
         </div>
       )}
